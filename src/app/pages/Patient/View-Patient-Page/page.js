@@ -21,7 +21,7 @@ export default function ViewPatient() {
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+          <Link href="/pages/Home" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
             <HomeIcon className="w-5 h-5 mr-2" />
             Home Page
           </Link>
@@ -35,7 +35,7 @@ export default function ViewPatient() {
               <Link href="./View-Patient-Page" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
                 View Patient
               </Link>
-              <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+              <Link href="./Add-New-Patient" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
                 Add New Patient
               </Link>
             </div>
@@ -109,9 +109,11 @@ export default function ViewPatient() {
                     <TableCell>1234567890</TableCell>
                     <TableCell>shiela@gmail.com</TableCell>
                     <TableCell>
+                        <Link href="./View-Patient-Personal">
                       <Button variant="outline" size="sm">
                         View
                       </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

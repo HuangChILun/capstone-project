@@ -1,0 +1,523 @@
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/MwkD41uNKzO
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+
+import Link from "next/link"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/AddNewPatientUi/tabs"
+import { Label } from "@/components/AddNewPatientUi/label"
+import { Input } from "@/components/AddNewPatientUi/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/AddNewPatientUi/select"
+import { Button } from "@/components/AddNewPatientUi/button"
+
+export default function AddNewPatient() {
+  return (
+    
+      
+
+    <div className="p-4">
+        <aside className="w-64 bg-gray-800 text-white flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <div className="flex items-center">
+            <BuildingIcon className="w-6 h-6 mr-2" />
+            <span className="text-lg font-bold">Bridging Abilities</span>
+          </div>
+        </div>
+        <nav className="flex-1 p-4 space-y-2">
+          <Link href="/pages/Home" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+            <HomeIcon className="w-5 h-5 mr-2" />
+            Home Page
+          </Link>
+          <div>
+            <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+              <UserIcon className="w-5 h-5 mr-2" />
+              Patient
+              <ChevronDownIcon className="w-4 h-4 ml-auto" />
+            </Link>
+            <div className="ml-6 mt-1 space-y-1">
+              <Link href="./View-Patient-Page" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
+                View Patient
+              </Link>
+              <Link href="./Add-New-Patient" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+                Add New Patient
+              </Link>
+            </div>
+          </div>
+          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+            <CalendarIcon className="w-5 h-5 mr-2" />
+            Schedule
+          </Link>
+          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+            <FileTextIcon className="w-5 h-5 mr-2" />
+            Invoice
+            <ChevronDownIcon className="w-4 h-4 ml-auto" />
+          </Link>
+          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+            <UsersIcon className="w-5 h-5 mr-2" />
+            Staff Management
+          </Link>
+          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+            <SettingsIcon className="w-5 h-5 mr-2" />
+            Account
+            <ChevronDownIcon className="w-4 h-4 ml-auto" />
+          </Link>
+        </nav>
+        <div className="p-4 border-t border-gray-700">
+          <Button variant="ghost" className="w-full flex items-center justify-center">
+            <MenuIcon className="w-5 h-5 mr-2" />
+            Toggle Menu
+          </Button>
+        </div>
+      </aside>
+      <Tabs defaultValue="active">
+        <TabsList>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
+        </TabsList>
+        <TabsContent value="active">
+          <form className="space-y-8">
+            <fieldset className="space-y-4">
+              <legend className="text-lg font-semibold">Personal Information</legend>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="first-name">First Name</Label>
+                  <Input id="first-name" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last-name">Last Name</Label>
+                  <Input id="last-name" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fscd-id">FSCD ID#</Label>
+                  <Input id="fscd-id" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dob">Date Of Birth</Label>
+                  <Input id="dob" placeholder="MM/DD/YYYY" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gender</Label>
+                  <Input id="gender" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="age">Age</Label>
+                  <Input id="age" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="school">School</Label>
+                  <Input id="school" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="grade">Grade</Label>
+                  <Input id="grade" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input id="address" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input id="city" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="province">Province</Label>
+                  <Select>
+                    <SelectTrigger id="province">
+                      <SelectValue placeholder="Select province" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="province1">Province 1</SelectItem>
+                      <SelectItem value="province2">Province 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="postal-code">Postal Code</Label>
+                  <Input id="postal-code" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone-number">Phone Number</Label>
+                  <Input id="phone-number" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contract">Contract</Label>
+                  <Button variant="default">Upload</Button>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="consent">Consent</Label>
+                  <Button variant="default">Upload</Button>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset className="space-y-4">
+              <legend className="text-lg font-semibold">Primary Guardian</legend>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="primary-name">Name</Label>
+                  <Input id="primary-name" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-relation">Relation to Patient</Label>
+                  <Input id="primary-relation" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-address">Address</Label>
+                  <Input id="primary-address" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-city">City</Label>
+                  <Input id="primary-city" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-province">Province</Label>
+                  <Select>
+                    <SelectTrigger id="primary-province">
+                      <SelectValue placeholder="Select province" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="province1">Province 1</SelectItem>
+                      <SelectItem value="province2">Province 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-postal-code">Postal Code</Label>
+                  <Input id="primary-postal-code" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-phone-number">Phone Number</Label>
+                  <Input id="primary-phone-number" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary-email">Email</Label>
+                  <Input id="primary-email" placeholder="Input" />
+                </div>
+              </div>
+            </fieldset>
+            <fieldset className="space-y-4">
+              <legend className="text-lg font-semibold">Secondary Guardian</legend>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-name">Name</Label>
+                  <Input id="secondary-name" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-relation">Relation to Patient</Label>
+                  <Input id="secondary-relation" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-address">Address</Label>
+                  <Input id="secondary-address" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-city">City</Label>
+                  <Input id="secondary-city" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-province">Province</Label>
+                  <Select>
+                    <SelectTrigger id="secondary-province">
+                      <SelectValue placeholder="Select province" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="province1">Province 1</SelectItem>
+                      <SelectItem value="province2">Province 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-postal-code">Postal Code</Label>
+                  <Input id="secondary-postal-code" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-phone-number">Phone Number</Label>
+                  <Input id="secondary-phone-number" placeholder="Input" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-email">Email</Label>
+                  <Input id="secondary-email" placeholder="Input" />
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </TabsContent>
+        <TabsContent value="waitlist">
+          <p>Waitlist content goes here.</p>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+  
+}
+
+function BellIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+    )
+  }
+  
+  
+  function BuildingIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
+        <path d="M9 22v-4h6v4" />
+        <path d="M8 6h.01" />
+        <path d="M16 6h.01" />
+        <path d="M12 6h.01" />
+        <path d="M12 10h.01" />
+        <path d="M12 14h.01" />
+        <path d="M16 10h.01" />
+        <path d="M16 14h.01" />
+        <path d="M8 10h.01" />
+        <path d="M8 14h.01" />
+      </svg>
+    )
+  }
+  
+  
+  function CalendarIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <rect width="18" height="18" x="3" y="4" rx="2" />
+        <path d="M3 10h18" />
+      </svg>
+    )
+  }
+  
+  
+  function ChevronDownIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    )
+  }
+  
+  
+  function FileTextIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+        <path d="M10 9H8" />
+        <path d="M16 13H8" />
+        <path d="M16 17H8" />
+      </svg>
+    )
+  }
+  
+  
+  function HomeIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    )
+  }
+  
+  
+  function MenuIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="4" x2="20" y1="12" y2="12" />
+        <line x1="4" x2="20" y1="6" y2="6" />
+        <line x1="4" x2="20" y1="18" y2="18" />
+      </svg>
+    )
+  }
+  
+  
+  function SearchIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+    )
+  }
+  
+  
+  function SettingsIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    )
+  }
+  
+  
+  function UserIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    )
+  }
+  
+  
+  function UsersIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    )
+  }
+  
+  
+  function XIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    );
+  }
