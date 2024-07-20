@@ -1,33 +1,45 @@
+// src/components/Sidebar.js
 import React from 'react';
 
-const menuItems = [
-  { name: 'Home Page', icon: 'home' },
-  { name: 'Patient', icon: 'person', hasSubmenu: true },
-  { name: 'Schedule', icon: 'event', hasSubmenu: true },
-  { name: 'Invoice', icon: 'receipt', hasSubmenu: true },
-  { name: 'Staff Management', icon: 'people', hasSubmenu: true },
-  { name: 'Account', icon: 'account_circle', hasSubmenu: true },
-];
-
-function Sidebar() {
+const Sidebar = () => {
   return (
-    <aside className="w-64 bg-white shadow-md">
-      <div className="p-4">
-        <img src="/path_to_logo.png" alt="Bridging Abilities" className="h-8 w-8 mb-4" />
+    <div className="w-64 bg-blue-900 text-white flex flex-col h-screen">
+      <div className="flex items-center justify-center p-4">
+        <img src="/path-to-your-logo.png" alt="Logo" className="w-12 h-12 rounded-full" />
+        <span className="ml-2 text-lg font-bold">Bridging Abilities</span>
       </div>
-      <nav>
-        {menuItems.map((item, index) => (
-          <a key={index} href="#" className="block px-4 py-2 hover:bg-gray-100 flex justify-between items-center">
-            <span>
-              <i className="material-icons align-middle mr-2">{item.icon}</i>
-              {item.name}
-            </span>
-            {item.hasSubmenu && <i className="material-icons">expand_more</i>}
-          </a>
-        ))}
+      <nav className="flex-1">
+        <ul>
+          <li className="px-4 py-2 hover:bg-blue-700">
+            <a href="#">Home Page</a>
+          </li>
+          <li className="px-4 py-2 hover:bg-blue-700">
+            <a href="#">Patient</a>
+            <ul className="pl-4">
+              <li className="px-4 py-2 hover:bg-blue-700">
+                <a href="#">View Patient</a>
+              </li>
+              <li className="px-4 py-2 hover:bg-blue-700">
+                <a href="#">Add New Patient</a>
+              </li>
+            </ul>
+          </li>
+          <li className="px-4 py-2 hover:bg-blue-700">
+            <a href="#">Schedule</a>
+          </li>
+          <li className="px-4 py-2 hover:bg-blue-700">
+            <a href="#">Invoice</a>
+          </li>
+          <li className="px-4 py-2 hover:bg-blue-700">
+            <a href="#">Staff Management</a>
+          </li>
+          <li className="px-4 py-2 hover:bg-blue-700">
+            <a href="#">Account</a>
+          </li>
+        </ul>
       </nav>
-    </aside>
+    </div>
   );
-}
+};
 
 export default Sidebar;
