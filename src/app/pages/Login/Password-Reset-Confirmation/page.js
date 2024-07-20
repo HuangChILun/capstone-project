@@ -41,7 +41,7 @@ export default function ResetPasswordStep3() {
             </svg>
             <span>PASSWORD CHANGED!</span>
           </div>
-          <Link href="page.js">
+          <Link href="/">
           <button
             className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50"
           >
