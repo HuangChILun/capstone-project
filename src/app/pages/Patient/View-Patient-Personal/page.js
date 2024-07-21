@@ -6,8 +6,11 @@
 import Link from "next/link"
 import { Badge } from "@/components/ViewPatientPersonal/ui/badge"
 import { Button } from "@/components/ViewPatientPersonal/ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ViewPatientPersonal/ui/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent} from "@/components/ViewPatientPersonal/ui/tabs"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewPatientPersonal/ui/table"
+
 import { Label } from "@/components/ViewPatientPersonal/ui/label"
+import { Checkbox } from "@/components/ViewPatientPersonal/ui/checkbox"
 
 export default function ViewPatientPersonal() {
   return (
@@ -158,13 +161,117 @@ export default function ViewPatientPersonal() {
         </TabsContent>
         {/* medical information here */}
         <TabsContent value="medical-info">
+        <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Diagnoses</TableHead>
+                <TableHead>Typicality</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">PTSD</TableCell>
+                <TableCell>
+                  <Checkbox id="ptsd" defaultChecked />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">ADHD</TableCell>
+                <TableCell>
+                  <Checkbox id="adhd" />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">ASD</TableCell>
+                <TableCell>
+                  <Checkbox id="asd" defaultChecked />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
             </TabsContent>
             {/* team here */}
             <TabsContent value="team">
+            <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Role</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Name</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Organization</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Phone</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Email</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Date Started</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b">Date Ended</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Psychologist</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Jacob Holmes</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Independent</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">403-123-4567</td>
+              <td className="px-4 py-2 text-sm text-blue-600 border-b">
+                <a href="#">jhomes@gmail.com</a>
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">05-30-24</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">05-30-25</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">OT</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Kevin Huang</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Bridging Abilities</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">403-123-8888</td>
+              <td className="px-4 py-2 text-sm text-blue-600 border-b">
+                <a href="#">kevin@gmail.com</a>
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">04-30-24</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">11-30-24</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">BC</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Jonathan Banks</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Ascend Pediatrics</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">403-123-5432</td>
+              <td className="px-4 py-2 text-sm text-blue-600 border-b">
+                <a href="#">jbanks@gmail.com</a>
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">04-30-24</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">11-30-24</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">SLP</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Chris Puck</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Sahaara Therapy</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">587-888-1234</td>
+              <td className="px-4 py-2 text-sm text-blue-600 border-b">
+                <a href="#">chris@gmail.com</a>
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">04-30-24</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">04-30-25</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Aide</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Bella Jones</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">Bridging Abilities</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">587-324-7656</td>
+              <td className="px-4 py-2 text-sm text-blue-600 border-b">
+                <a href="#">bella@gmail.com</a>
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">04-30-24</td>
+              <td className="px-4 py-2 text-sm text-gray-700 border-b">04-30-25</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
                 </TabsContent> 
                 {/* additional note here */}
                 <TabsContent value="additional-note">
-
+                <div className="p-4 bg-gray-200 rounded-md">
+                    additional note about the patient. additional note about the patient. additional note about the patient.
+                    additional note about the patient. additional note about the patient. additional note about the patient.
+                    additional note about the patient. additional note about the patient.
+                  </div>
                 </TabsContent>
       </Tabs>
       

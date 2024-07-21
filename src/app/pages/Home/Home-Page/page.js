@@ -4,6 +4,7 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 import Link from "next/link"
+import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
 import { Button } from "@/components/ViewPatientUi/button"
 import { Input } from "@/components/ViewPatientUi/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewPatientUi/avatar"
@@ -14,62 +15,7 @@ export default function ViewPatient() {
   return (
     //header
     <div className="flex h-screen">  
-      <aside className="w-64 bg-gray-800 text-white flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <div className="flex items-center">
-            <BuildingIcon className="w-6 h-6 mr-2" />
-            <span className="text-lg font-bold">Bridging Abilities</span>
-          </div>
-        </div>
-      
-    
-        <nav className="flex-1 p-4 space-y-2"> {/* the left navigation bar */}
-        
-          <Link href="../pages/Home" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-            <HomeIcon className="w-5 h-5 mr-2" />
-            Home Page
-          </Link>
-          <div>
-            <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-              <UserIcon className="w-5 h-5 mr-2" />
-              Patient
-              <ChevronDownIcon className="w-4 h-4 ml-auto" />
-            </Link>
-            <div className="ml-6 mt-1 space-y-1">
-              <Link href="./Patient/View-Patient-Page" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
-                View Patient
-              </Link>
-              <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-                Add New Patient
-              </Link>
-            </div>
-          </div>
-          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-            <CalendarIcon className="w-5 h-5 mr-2" />
-            Schedule
-          </Link>
-          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-            <FileTextIcon className="w-5 h-5 mr-2" />
-            Invoice
-            <ChevronDownIcon className="w-4 h-4 ml-auto" />
-          </Link>
-          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-            <UsersIcon className="w-5 h-5 mr-2" />
-            Staff Management
-          </Link>
-          <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-            <SettingsIcon className="w-5 h-5 mr-2" />
-            Account
-            <ChevronDownIcon className="w-4 h-4 ml-auto" />
-          </Link>
-        </nav>
-        <div className="p-4 border-t border-gray-700">
-          <Button variant="ghost" className="w-full flex items-center justify-center">
-            <MenuIcon className="w-5 h-5 mr-2" />
-            Toggle Menu
-          </Button>
-        </div>
-      </aside>
+      <Nav/>
       <main className="flex-1 p-6 bg-white">
       <header className="flex items-center justify-between pb-6 border-b">
           <div>

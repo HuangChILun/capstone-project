@@ -1,25 +1,24 @@
 /**
  * v0 by Vercel.
- * @see https://v0.dev/t/H6EWglRWN5M
+ * @see https://v0.dev/t/k2cJABcDvcH
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 
 import Link from "next/link"
-import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
-import { Button } from "@/components/ViewPatientUi/button"
-import { Input } from "@/components/ViewPatientUi/input"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewPatientUi/avatar"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ViewPatientUi/tabs"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewPatientUi/table"
+import  Nav  from "/src/components/Navigation-Bar/nav.js"
+import { Input } from "@/components/ViewStaffUi/input"
+import { Button } from "@/components/ViewStaffUi/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewStaffUi/avatar"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewStaffUi/table"
 
-export default function ViewPatient() {
+export default function ViewStaff() {
   return (
     <div className="flex h-screen">
-      <Nav/> 
-      <main className="flex-1 p-6 bg-white">
-        <header className="flex items-center justify-between pb-4 border-b">
+      <Nav/>
+      <main className="flex-1 p-6 bg-gray-50">
+      <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">
-            <Input type="text" placeholder="input patient name..." className="w-64" />
+            <Input type="text" placeholder="input Staff name..." className="w-64" />
             <Button className="flex items-center">
               <SearchIcon className="w-4 h-4 mr-2" />
               Search
@@ -34,43 +33,47 @@ export default function ViewPatient() {
             <span>John Doe</span>
           </div>
         </header>
-        <Tabs defaultValue="active" className="mt-4">
-          <TabsList>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
-          </TabsList>
-          <TabsContent value="active">
-            <Table className="mt-4">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Patient Name</TableHead>
-                  <TableHead>Primary Guardian</TableHead>
-                  <TableHead>Phone Number</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Array.from({ length: 20 }).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>Albert Christoff</TableCell>
-                    <TableCell>Shiela Christoff</TableCell>
-                    <TableCell>1234567890</TableCell>
-                    <TableCell>shiela@gmail.com</TableCell>
-                    <TableCell>
-                        <Link href="./View-Patient-Personal">
+        <section className="mt-6">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Phone Number</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Kevin Huang</TableCell>
+                <TableCell>OT</TableCell>
+                <TableCell>403-123-8888</TableCell>
+                <TableCell>kevin@gmail.com</TableCell>
+                <TableCell>
+                        <Link href="./View-Staff-Personal">
                       <Button variant="outline" size="sm">
                         View
                       </Button>
                       </Link>
                     </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TabsContent>
-        </Tabs>
+              </TableRow>
+              <TableRow>
+                <TableCell>Bella Jones</TableCell>
+                <TableCell>Aide</TableCell>
+                <TableCell>587-324-7656</TableCell>
+                <TableCell>bella@gmail.com</TableCell>
+                <TableCell>
+                        <Link Link href="./View-Staff-Personal">
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
+                      </Link>
+                    </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </section>
       </main>
     </div>
   )
@@ -97,36 +100,6 @@ function BellIcon(props) {
 }
 
 
-function BuildingIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
-      <path d="M9 22v-4h6v4" />
-      <path d="M8 6h.01" />
-      <path d="M16 6h.01" />
-      <path d="M12 6h.01" />
-      <path d="M12 10h.01" />
-      <path d="M12 14h.01" />
-      <path d="M16 10h.01" />
-      <path d="M16 14h.01" />
-      <path d="M8 10h.01" />
-      <path d="M8 14h.01" />
-    </svg>
-  )
-}
-
-
 function CalendarIcon(props) {
   return (
     <svg
@@ -145,26 +118,6 @@ function CalendarIcon(props) {
       <path d="M16 2v4" />
       <rect width="18" height="18" x="3" y="4" rx="2" />
       <path d="M3 10h18" />
-    </svg>
-  )
-}
-
-
-function ChevronDownIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m6 9 6 6 6-6" />
     </svg>
   )
 }
@@ -210,49 +163,6 @@ function HomeIcon(props) {
     >
       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  )
-}
-
-
-function MenuIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" x2="20" y1="12" y2="12" />
-      <line x1="4" x2="20" y1="6" y2="6" />
-      <line x1="4" x2="20" y1="18" y2="18" />
-    </svg>
-  )
-}
-
-
-function SearchIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
     </svg>
   )
 }
@@ -342,3 +252,24 @@ function XIcon(props) {
     </svg>
   )
 }
+
+function SearchIcon(props) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+    )
+  }
+  
