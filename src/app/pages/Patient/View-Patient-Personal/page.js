@@ -1,8 +1,4 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/scvpfzBHayp
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+
 import Link from "next/link"
 import { Badge } from "@/components/ViewPatientPersonal/ui/badge"
 import { Button } from "@/components/ViewPatientPersonal/ui/button"

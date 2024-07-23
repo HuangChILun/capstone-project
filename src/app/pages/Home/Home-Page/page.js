@@ -1,8 +1,4 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/H6EWglRWN5M
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
 import { Button } from "@/components/ViewPatientUi/button"
