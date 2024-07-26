@@ -1,4 +1,7 @@
-
+"use client"
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js"
@@ -8,6 +11,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewStaffUi/av
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewStaffUi/table"
 
 export default function ViewStaff() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
   return (
     <div className="flex h-screen">
       <Nav/>

@@ -1,5 +1,6 @@
+"use client"
 
-
+import { useState } from "react"
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
 import { Button } from "@/components/ViewPatientUi/button"
@@ -9,6 +10,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ViewPatie
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewPatientUi/table"
 
 export default function ViewPatient() {
+  //search function start here 
+  const [searchQuery, setSearchQuery] = useState("")
+  const patients = [
+    { id: 1, name: "Albert Christoff", guardian: "Shiela Christoff", phone: "1234567890", email: "shiela@gmail.com" },
+  ]
+  const filteredPatients = patients.filter(patient =>
+    patient.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  // end search function 
+
   return (
     <div className="flex h-screen">
       <Nav/> 
@@ -37,6 +48,69 @@ export default function ViewPatient() {
             <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
           <TabsContent value="active">
+            <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Patient Name</TableHead>
+                  <TableHead>Primary Guardian</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 20 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>Albert Christoff</TableCell>
+                    <TableCell>Shiela Christoff</TableCell>
+                    <TableCell>1234567890</TableCell>
+                    <TableCell>shiela@gmail.com</TableCell>
+                    <TableCell>
+                        <Link href="./View-Patient-Personal">
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+          <TabsContent value="waitlist">
+            <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Patient Name</TableHead>
+                  <TableHead>Primary Guardian</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Last Consolation</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 20 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>Albert Christoff</TableCell>
+                    <TableCell>Shiela Christoff</TableCell>
+                    <TableCell>1234567890</TableCell>
+                    <TableCell>shiela@gmail.com</TableCell>
+                    <TableCell>7/11/2024</TableCell>
+                    <TableCell>
+                        <Link href="./View-Patient-Personal">
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="archived">
             <Table className="mt-4">
               <TableHeader>
                 <TableRow>
