@@ -1,11 +1,11 @@
 
 
 import Link from "next/link"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/AddNewPatientUi/tabs"
-import { Label } from "@/components/AddNewPatientUi/label"
-import { Input } from "@/components/AddNewPatientUi/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/AddNewPatientUi/select"
-import { Button } from "@/components/AddNewPatientUi/button"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/Add-New-Patient/tabs"
+import { Label } from "@/app/pages/Patient/Add-New-Patient/label"
+import { Input } from "@/app/pages/Patient/Add-New-Patient/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/Patient/Add-New-Patient/select"
+import { Button } from "@/app/pages/Patient/Add-New-Patient/button"
 
 export default function AddNewPatient() {
   return (

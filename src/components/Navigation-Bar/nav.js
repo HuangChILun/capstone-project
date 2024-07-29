@@ -1,6 +1,6 @@
 
 import Link from "next/link"
-import { Button } from "@/components/ViewPatientUi/button"
+import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
 
 export default function Nav() {
 

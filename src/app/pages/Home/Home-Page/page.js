@@ -6,19 +6,19 @@ import Cookies from 'js-cookie';
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
 
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewPatientUi/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
 
 export default function ViewPatient() {
-  const router = useRouter();
+  //const router = useRouter();
 // check if the user has token or not.
-  useEffect(() => {
+  /*useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
       router.push('/');
       console.log("need login");
     }
   }, [router]);
-  
+  */
   return (
     //header
     <div className="flex h-screen">  

@@ -3,9 +3,9 @@
 import { useState } from "react"
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
-import { Button } from "@/components/ViewPatientUi/button"
+import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
 import { Input } from "@/components/ViewPatientUi/input"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewPatientUi/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ViewPatientUi/tabs"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewPatientUi/table"
 
