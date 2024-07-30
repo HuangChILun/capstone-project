@@ -15,7 +15,7 @@ export default function AuthWrapper({ children }) {
       const publicPaths = ['/login', '/register', '/forgot-password']; // add the page that doesn't need authentication
 
       if (!token && !publicPaths.includes(pathname)) {
-        router.push('/');
+        router.push('/'); // not finished
       } else if (token && publicPaths.includes(pathname)) {
         router.push('/pages/Home/Home-Page'); // if the user already login, this would redirect the user to home page
       } else {

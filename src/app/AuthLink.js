@@ -13,7 +13,7 @@ export default function AuthLink({ href, children, ...props }) {
 
     if (!token && !publicPaths.includes(href)) {
       e.preventDefault();
-      router.push('');
+      router.push(''); //temporary
     }
   };
 

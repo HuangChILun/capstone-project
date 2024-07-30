@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const BASE_URL = 'http://localhost:8000'; // 替換為您的 API 基礎 URL
+const BASE_URL = 'http://localhost:8000'; // 
 
 export const apiRequest = async (endpoint, method = 'GET', body = null) => {
   const token = Cookies.get('token');
