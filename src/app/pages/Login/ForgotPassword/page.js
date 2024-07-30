@@ -1,15 +1,39 @@
 "use client";
 
+import React, { useState } from 'react';
 import Link from "next/link";
 
 export default function ForgotPassword() {
+  const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSendCode = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/auth/forgot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setMessage('Verification code sent to your email.');
+      } else {
+        setMessage(data.error);
+      }
+    } catch (error) {
+      setMessage('An error occurred. Please try again later.');
+    }
+  };
 
   return (
-    // header 
     <div className="flex flex-col min-h-screen bg-white">
       <div className="relative w-full bg-[#0B2C59] text-white text-center py-10">
         <img src="/assets/Bridging_Abilities_Logo.jpg" alt="Logo" className="mx-auto mb-4 w-24 h-24" />
-        <h1 className="text-2xl font-bold"> <p style={{ color: 'white' }}>Bridging Abilities Database System</p></h1>
+        <h1 className="text-2xl font-bold"><p style={{ color: 'white' }}>Bridging Abilities Database System</p></h1>
         <div className="absolute bottom-[-20px] left-0 right-0 h-10 bg-white rounded-t-full" />
       </div>
       
@@ -35,24 +59,30 @@ export default function ForgotPassword() {
                 type="email"
                 className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="mb-6">
               <button
                 type="button"
+                onClick={handleSendCode}
                 className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
               >
                 <p style={{ color: 'white' }}>SEND CODE</p>
               </button>
             </div>
+            {message && <p className="mb-6 text-center text-green-500">{message}</p>}
             <div className="mb-6">
               <input
                 type="text"
                 className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Verification Code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
               />
             </div>
-            <Link href="./reset-password-step2">
+            <Link href={`/reset-password-step2?token=${verificationCode}`}>
               <button
                 type="submit"
                 className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
