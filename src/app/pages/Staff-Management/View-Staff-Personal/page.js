@@ -1,8 +1,8 @@
 
 import Link from "next/link"
-import { Button } from "@/components/ViewStaffPersonalUi/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ViewStaffPersonalUi/tabs"
-import { Badge } from "@/components/ViewStaffPersonalUi/badge"
+import { Button } from "@/app/pages/Staff-Management/View-Staff-Personal/button"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Staff-Management/View-Staff-Personal/tabs"
+import { Badge } from "@/app/pages/Staff-Management/View-Staff-Personal/badge"
 
 export default function ViewStaffPersonal() {
   return (

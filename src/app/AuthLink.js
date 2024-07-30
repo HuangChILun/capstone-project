@@ -9,11 +9,11 @@ export default function AuthLink({ href, children, ...props }) {
 
   const handleClick = (e) => {
     const token = Cookies.get('token');
-    const publicPaths = ['/login', '/register', '/forgot-password']; //
+    const publicPaths = ['/login', '/register', '/forgot-password']; // add the page that doesn't need authentication
 
     if (!token && !publicPaths.includes(href)) {
       e.preventDefault();
-      router.push('/login');
+      router.push('');
     }
   };
 

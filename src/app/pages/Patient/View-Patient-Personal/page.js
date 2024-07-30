@@ -1,12 +1,12 @@
 
 import Link from "next/link"
-import { Badge } from "@/components/ViewPatientPersonal/ui/badge"
-import { Button } from "@/components/ViewPatientPersonal/ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent} from "@/components/ViewPatientPersonal/ui/tabs"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewPatientPersonal/ui/table"
+import { Badge } from "@/app/pages/Patient/View-Patient-Personal/badge"
+import { Button } from "@/app/pages/Patient/View-Patient-Personal/button"
+import { Tabs, TabsList, TabsTrigger, TabsContent} from "@/app/pages/Patient/View-Patient-Personal/tabs"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Patient/View-Patient-Personal/table"
 
-import { Label } from "@/components/ViewPatientPersonal/ui/label"
-import { Checkbox } from "@/components/ViewPatientPersonal/ui/checkbox"
+import { Label } from "@/app/pages/Patient/View-Patient-Personal/label"
+import { Checkbox } from "@/app/pages/Patient/View-Patient-Personal/checkbox"
 
 export default function ViewPatientPersonal() {
   return (

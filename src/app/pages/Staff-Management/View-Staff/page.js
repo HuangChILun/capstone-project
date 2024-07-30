@@ -5,20 +5,22 @@ import Cookies from 'js-cookie';
 
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js"
-import { Input } from "@/components/ViewStaffUi/input"
-import { Button } from "@/components/ViewStaffUi/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ViewStaffUi/avatar"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewStaffUi/table"
+import { Input } from "@/app/pages/Staff-Management/View-Staff/input"
+import { Button } from "@/app/pages/Staff-Management/View-Staff/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Staff-Management/View-Staff/avatar"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Staff-Management/View-Staff/table"
 
 export default function ViewStaff() {
   const router = useRouter();
 
-  useEffect(() => {
+  {/*
+    useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
-      router.push('/login');
+      router.push('/');
     }
   }, [router]);
+  */}
   return (
     <div className="flex h-screen">
       <Nav/>

@@ -4,10 +4,10 @@ import { useState } from "react"
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
 import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
-import { Input } from "@/components/ViewPatientUi/input"
+import { Input } from "@/app/pages/Patient/View-Patient-Page/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ViewPatientUi/tabs"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ViewPatientUi/table"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/View-Patient-Page/tabs"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Patient/View-Patient-Page/table"
 
 export default function ViewPatient() {
   //search function start here 

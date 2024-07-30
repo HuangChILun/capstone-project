@@ -12,12 +12,12 @@ export default function AuthWrapper({ children }) {
   useEffect(() => {
     const checkAuth = () => {
       const token = Cookies.get('token');
-      const publicPaths = ['/login', '/register', '/forgot-password']; // 添加其他不需要認證的路徑
+      const publicPaths = ['/login', '/register', '/forgot-password']; // add the page that doesn't need authentication
 
       if (!token && !publicPaths.includes(pathname)) {
-        router.push('/login');
+        router.push('/');
       } else if (token && publicPaths.includes(pathname)) {
-        router.push('/pages/Home/Home-Page'); // 如果已登錄用戶嘗試訪問登錄頁面，重定向到主頁
+        router.push('/pages/Home/Home-Page'); // if the user already login, this would redirect the user to home page
       } else {
         setIsAuthorized(true);
       }
@@ -27,7 +27,7 @@ export default function AuthWrapper({ children }) {
   }, [pathname, router]);
 
   if (!isAuthorized) {
-    return <div>Loading...</div>; // 或者返回一個加載指示器
+    return <div>Loading...</div>; //
   }
 
   return <>{children}</>;
