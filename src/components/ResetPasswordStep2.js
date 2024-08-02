@@ -1,47 +1,35 @@
-"use client";
-
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
+export default function ResetPasswordStep2() {
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [resetPasswordToken, setResetPasswordToken] = useState(""); // Store the token from the server
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
-  const handleSendCode = async () => {
+  const handleResetPassword = async () => {
     try {
       const response = await fetch(
-        "https://capstone-project-backend-weld.vercel.app/auth/forgot",
+        `https://capstone-project-backend-weld.vercel.app/auth/reset/${token}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ password }),
         }
       );
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
-        setMessage("Verification code sent to your email.");
-        setResetPasswordToken(data.resetPasswordToken); // Store the token for later comparison
+        setMessage("Password reset successful.");
+        router.push("/login"); // Redirect to login or another page
       } else {
         setMessage(data.error);
       }
     } catch (error) {
       setMessage("An error occurred. Please try again later.");
-    }
-  };
-
-  const handleVerifyCode = () => {
-    // In this simplified example, we're assuming the token sent to the email is the same as the one returned by the server
-    if (verificationCode === resetPasswordToken) {
-      router.push(`/auth/reset/${resetPasswordToken}`); // Redirect to reset password page
-    } else {
-      setMessage("Incorrect verification code. Please try again.");
     }
   };
 
@@ -82,42 +70,31 @@ export default function ForgotPassword() {
           </div>
           <form>
             <div className="mb-6">
-              <input
-                type="email"
-                className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="mb-6">
-              <button
-                type="button"
-                onClick={handleSendCode}
-                className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+              <label
+                htmlFor="password"
+                className="block mb-2 text-sm font-medium text-gray-900"
               >
-                <p style={{ color: "white" }}>SEND CODE</p>
-              </button>
-            </div>
-            {message && (
-              <p className="mb-6 text-center text-green-500">{message}</p>
-            )}
-            <div className="mb-6">
+                New Password
+              </label>
               <input
-                type="text"
+                type="password"
+                id="password"
                 className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Verification Code"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
+                placeholder="New Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <button
               type="button"
-              onClick={handleVerifyCode}
+              onClick={handleResetPassword}
               className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
             >
               <p style={{ color: "white" }}>RESET PASSWORD</p>
             </button>
+            {message && (
+              <p className="mt-6 text-center text-green-500">{message}</p>
+            )}
           </form>
         </div>
       </div>

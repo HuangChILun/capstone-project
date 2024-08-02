@@ -9,16 +9,17 @@ import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} caus
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
 
 export default function ViewPatient() {
-  //const router = useRouter();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const router = useRouter();
 // check if the user has token or not.
-  /*useEffect(() => {
+  useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
       router.push('/');
       console.log("need login");
     }
   }, [router]);
-  */
+  
   return (
     //header
     <div className="flex h-screen">  
@@ -26,8 +27,8 @@ export default function ViewPatient() {
       <main className="flex-1 p-6 bg-white">
       <header className="flex items-center justify-between pb-6 border-b">
           <div>
-            <h1 className="text-2xl font-bold">John Doe, Welcome!</h1>
-            <p className="text-gray-600">Admin</p>
+            <h1 className="text-2xl font-bold">{user.firstName} {user.lastName}, Welcome!</h1>
+            <p className="text-gray-600">{user.role}</p>
           </div>
           <div className="flex items-center space-x-4">
             <BellIcon className="w-6 h-6 text-gray-600" />
