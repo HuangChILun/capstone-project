@@ -18,7 +18,8 @@ export default function ForgotPassword() {
         },
         body: JSON.stringify({ email }),
       });
-  
+      console.log(email);
+      
       const data = await response.json();
       if (response.ok) {
         setMessage('Verification code sent to your email.');
