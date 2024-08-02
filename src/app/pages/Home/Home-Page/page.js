@@ -10,17 +10,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Pa
 
 export default function ViewPatient() {
   const user = JSON.parse(localStorage.getItem('user'));
-// test
-if (user) {
-  console.log(user.firstName); // "John"
-  console.log(user.lastName);  // "Doe"
-  console.log(user.email);     // "capstone.no.reply@gmail.com"
-} else {
-  console.log('No user information found.');
-}
-  
-  // check if the user has token, if not then will back to login page.
   const router = useRouter();
+// check if the user has token or not.
   useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
@@ -28,6 +19,7 @@ if (user) {
       console.log("need login");
     }
   }, [router]);
+  
   return (
     //header
     <div className="flex h-screen">  
