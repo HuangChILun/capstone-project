@@ -1,6 +1,10 @@
-
+"use client"
 
 import Link from "next/link"
+import Nav from "@/components/Navigation-Bar/nav";
+import { useState, useEffect } from "react"
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/Add-New-Patient/tabs"
 import { Label } from "@/app/pages/Patient/Add-New-Patient/label"
 import { Input } from "@/app/pages/Patient/Add-New-Patient/input"
@@ -8,10 +12,19 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Button } from "@/app/pages/Patient/Add-New-Patient/button"
 
 export default function AddNewPatient() {
+  const user = Cookies.get('user');
+  console.log(user);
+  
+// check if the user has token, if not then will back to login page.
+  const router = useRouter();
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) {
+      router.push('/');
+      console.log("need login");
+    }
+  }, [router]);
   return (
-    
-      
-
     <div className="p-4">
         <aside className="w-64 bg-gray-800 text-white flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-700">

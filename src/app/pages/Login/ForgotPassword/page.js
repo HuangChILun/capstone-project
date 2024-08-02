@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import Link from "next/link";
+import { useRouter } from 'next/navigation';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [message, setMessage] = useState('');
-  
-   
+  const [sentCode, setSentCode] = useState('');
+  const router = useRouter();
+
   const handleSendCode = async () => {
     try {
       const response = await fetch('https://capstone-project-backend-weld.vercel.app/auth/forgot', {
@@ -18,15 +19,24 @@ export default function ForgotPassword() {
         },
         body: JSON.stringify({ email }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
+        setSentCode(data.verificationCode); 
         setMessage('Verification code sent to your email.');
       } else {
         setMessage(data.error);
       }
     } catch (error) {
       setMessage('An error occurred. Please try again later.');
+    }
+  };
+
+  const handleResetPassword = () => {
+    if (verificationCode === sentCode) {
+      router.push(`/reset-password-step2/${verificationCode}`);
+    } else {
+      setMessage('Invalid verification code.');
     }
   };
 
@@ -83,14 +93,13 @@ export default function ForgotPassword() {
                 onChange={(e) => setVerificationCode(e.target.value)}
               />
             </div>
-            <Link href={`/reset-password-step2?token=${verificationCode}`}>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
-              >
-                <p style={{ color: 'white' }}>RESET PASSWORD</p>
-              </button>
-            </Link>
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+            >
+              <p style={{ color: 'white' }}>RESET PASSWORD</p>
+            </button>
           </form>
         </div>
       </div>

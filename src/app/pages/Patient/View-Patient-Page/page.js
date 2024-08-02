@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import  Nav  from "/src/components/Navigation-Bar/nav.js" //can't use {Nav} cause bug
 import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
 import { Input } from "@/app/pages/Patient/View-Patient-Page/input"
@@ -10,6 +12,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/Vi
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Patient/View-Patient-Page/table"
 
 export default function ViewPatient() {
+  const router = useRouter();
+// check if the user has token, if not then will back to login page.
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) {
+      router.push('/');
+      console.log("need login");
+    }
+  }, [router]);
   //search function start here 
   const [searchQuery, setSearchQuery] = useState("")
   const patients = [
