@@ -4,9 +4,15 @@ import Link from "next/link";
 export default function Nav() {
   const [isPatientOpen, setIsPatientOpen] = useState(false);
   const [isStaffOpen, setIsStaffOpen] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
 
   const togglePatient = () => setIsPatientOpen(!isPatientOpen);
   const toggleStaff = () => setIsStaffOpen(!isStaffOpen);
+  const toggleInvoice = () => setIsInvoiceOpen(!isInvoiceOpen);
+  const toggleSchedule = () => setIsScheduleOpen(!isScheduleOpen);
+  const toggleAccount = () => setIsAccountOpen(!isAccountOpen);
 
   return (
     <aside className="w-64 bg-gray-800 text-white flex flex-col">
@@ -38,15 +44,40 @@ export default function Nav() {
             </div>
           )}
         </div>
-        <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-          <CalendarIcon className="w-5 h-5 mr-2" />
-          Schedule
-        </Link>
-        <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-          <FileTextIcon className="w-5 h-5 mr-2" />
-          Invoice
-          <ChevronDownIcon className="w-4 h-4 ml-auto" />
-        </Link>
+        <div>
+          <button onClick={toggleInvoice} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
+            <FileTextIcon className="w-5 h-5 mr-2" />
+            Invoice
+            <ChevronDownIcon className={`w-4 h-4 ml-auto transform transition-transform ${isInvoiceOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isInvoiceOpen && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link href="../invoice-management/View-Invoice" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
+                View Invoices
+              </Link>
+              <Link href="../invoice-management/Add-Invoice" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+                Add New Invoice
+              </Link>
+            </div>
+          )}
+        </div>
+        <div>
+          <button onClick={toggleSchedule} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
+            <CalendarIcon className="w-5 h-5 mr-2" />
+            Schedule
+            <ChevronDownIcon className={`w-4 h-4 ml-auto transform transition-transform ${isScheduleOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isScheduleOpen && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link href="../Schedule/View-Schedule" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
+                View Schedule
+              </Link>
+              <Link href="../Schedule/Add-New-Appointment" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+                Add New Appointment
+              </Link>
+            </div>
+          )}
+        </div>
         <div>
           <button onClick={toggleStaff} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <UserIcon className="w-5 h-5 mr-2" />
@@ -64,11 +95,23 @@ export default function Nav() {
             </div>
           )}
         </div>
-        <Link href="#" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
-          <SettingsIcon className="w-5 h-5 mr-2" />
-          Account
-          <ChevronDownIcon className="w-4 h-4 ml-auto" />
-        </Link>
+        <div>
+          <button onClick={toggleAccount} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
+            <SettingsIcon className="w-5 h-5 mr-2" />
+            Account
+            <ChevronDownIcon className={`w-4 h-4 ml-auto transform transition-transform ${isAccountOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isAccountOpen && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link href="../Account/View-Profile" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
+                View Profile
+              </Link>
+              <Link href="../Account/Password-Change" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+                Password Change
+              </Link>
+            </div>
+          )}
+        </div>
       </nav>
     </aside>
   );

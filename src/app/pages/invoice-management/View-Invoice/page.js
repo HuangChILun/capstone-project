@@ -5,12 +5,12 @@ import Cookies from 'js-cookie';
 
 import Link from "next/link"
 import  Nav  from "/src/components/Navigation-Bar/nav.js"
-import { Input } from "@/app/pages/Staff-Management/View-Staff/input"
-import { Button } from "@/app/pages/Staff-Management/View-Staff/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Staff-Management/View-Staff/avatar"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Staff-Management/View-Staff/table"
+import { Input } from "@/app/pages/invoice-management/View-Invoice/input"
+import { Button } from "@/app/pages/invoice-management/View-Invoice/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/invoice-management/View-Invoice/avatar"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/invoice-management/View-Invoice/table"
 
-export default function ViewStaff() {
+export default function ViewInvoice() {
   const router = useRouter();
 
   
@@ -26,7 +26,7 @@ export default function ViewStaff() {
       <main className="flex-1 p-6 bg-gray-50">
       <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">
-            <Input type="text" placeholder="input Staff name..." className="w-64" />
+            <Input type="text" placeholder="input Patient name..." className="w-64" />
             <Button className="flex items-center">
               <SearchIcon className="w-4 h-4 mr-2" />
               Search
@@ -45,19 +45,19 @@ export default function ViewStaff() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Invoice Number</TableHead>
+                <TableHead>Patient Name</TableHead>
+                <TableHead>Service Provider Name</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Phone Number</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
+                <TableCell>061524001</TableCell>
+                <TableCell>Albert Christoff</TableCell>
                 <TableCell>Kevin Huang</TableCell>
                 <TableCell>OT</TableCell>
-                <TableCell>403-123-8888</TableCell>
-                <TableCell>kevin@gmail.com</TableCell>
                 <TableCell>
                         <Link href="./View-Staff-Personal">
                       <Button variant="outline" size="sm">
@@ -67,10 +67,10 @@ export default function ViewStaff() {
                     </TableCell>
               </TableRow>
               <TableRow>
+                <TableCell>123456789</TableCell>
+                <TableCell>Albert Christoff</TableCell>
                 <TableCell>Bella Jones</TableCell>
                 <TableCell>Aide</TableCell>
-                <TableCell>587-324-7656</TableCell>
-                <TableCell>bella@gmail.com</TableCell>
                 <TableCell>
                         <Link Link href="./View-Staff-Personal">
                       <Button variant="outline" size="sm">
