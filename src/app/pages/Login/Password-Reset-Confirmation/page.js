@@ -5,6 +5,7 @@ import Link from "next/link";
 
 
 export default function ResetPasswordStep3() {
+  
   return (
     <div className="flex flex-col items-center justify-center bg-white">
       {/* header*/}

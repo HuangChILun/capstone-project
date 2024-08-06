@@ -1,99 +1,22 @@
-
+"use client"
 import Link from "next/link"
 import { Button } from "@/app/pages/Account/Edit/button"
 import { Input } from "@/app/pages/Account/Edit/input"
+import Nav from "@/components/Navigation-Bar/nav";
 
-export function edit() {
+export default function edit() {
   return (
     (<div className="flex h-screen">
-      <aside className="w-64 bg-gray-100 border-r">
-        <div className="flex items-center justify-center h-16 bg-blue-900 text-white">
-          <span className="text-lg font-bold">Bridging Abilities</span>
-        </div>
-        <nav className="p-4">
-          <ul className="space-y-2">
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <HomeIcon className="w-5 h-5 mr-2" />
-                Home Page
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <UserIcon className="w-5 h-5 mr-2" />
-                Patient
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <CalendarIcon className="w-5 h-5 mr-2" />
-                Schedule
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <FileTextIcon className="w-5 h-5 mr-2" />
-                Invoice
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <UsersIcon className="w-5 h-5 mr-2" />
-                Staff Management
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <SettingsIcon className="w-5 h-5 mr-2" />
-                Account
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-blue-700 bg-blue-100 rounded-md"
-                prefetch={false}>
-                <UserIcon className="w-5 h-5 mr-2" />
-                View Profile
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="flex items-center p-2 text-gray-700 hover:bg-gray-200"
-                prefetch={false}>
-                <LockIcon className="w-5 h-5 mr-2" />
-                Password Change
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+      <Nav/>
       <main className="flex-1 p-8">
         <header className="flex items-center justify-between pb-4 border-b">
           <div>
             <h1 className="text-4xl font-bold text-blue-900">John Doe</h1>
             <p className="text-gray-500">Administrator</p>
           </div>
+          <Link href="../Account/View-Profile">
           <Button className="bg-blue-600 text-white">Save</Button>
+          </Link>
         </header>
         <section className="mt-8">
           <div className="flex items-start p-4 border rounded-md">
@@ -126,27 +49,6 @@ export function edit() {
         </section>
       </main>
     </div>)
-  );
-}
-
-function CalendarIcon(props) {
-  return (
-    (<svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round">
-      <path d="M8 2v4" />
-      <path d="M16 2v4" />
-      <rect width="18" height="18" x="3" y="4" rx="2" />
-      <path d="M3 10h18" />
-    </svg>)
   );
 }
 

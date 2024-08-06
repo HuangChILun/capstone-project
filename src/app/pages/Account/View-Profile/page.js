@@ -1,135 +1,21 @@
-
+"use client"
 import Link from "next/link"
 import { Button } from "@/app/pages/Account/View-Profile/button"
+import Nav from "@/components/Navigation-Bar/nav";
 
-export function profile() {
+export default function profile() {
   return (
     (<div className="flex min-h-screen">
-      <aside className="w-64 bg-gray-100 border-r">
-        <div className="flex items-center justify-center h-16 bg-primary text-white">
-          <span className="text-lg font-bold">Bridging Abilities</span>
-        </div>
-        <nav className="p-4 space-y-2">
-          <Link
-            href="#"
-            className="block py-2 text-gray-700 hover:bg-gray-200 rounded"
-            prefetch={false}>
-            Home Page
-          </Link>
-          <div>
-            <button
-              className="flex items-center justify-between w-full py-2 text-gray-700 hover:bg-gray-200 rounded">
-              Patient
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-            <div className="pl-4 space-y-1">
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 1
-              </Link>
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 2
-              </Link>
-            </div>
-          </div>
-          <div>
-            <button
-              className="flex items-center justify-between w-full py-2 text-gray-700 hover:bg-gray-200 rounded">
-              Schedule
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-            <div className="pl-4 space-y-1">
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 1
-              </Link>
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 2
-              </Link>
-            </div>
-          </div>
-          <div>
-            <button
-              className="flex items-center justify-between w-full py-2 text-gray-700 hover:bg-gray-200 rounded">
-              Invoice
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-            <div className="pl-4 space-y-1">
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 1
-              </Link>
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 2
-              </Link>
-            </div>
-          </div>
-          <div>
-            <button
-              className="flex items-center justify-between w-full py-2 text-gray-700 hover:bg-gray-200 rounded">
-              Staff Management
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-            <div className="pl-4 space-y-1">
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 1
-              </Link>
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Submenu 2
-              </Link>
-            </div>
-          </div>
-          <div>
-            <button
-              className="flex items-center justify-between w-full py-2 text-gray-700 hover:bg-gray-200 rounded">
-              Account
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-            <div className="pl-4 space-y-1">
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded bg-blue-100"
-                prefetch={false}>
-                View Profile
-              </Link>
-              <Link
-                href="#"
-                className="block py-1 text-gray-700 hover:bg-gray-200 rounded"
-                prefetch={false}>
-                Password Change
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </aside>
+      <Nav/>
       <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-primary">John Doe</h1>
             <p className="text-muted-foreground">Administrator</p>
           </div>
+          <Link href="../Account/Edit">
           <Button className="bg-blue-500 text-white">Edit</Button>
+          </Link>
         </div>
         <div className="border p-8 rounded-lg">
           <div className="flex items-center mb-8">
@@ -182,25 +68,6 @@ export function profile() {
     </div>)
   );
 }
-
-function ChevronDownIcon(props) {
-  return (
-    (<svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round">
-      <path d="m6 9 6 6 6-6" />
-    </svg>)
-  );
-}
-
 
 function FilePenIcon(props) {
   return (
