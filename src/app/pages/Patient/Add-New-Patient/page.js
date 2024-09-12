@@ -99,6 +99,98 @@ export default function ImprovedAddNewPatient() {
                 </div>
               </div>
             </fieldset>
+
+            <fieldset className="mt-6">
+                <legend className="text-lg font-semibold mb-4">Primary Guardian</legend>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-name">Name</Label>
+                    <Input id="pg-name" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-relation">Relation to Patient</Label>
+                    <Input id="pg-relation" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-address">Address</Label>
+                    <Input id="pg-address" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-city">City</Label>
+                    <Input id="pg-city" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-province">Province</Label>
+                    <Select>
+                      <SelectTrigger id="pg-province" className="w-full">
+                        <SelectValue placeholder="Select province" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="province1">Province 1</SelectItem>
+                        <SelectItem value="province2">Province 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-postal-code">Postal Code</Label>
+                    <Input id="pg-postal-code" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-phone">Phone Number</Label>
+                    <Input id="pg-phone" type="tel" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-email">Email</Label>
+                    <Input id="pg-email" type="email" placeholder="Input" className="w-full" />
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset className="mt-6">
+                <legend className="text-lg font-semibold mb-4">Secondary Guardian</legend>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-name">Name</Label>
+                    <Input id="pg-name" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-relation">Relation to Patient</Label>
+                    <Input id="pg-relation" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-address">Address</Label>
+                    <Input id="pg-address" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-city">City</Label>
+                    <Input id="pg-city" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-province">Province</Label>
+                    <Select>
+                      <SelectTrigger id="pg-province" className="w-full">
+                        <SelectValue placeholder="Select province" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="province1">Province 1</SelectItem>
+                        <SelectItem value="province2">Province 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-postal-code">Postal Code</Label>
+                    <Input id="pg-postal-code" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-phone">Phone Number</Label>
+                    <Input id="pg-phone" type="tel" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pg-email">Email</Label>
+                    <Input id="pg-email" type="email" placeholder="Input" className="w-full" />
+                  </div>
+                </div>
+              </fieldset>
             <Button type="submit" className="mt-6">Submit</Button>
           </form>
         </TabsContent>
@@ -181,6 +273,134 @@ export default function ImprovedAddNewPatient() {
                 </div>
               </div>
             </fieldset>
+
+            <fieldset className="mt-6">
+                <legend className="text-lg font-semibold mb-4">Service Information</legend>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="case-worker-name">Case Worker Name</Label>
+                    <Input id="case-worker-name" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="service-type">Service Type</Label>
+                    <Select>
+                      <SelectTrigger id="service-type" className="w-full">
+                        <SelectValue placeholder="Select Service Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="type1">Type 1</SelectItem>
+                        <SelectItem value="type2">Type 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="service-providers-needed">Service Providers Needed</Label>
+                    <Select>
+                      <SelectTrigger id="service-providers-needed" className="w-full">
+                        <SelectValue placeholder="Select Service Providers" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="provider1">Provider 1</SelectItem>
+                        <SelectItem value="provider2">Provider 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location-of-service">Location of Service</Label>
+                    <Select>
+                      <SelectTrigger id="location-of-service" className="w-full">
+                        <SelectValue placeholder="Select Location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="location1">Location 1</SelectItem>
+                        <SelectItem value="location2">Location 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fees-discussed">Fees Discussed</Label>
+                    <Input id="fees-discussed" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="previous-services">Previous Services</Label>
+                    <Input id="previous-services" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="concerns">Concerns</Label>
+                    <Input id="concerns" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="follow-up-actions">Follow-up Actions</Label>
+                    <Input id="follow-up-actions" placeholder="Input" className="w-full" />
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset className="mt-6">
+                <legend className="text-lg font-semibold mb-4">Waitlist Information</legend>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="waitlist-date">Waitlist Date</Label>
+                    <Input id="waitlist-date" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-date">Contact Date</Label>
+                    <Input id="contact-date" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="consultation-booked-date">Consultation Booked Date</Label>
+                    <Input id="consultation-booked-date" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="service-offered-date">Service Offered Date</Label>
+                    <Input id="service-offered-date" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="available-next-meeting">Available Next Meeting</Label>
+                    <Input id="available-next-meeting" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="paperwork-deadline">Paperwork Deadline</Label>
+                    <Input id="paperwork-deadline" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="referred-from">Referred From</Label>
+                    <Select>
+                      <SelectTrigger id="referred-from" className="w-full">
+                        <SelectValue placeholder="Select Referral" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="referral1">Referral 1</SelectItem>
+                        <SelectItem value="referral2">Referral 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="community">Community</Label>
+                    <Input id="community" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="funding-sources">Funding Sources</Label>
+                    <Select>
+                      <SelectTrigger id="funding-sources" className="w-full">
+                        <SelectValue placeholder="Select Funding Sources" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="source1">Source 1</SelectItem>
+                        <SelectItem value="source2">Source 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="service-needed">Service Needed</Label>
+                    <Input id="service-needed" placeholder="Input" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="consult-history">Consult History</Label>
+                    <Input id="consult-history" placeholder="Input" className="w-full" />
+                  </div>
+                </div>
+              </fieldset>
             <Button type="submit" className="mt-6">Submit</Button>
           </form>
         </TabsContent>

@@ -93,7 +93,7 @@ export default function ViewPatient() {
               {/* Invoice (Placeholder) */}
               <div className="col-span-3 p-4 bg-white shadow rounded-lg mt-6">
                 <p className="text-lg font-medium">Invoice Received</p>
-                <p className="text-3xl font-bold">¥ {invoiceAmount}</p>
+                <p className="text-3xl font-bold">$ {invoiceAmount}</p>
                 {/* Placeholder Pie Chart for now */}
                 <div className="w-full h-40 bg-gray-200 mt-4"></div>
               </div>

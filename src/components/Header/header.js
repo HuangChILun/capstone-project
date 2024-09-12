@@ -1,4 +1,7 @@
+"use client"
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar";
+import Link from "next/link";
 
 export default function Header({ user }) {
   return (
@@ -9,10 +12,12 @@ export default function Header({ user }) {
       </div>
       <div className="flex items-center space-x-4">
         <BellIcon className="w-6 h-6 text-gray-600" />
+        <Link href="../Account/View-Profile"> 
         <Avatar>
           <AvatarImage src="/placeholder-user.jpg" />
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
+        </Link>
       </div>
     </header>
   );

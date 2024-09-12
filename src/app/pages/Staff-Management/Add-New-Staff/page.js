@@ -1,19 +1,41 @@
 "use client"
 
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
+import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js";
+import Header from '@/components/Header/header';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Staff-Management/Add-New-Staff/tabs"
-import Nav from "@/components/Navigation-Bar/nav";
 import { Label } from "@/app/pages/Staff-Management/Add-New-Staff/label"
 import { Input } from "@/app/pages/Staff-Management/Add-New-Staff/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/Staff-Management/Add-New-Staff/select"
 import { Button } from "@/app/pages/Staff-Management/Add-New-Staff/button"
 
 export default function ImprovedAddNewPatient() {
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      router.push('/');
+    }
+  }, [router]);
+
+  if (!user) {
+    return null; // or a loading indicator
+  }
+
+  const isAdmin = user.role === "admin";
+
   return (
-    <div className="flex h-screen bg-gray-100">
-    <Nav className="w-64 bg-white shadow-md" />
-    <main className="flex-1 overflow-y-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Add New Patient</h1>
+    <div className="flex h-screen">
+      {isAdmin ? <AdminNav /> : <ServiceProviderNav />}
+      <main className="flex-1 p-6 bg-white">
+        <Header user={user} />
+      <h1 className="text-2xl font-bold mb-6 mt-6">Add New Patient</h1>
       <Tabs defaultValue="active" className="w-full">
         <TabsContent value="active">
           <form className="bg-white shadow-sm rounded-lg p-6">
