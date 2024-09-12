@@ -28,6 +28,7 @@ export default function Login() {
         const data = await response.json();
         Cookies.set('token', data.token, { expires: 7 }); // set cookie will expire in 7 days
         localStorage.setItem('user', JSON.stringify(data.user));
+        console.log("Login Success"); //test
         router.push("/pages/Home/Home-Page");
       } else {
         const errorData = await response.json();

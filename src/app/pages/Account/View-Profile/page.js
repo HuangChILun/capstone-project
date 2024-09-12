@@ -1,30 +1,39 @@
-"use client"
-import Link from "next/link"
-import { Button } from "@/app/pages/Account/View-Profile/button"
-import Nav from "@/components/Navigation-Bar/nav";
+"use client";
 
-export default function profile() {
+import Link from "next/link";
+import { Button } from "@/app/pages/Account/View-Profile/button";
+import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
+import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js"; 
+import Header from "@/components/Header/header"; 
+
+export default function Profile() {
+  const user = JSON.parse(localStorage.getItem('user'));
+
   return (
-    (<div className="flex min-h-screen">
-      <Nav/>
-      <main className="flex-1 p-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-primary">John Doe</h1>
-            <p className="text-muted-foreground">Administrator</p>
+    <div className="flex min-h-screen">
+      {/* Nav */}
+      {user.role === "admin" ? <AdminNav /> : <ServiceProviderNav />}
+
+      <main className="flex-1 p-8 relative">
+        {/* Header Component */}
+        <Header user={user} />
+        
+        {/* Profile */}
+        <div className="border p-8 rounded-lg mt-8 relative">
+          {/* Edit Button inside the profile box */}
+          <div className="absolute top-5 right-5">
+            <Link href="../Account/Edit">
+              <Button className="bg-blue-500 text-white">Edit</Button>
+            </Link>
           </div>
-          <Link href="../Account/Edit">
-          <Button className="bg-blue-500 text-white">Edit</Button>
-          </Link>
-        </div>
-        <div className="border p-8 rounded-lg">
+
           <div className="flex items-center mb-8">
-            <div
-              className="relative w-32 h-32 border rounded-full flex items-center justify-center">
+            <div className="relative w-32 h-32 border rounded-full flex items-center justify-center">
               <UserIcon className="w-16 h-16 text-muted-foreground" />
               <FilePenIcon className="absolute top-0 right-0 w-6 h-6 text-muted-foreground" />
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-8">
             <div>
               <p className="font-semibold">First Name</p>
@@ -60,18 +69,18 @@ export default function profile() {
             </div>
             <div>
               <p className="font-semibold">Role</p>
-              <p>Administrator</p>
+              <p>{user.role === "admin" ? "Administrator" : "Service Provider"}</p>
             </div>
           </div>
         </div>
       </main>
-    </div>)
+    </div>
   );
 }
 
 function FilePenIcon(props) {
   return (
-    (<svg
+    <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -81,18 +90,18 @@ function FilePenIcon(props) {
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
-      strokeLinejoin="round">
+      strokeLinejoin="round"
+    >
       <path d="M12 22h6a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v10" />
       <path d="M14 2v4a2 2 0 0 0 2 2h4" />
       <path d="M10.4 12.6a2 2 0 1 1 3 3L8 21l-4 1 1-4Z" />
-    </svg>)
+    </svg>
   );
 }
 
-
 function UserIcon(props) {
   return (
-    (<svg
+    <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -102,9 +111,10 @@ function UserIcon(props) {
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
-      strokeLinejoin="round">
+      strokeLinejoin="round"
+    >
       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
-    </svg>)
+    </svg>
   );
 }

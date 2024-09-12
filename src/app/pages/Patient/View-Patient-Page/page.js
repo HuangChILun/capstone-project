@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import Nav from "/src/components/Navigation-Bar/nav.js"
+import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
+import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js"; 
 import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
 import { Input } from "@/app/pages/Patient/View-Patient-Page/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
@@ -68,7 +69,7 @@ export default function ViewPatient() {
 
   return (
     <div className="flex h-screen">
-      <Nav/> 
+      {user.role === "admin" ? <AdminNav /> : <ServiceProviderNav />} 
       <main className="flex-1 p-6 bg-white">
         <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">

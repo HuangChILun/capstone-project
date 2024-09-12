@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 export default function ResetPasswordStep2() {
   const [password, setPassword] = useState("");
@@ -35,7 +37,7 @@ export default function ResetPasswordStep2() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <div className="relative w-full bg-[#0B2C59] text-white text-center py-10">
+      <div className="relative w-full bg- [#0B2C59] text-white text-center py-10">
         <img
           src="/assets/Bridging_Abilities_Logo.jpg"
           alt="Logo"
