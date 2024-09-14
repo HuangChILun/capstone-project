@@ -10,13 +10,14 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const backendIp = process.env.NEXT_PUBLIC_BACKEND_IP
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await fetch("https://capstone-project-backend-weld.vercel.app/auth/login", {
+      const response = await fetch(`${backendIp}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

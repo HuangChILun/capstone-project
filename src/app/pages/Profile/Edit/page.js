@@ -5,7 +5,7 @@ import { Button } from "@/app/pages/Account/Edit/button";
 import { Input } from "@/app/pages/Account/Edit/input";
 import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
 import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js";
-import Header from "@/components/Header/header";
+import Header from "@/app/components/Header/header";
 
 export default function Edit() {
   const user = JSON.parse(localStorage.getItem('user'));

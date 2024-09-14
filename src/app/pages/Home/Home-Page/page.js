@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminNav from "/src/components/Navigation-Bar/AdminNav.js"; // can't use {Nav} cause of bug
 import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js"; // can't use {Nav} cause of bug
-import Header from '@/components/Header/header';
+import Header from '@/app/components/Header/header';
 
 export default function ViewPatient() {
   const [activeClients, setActiveClients] = useState(0);

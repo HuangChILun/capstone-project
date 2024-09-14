@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
 import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js";
-import Header from '@/components/Header/header';
+import Header from '@/app/components/Header/header';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Staff-Management/Add-New-Staff/tabs"
 import { Label } from "@/app/pages/Staff-Management/Add-New-Staff/label"
 import { Input } from "@/app/pages/Staff-Management/Add-New-Staff/input"
