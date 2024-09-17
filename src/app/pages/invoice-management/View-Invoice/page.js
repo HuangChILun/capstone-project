@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 import Link from "next/link"
-import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
+import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
 import { Input } from "@/app/pages/invoice-management/View-Invoice/input"
 import { Button } from "@/app/pages/invoice-management/View-Invoice/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/invoice-management/View-Invoice/avatar"

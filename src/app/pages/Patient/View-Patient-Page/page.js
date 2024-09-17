@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
-import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js"; 
+import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
+import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js"; 
 import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
 import { Input } from "@/app/pages/Patient/View-Patient-Page/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"

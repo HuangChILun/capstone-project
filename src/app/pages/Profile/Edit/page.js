@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { Button } from "@/app/pages/Account/Edit/button";
 import { Input } from "@/app/pages/Account/Edit/input";
-import AdminNav from "/src/components/Navigation-Bar/AdminNav.js";
-import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js";
+import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
+import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js";
 import Header from "@/app/components/Header/header";
 
 export default function Edit() {

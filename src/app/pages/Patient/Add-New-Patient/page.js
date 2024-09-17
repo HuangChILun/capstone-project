@@ -3,7 +3,7 @@
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/Add-New-Patient/tabs"
 import AdminNav from "/src/components/Navigation-Bar/AdminNav.js"; // can't use {Nav} cause of bug
-import ServiceProviderNav from "/src/components/Navigation-Bar/ServiceProviderNav.js"; // can't use {Nav} cause of bug
+import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js"; // can't use {Nav} cause of bug
 import { Label } from "@/app/pages/Patient/Add-New-Patient/label"
 import { Input } from "@/app/pages/Patient/Add-New-Patient/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/Patient/Add-New-Patient/select"
