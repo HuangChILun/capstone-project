@@ -105,10 +105,10 @@ export default function Nav() {
           </button>
           {isAccountOpen && (
             <div className="ml-6 mt-1 space-y-1">
-              <Link href="../Account/View-Profile" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
+              <Link href="../Profile/View-Profile" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
                 View Profile
               </Link>
-              <Link href="../Account/Password-Change" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
+              <Link href="../Profile/Password-Change" className="flex items-center p-2 hover:bg-gray-700 rounded" prefetch={false}>
                 Password Change
               </Link>
             </div>

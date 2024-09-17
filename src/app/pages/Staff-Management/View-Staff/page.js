@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 import Link from "next/link"
-import  Nav  from "/src/components/Navigation-Bar/nav.js"
+import  AdminNav  from "/src/app/components/Navigation-Bar/AdminNav.js"
 import { Input } from "@/app/pages/Staff-Management/View-Staff/input"
 import { Button } from "@/app/pages/Staff-Management/View-Staff/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Staff-Management/View-Staff/avatar"
@@ -22,7 +22,7 @@ export default function ViewStaff() {
   }, [router]);
   return (
     <div className="flex h-screen">
-      <Nav/>
+      <AdminNav/>
       <main className="flex-1 p-6 bg-gray-50">
       <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">
