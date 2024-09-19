@@ -1,23 +1,22 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const backendIp = process.env.NEXT_PUBLIC_BACKEND_IP
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await fetch(`${backendIp}/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,32 +26,57 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
-        Cookies.set('token', data.token, { expires: 7 }); // set cookie will expire in 7 days
-        localStorage.setItem('user', JSON.stringify(data.user));
-        console.log("Login Success"); //test
+        //token is set to expire in 1 hour
+        //secure: true will always use https connection
+        //sameSite: strict provide highest protection against CSRF attacks, lax is less but works in localhost environment.
+        //httpOnly: true Ensure JavaScript cannot access the token
+        Cookies.set("token", data.token, {
+          expires: 1 / 24,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: 'Lax',
+          httpOnly: true, 
+        });
+        // Store non-sensitive user data in localStorage instead of whole user data
+        localStorage.setItem("user", JSON.stringify({
+          id: data.user.id,
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          isAdmin: data.user.isAdmin
+        }));
+        console.log("Login Success");
         router.push("/pages/Home/Home-Page");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Login failed");
       }
     } catch (error) {
+      console.error("Login Error: ", error);
       setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    
     <div className="flex flex-col min-h-screen bg-gray-100">
       <div className="w-full bg-[#0B2C59] text-white text-center py-10">
-        <img src="/assets/Bridging_Abilities_Logo.jpg" alt="Logo" className="mx-auto mb-4 w-24 h-24" />
-        <h1 className="text-2xl font-bold" ><p style={{ color: 'white' }}>Bridging Abilities Database System</p></h1>
+        <img
+          src="/assets/Bridging_Abilities_Logo.jpg"
+          alt="Logo"
+          className="mx-auto mb-4 w-24 h-24"
+        />
+        <h1 className="text-2xl font-bold">
+          <p style={{ color: "white" }}>Bridging Abilities Database System</p>
+        </h1>
       </div>
       <div className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg">
           <form onSubmit={handleSignIn}>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <div className="mb-6">
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
                 Email Address
               </label>
               <input
@@ -66,7 +90,10 @@ export default function Login() {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <input
@@ -80,7 +107,10 @@ export default function Login() {
               />
             </div>
             <div className="mb-6 text-right">
-              <Link href="/pages/Login/ForgotPassword" className="text-sm text-[#0000FF] hover:underline">
+              <Link
+                href="/pages/Login/ForgotPassword"
+                className="text-sm text-[#0000FF] hover:underline"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -88,7 +118,7 @@ export default function Login() {
               type="submit"
               className="w-full px-4 py-2  bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
             >
-              <p style={{ color: 'white' }}>SIGN IN</p>
+              <p style={{ color: "white" }}>SIGN IN</p>
             </button>
           </form>
         </div>
@@ -96,4 +126,3 @@ export default function Login() {
     </div>
   );
 }
-

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/app/components/Header/header';
 import Nav from '@/app/components/Navigation-Bar/NavBar';
+import Cookies from 'js-cookie';
 
 export default function ViewPatient() {
   const [activeClients, setActiveClients] = useState(0);
@@ -24,7 +25,7 @@ export default function ViewPatient() {
   }
   useEffect(() => {
     const fetchPatients = async () => {
-      //const token = Cookies.get('token');
+      const token = Cookies.get('token');
       if (!token) {
         router.push('/');
         console.log("need login");
