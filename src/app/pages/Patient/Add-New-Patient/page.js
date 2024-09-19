@@ -2,17 +2,24 @@
 
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/Add-New-Patient/tabs"
-import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js"; // can't use {Nav} cause of bug
-import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js"; // can't use {Nav} cause of bug
 import { Label } from "@/app/pages/Patient/Add-New-Patient/label"
 import { Input } from "@/app/pages/Patient/Add-New-Patient/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/Patient/Add-New-Patient/select"
 import { Button } from "@/app/pages/Patient/Add-New-Patient/button"
+import Nav from '@/app/components/Navigation-Bar/NavBar';
 const user = JSON.parse(localStorage.getItem('user'));
 export default function ImprovedAddNewPatient() {
+
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
   return (
     <div className="flex h-screen bg-gray-100">
-    {user.role === "admin" ? <AdminNav /> : <ServiceProviderNav />} 
+    <Nav access = {isAdmin} />
     <main className="flex-1 overflow-y-auto p-8">
       <h1 className="text-2xl font-bold mb-6">Add New Patient</h1>
       <Tabs defaultValue="active" className="w-full">

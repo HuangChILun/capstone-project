@@ -9,6 +9,7 @@ import { Input } from "@/app/pages/invoice-management/View-Invoice/input"
 import { Button } from "@/app/pages/invoice-management/View-Invoice/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/invoice-management/View-Invoice/avatar"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/invoice-management/View-Invoice/table"
+import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ViewInvoice() {
   const router = useRouter();
@@ -20,9 +21,17 @@ export default function ViewInvoice() {
       router.push('/');
     }
   }, [router]);
+
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
   return (
     <div className="flex h-screen">
-      <AdminNav/>
+      <Nav access = {isAdmin} />
       <main className="flex-1 p-6 bg-gray-50">
       <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">

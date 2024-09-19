@@ -28,11 +28,16 @@ export default function ImprovedAddNewPatient() {
     return null; // or a loading indicator
   }
 
-  const isAdmin = user.role === "admin";
-
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
   return (
     <div className="flex h-screen">
-      {isAdmin ? <AdminNav /> : <ServiceProviderNav />}
+      <Nav access = {isAdmin} />
       <main className="flex-1 p-6 bg-white">
         <Header user={user} />
       <h1 className="text-2xl font-bold mb-6 mt-6">Add New Patient</h1>

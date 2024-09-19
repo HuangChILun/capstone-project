@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function Nav() {
+export default function Nav({access}) {
+  const isAdmin = access;
   const [isPatientOpen, setIsPatientOpen] = useState(false);
   const [isStaffOpen, setIsStaffOpen] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function Nav() {
           <HomeIcon className="w-5 h-5 mr-2" />
           Home Page
         </Link>
-        <div>
+        {isAdmin ? (<div>
           <button onClick={togglePatient} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <UserIcon className="w-5 h-5 mr-2" />
             Patient
@@ -45,7 +46,21 @@ export default function Nav() {
               </Link>
             </div>
           )}
-        </div>
+        </div>):(<div>
+          <button onClick={togglePatient} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
+            <UserIcon className="w-5 h-5 mr-2" />
+            Patient
+            <ChevronDownIcon className={`w-4 h-4 ml-auto transform transition-transform ${isPatientOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isPatientOpen && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link href="../Patient/View-Patient-Page" className="flex items-center p-2 hover:bg-gray-700 rounded bg-blue-600" prefetch={false}>
+                View Assigned Patient
+              </Link>
+            </div>
+          )}
+        </div>)}
+        
         <div>
           <button onClick={toggleInvoice} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <FileTextIcon className="w-5 h-5 mr-2" />
@@ -80,7 +95,7 @@ export default function Nav() {
             </div>
           )}
         </div>
-        <div>
+        {isAdmin ? (<div>
           <button onClick={toggleStaff} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <UserIcon className="w-5 h-5 mr-2" />
             Staff Management
@@ -96,7 +111,7 @@ export default function Nav() {
               </Link>
             </div>
           )}
-        </div>
+        </div>):(null)}
         <div>
           <button onClick={toggleAccount} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <SettingsIcon className="w-5 h-5 mr-2" />

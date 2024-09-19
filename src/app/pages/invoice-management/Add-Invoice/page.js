@@ -3,13 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/invoice-management/Add-Invoice/tabs"
-import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
-import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js";
 import Header from '@/app/components/Header/header';
 import { Label } from "@/app/pages/invoice-management/Add-Invoice/label"
 import { Input } from "@/app/pages/invoice-management/Add-Invoice/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/invoice-management/Add-Invoice/select"
 import { Button } from "@/app/pages/invoice-management/Add-Invoice/button"
+import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ImprovedAddNewPatient() {
   const [user, setUser] = useState(null);
@@ -28,12 +27,17 @@ export default function ImprovedAddNewPatient() {
     return null; // or a loading indicator
   }
 
-  const isAdmin = user.role === "admin";
-  const isServiceProvider = user.role === "service_provider";
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {isAdmin ? <AdminNav /> : <ServiceProviderNav />}
+      <Nav access = {isAdmin} />
       <main className="flex-1 overflow-y-auto p-8">
         <Header user={user} />
         <h1 className="text-2xl font-bold mb-6 mt-6">Add New Invoice</h1>

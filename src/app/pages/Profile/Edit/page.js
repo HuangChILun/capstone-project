@@ -3,17 +3,22 @@
 import Link from "next/link";
 import { Button } from "@/app/pages/Account/Edit/button";
 import { Input } from "@/app/pages/Account/Edit/input";
-import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
-import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js";
 import Header from "@/app/components/Header/header";
+import Nav from "@/app/components/Navigation-Bar/NavBar";
 
 export default function Edit() {
   const user = JSON.parse(localStorage.getItem('user'));
-
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
   return (
     <div className="flex min-h-screen">
       {/* Nav */}
-      {user.role === "admin" ? <AdminNav /> : <ServiceProviderNav />}
+      <Nav access = {isAdmin} />
 
       <main className="flex-1 p-8 relative">
         {/* Header Component */}

@@ -10,10 +10,10 @@ export default function ResetPasswordStep2() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = async ({params}) => {
     try {
       const response = await fetch(
-        `https://capstone-project-backend-weld.vercel.app/auth/reset/${token}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/reset/${params.token}`,
         {
           method: "POST",
           headers: {

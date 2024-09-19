@@ -4,13 +4,12 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
-import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js"; 
 import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
 import { Input } from "@/app/pages/Patient/View-Patient-Page/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/View-Patient-Page/tabs"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Patient/View-Patient-Page/table"
+import Nav from "@/app/components/Navigation-Bar/NavBar";
 
 export default function ViewPatient() {
   const [patients, setPatients] = useState([]);
@@ -67,9 +66,16 @@ export default function ViewPatient() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
   return (
     <div className="flex h-screen">
-      {user.role === "admin" ? <AdminNav /> : <ServiceProviderNav />} 
+      <Nav access = {isAdmin} />
       <main className="flex-1 p-6 bg-white">
         <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">

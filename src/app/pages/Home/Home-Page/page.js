@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js"; // can't use {Nav} cause of bug
-import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js"; // can't use {Nav} cause of bug
 import Header from '@/app/components/Header/header';
+import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ViewPatient() {
   const [activeClients, setActiveClients] = useState(0);
@@ -15,9 +14,14 @@ export default function ViewPatient() {
   const router = useRouter();
 
   // Role-based logic
-  const isAdmin = user.role === "admin";
-  const isServiceProvider = user.role === "service_provider";
-
+  
+  const isAdmin =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
   useEffect(() => {
     const fetchPatients = async () => {
       //const token = Cookies.get('token');
@@ -61,7 +65,7 @@ export default function ViewPatient() {
 
   return (
     <div className="flex h-screen">
-      {user.role === "admin" ? <AdminNav /> : <ServiceProviderNav />} 
+      <Nav access = {isAdmin} />
       <main className="flex-1 p-6 bg-white">
       <Header user={user} />
 
@@ -101,7 +105,7 @@ export default function ViewPatient() {
           </div>
         )}
 
-        {isServiceProvider && (
+        {!isAdmin && (
           <div>
             {/* Service Provider Dashboard */}
             <h2 className="text-xl font-bold mt-6">Service Provider Dashboard</h2>
