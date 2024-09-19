@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/invoice-management/Add-Invoice/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
 import Header from '@/app/components/Header/header';
-import { Label } from "@/app/pages/invoice-management/Add-Invoice/label"
-import { Input } from "@/app/pages/invoice-management/Add-Invoice/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/invoice-management/Add-Invoice/select"
-import { Button } from "@/app/pages/invoice-management/Add-Invoice/button"
+import { Label } from '@/app/components/HomeUi/label';
+import { Input } from '@/app/components/HomeUi/input';
+import { Button } from '@/app/components/HomeUi/button';
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ImprovedAddNewPatient() {

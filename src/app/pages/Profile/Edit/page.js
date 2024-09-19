@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/app/pages/Account/Edit/button";
-import { Input } from "@/app/pages/Account/Edit/input";
+import { Button } from "@/app/components/HomeUi/button";
+import { Input } from "@/app/components/HomeUi/input";
 import Header from "@/app/components/Header/header";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
 

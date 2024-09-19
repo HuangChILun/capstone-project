@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/app/pages/Profile/View-Profile/button";
+import { Button } from "@/app/components/HomeUi/button";
 import Header from "@/app/components/Header/header"; 
 import Nav from "@/app/components/Navigation-Bar/NavBar";
 

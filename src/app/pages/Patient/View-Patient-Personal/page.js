@@ -2,13 +2,13 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Cookies from 'js-cookie';
-import { Badge } from "@/app/pages/Patient/View-Patient-Personal/badge"
-import { Button } from "@/app/pages/Patient/View-Patient-Personal/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent} from "@/app/pages/Patient/View-Patient-Personal/tabs"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Patient/View-Patient-Personal/table"
+import { Badge } from "@/app/components/HomeUi/badge"
+import { Button } from "@/app/components/HomeUi/button"
+import { Tabs, TabsList, TabsTrigger, TabsContent} from "@/app/components/HomeUi/tabs"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
 import { useRouter } from 'next/navigation';
-import { Label } from "@/app/pages/Patient/View-Patient-Personal/label"
-import { Checkbox } from "@/app/pages/Patient/View-Patient-Personal/checkbox"
+import { Label } from "@/app/components/HomeUi/label"
+import { Checkbox } from "@/app/components/HomeUi/checkbox"
 
 export default function ViewPatientPersonal() {
   const router = useRouter();

@@ -4,11 +4,11 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { Button } from "@/app/pages/Patient/View-Patient-Page/button"
-import { Input } from "@/app/pages/Patient/View-Patient-Page/input"
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Patient/View-Patient-Page/tabs"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Patient/View-Patient-Page/table"
+import { Button } from "@/app/components/HomeUi/button"
+import { Input } from "@/app/components/HomeUi/input"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
 import Nav from "@/app/components/Navigation-Bar/NavBar";
 
 export default function ViewPatient() {

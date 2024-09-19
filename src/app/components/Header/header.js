@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Patient/View-Patient-Page/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar";
 import Link from "next/link";
 
 export default function Header({ user }) {

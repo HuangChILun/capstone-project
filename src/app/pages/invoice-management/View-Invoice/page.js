@@ -4,22 +4,22 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 import Link from "next/link"
-import { Input } from "@/app/pages/invoice-management/View-Invoice/input"
-import { Button } from "@/app/pages/invoice-management/View-Invoice/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/invoice-management/View-Invoice/avatar"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/invoice-management/View-Invoice/table"
+import { Input } from '@/app/components/HomeUi/input';
+import { Button } from '@/app/components/HomeUi/button';
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ViewInvoice() {
   const router = useRouter();
 
   
-    useEffect(() => {
+    /*useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
       router.push('/');
     }
-  }, [router]);
+  }, [router]);*/
 
   const isAdmin =() =>{
     if (user.isAdmin === 1){
@@ -80,7 +80,7 @@ export default function ViewInvoice() {
                 <TableCell>Bella Jones</TableCell>
                 <TableCell>Aide</TableCell>
                 <TableCell>
-                        <Link Link href="./View-Staff-Personal">
+                        <Link Link href="./View-Invoice-Personal">
                       <Button variant="outline" size="sm">
                         View
                       </Button>
