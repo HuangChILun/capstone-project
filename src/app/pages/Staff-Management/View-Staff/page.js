@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 import Link from "next/link"
-import { Input } from "@/app/pages/Staff-Management/View-Staff/input"
-import { Button } from "@/app/pages/Staff-Management/View-Staff/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/pages/Staff-Management/View-Staff/avatar"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/pages/Staff-Management/View-Staff/table"
+import { Input } from "@/app/components/HomeUi/input"
+import { Button } from "@/app/components/HomeUi/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ViewStaff() {

@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import AdminNav from "/src/app/components/Navigation-Bar/AdminNav.js";
-import ServiceProviderNav from "/src/app/components/Navigation-Bar/ServiceProviderNav.js";
 import Header from '@/app/components/Header/header';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/pages/Staff-Management/Add-New-Staff/tabs"
-import { Label } from "@/app/pages/Staff-Management/Add-New-Staff/label"
-import { Input } from "@/app/pages/Staff-Management/Add-New-Staff/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/pages/Staff-Management/Add-New-Staff/select"
-import { Button } from "@/app/pages/Staff-Management/Add-New-Staff/button"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
+import { Label } from "@/app/components/HomeUi/label"
+import { Input } from "@/app/components/HomeUi/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/HomeUi/select"
+import { Button } from "@/app/components/HomeUi/button"
 
 export default function ImprovedAddNewPatient() {
   const [user, setUser] = useState(null);
