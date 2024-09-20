@@ -8,6 +8,7 @@ import { Label } from "@/app/components/HomeUi/label"
 import { Input } from "@/app/components/HomeUi/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/HomeUi/select"
 import { Button } from "@/app/components/HomeUi/button"
+import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ImprovedAddNewPatient() {
   const [user, setUser] = useState(null);
@@ -37,8 +38,8 @@ export default function ImprovedAddNewPatient() {
     <div className="flex h-screen">
       <Nav access = {isAdmin} />
       <main className="flex-1 p-6 bg-white">
-        <Header user={user} />
-      <h1 className="text-2xl font-bold mb-6 mt-6">Add New Patient</h1>
+      <h1 className="text-2xl font-bold mb-6 ">Add New Staff</h1>
+      {/* the field for user to input TabsContent value="active for one tab the other value for the another tab*/ }
       <Tabs defaultValue="active" className="w-full">
         <TabsContent value="active">
           <form className="bg-white shadow-sm rounded-lg p-6">
@@ -89,11 +90,22 @@ export default function ImprovedAddNewPatient() {
                   <Label htmlFor="province">Province</Label>
                   <Select>
                     <SelectTrigger id="province" className="w-full">
-                      <SelectValue placeholder="Select province" />
+                      <SelectValue placeholder="AB" value="province1" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="province1">Province 1</SelectItem>
-                      <SelectItem value="province2">Province 2</SelectItem>
+                      <SelectItem value="province1">AB</SelectItem>
+                      <SelectItem value="province2">BC</SelectItem>
+                      <SelectItem value="province3">MB</SelectItem>
+                      <SelectItem value="province4">NB</SelectItem>
+                      <SelectItem value="province5">NL</SelectItem>
+                      <SelectItem value="province6">NS</SelectItem>
+                      <SelectItem value="province7">ON</SelectItem>
+                      <SelectItem value="province8">PE</SelectItem>
+                      <SelectItem value="province9">QC</SelectItem>
+                      <SelectItem value="province10">SK</SelectItem>
+                      <SelectItem value="province11">NT</SelectItem>
+                      <SelectItem value="province12">YT</SelectItem>
+                      <SelectItem value="province13">NU</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

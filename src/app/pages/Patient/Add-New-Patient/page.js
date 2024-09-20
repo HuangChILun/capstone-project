@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react';
+import Cookies from 'js-cookie';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
 import { Label } from '@/app/components/HomeUi/label';
 import { Input } from '@/app/components/HomeUi/input';
@@ -8,8 +9,15 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Button } from '@/app/components/HomeUi/button';
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 const user = JSON.parse(localStorage.getItem('user'));
+
 export default function ImprovedAddNewPatient() {
 
+  const token = Cookies.get('token');
+  if (!token) {
+    router.push('/');
+    console.log("need login");
+    return;
+  }
   const isAdmin =() =>{
     if (user.isAdmin === 1){
       return true;

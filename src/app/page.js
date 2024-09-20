@@ -32,9 +32,9 @@ export default function Login() {
         //httpOnly: true Ensure JavaScript cannot access the token
         Cookies.set("token", data.token, {
           expires: 1 / 24,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: 'Lax',
-          httpOnly: true, 
+          // secure: process.env.NODE_ENV === "production",
+          // sameSite: 'Lax',
+          // httpOnly: true, 
         });
         // Store non-sensitive user data in localStorage instead of whole user data
         localStorage.setItem("user", JSON.stringify({

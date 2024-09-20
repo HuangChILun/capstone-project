@@ -5,6 +5,7 @@ import { Button } from "@/app/components/HomeUi/button";
 import { Input } from "@/app/components/HomeUi/input";
 import Header from "@/app/components/Header/header";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
+import Cookies from 'js-cookie';
 
 export default function Edit() {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -15,6 +16,14 @@ export default function Edit() {
       return false;
     }
   }
+
+  const token = Cookies.get('token');
+  if (!token) {
+    router.push('/');
+    console.log("need login");
+    return;
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* Nav */}
@@ -28,7 +37,7 @@ export default function Edit() {
         <div className="border p-8 rounded-lg mt-8 relative">
           {/* Save Button inside the profile box */}
           <div className="absolute top-5 right-5">
-            <Link href="../Account/View-Profile">
+            <Link href="../Profile/View-Profile">
               <Button className="bg-blue-500 text-white">Save</Button>
             </Link>
           </div>

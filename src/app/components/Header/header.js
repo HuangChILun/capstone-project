@@ -12,7 +12,7 @@ export default function Header({ user }) {
       </div>
       <div className="flex items-center space-x-4">
         <BellIcon className="w-6 h-6 text-gray-600" />
-        <Link href="../Account/View-Profile"> 
+        <Link href="../Profile/View-Profile"> 
         <Avatar>
           <AvatarImage src="/placeholder-user.jpg" />
           <AvatarFallback>JD</AvatarFallback>

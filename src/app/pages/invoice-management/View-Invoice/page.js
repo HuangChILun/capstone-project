@@ -14,12 +14,12 @@ export default function ViewInvoice() {
   const router = useRouter();
 
   
-    /*useEffect(() => {
+  useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
       router.push('/');
     }
-  }, [router]);*/
+  }, [router]);
 
   const isAdmin =() =>{
     if (user.isAdmin === 1){

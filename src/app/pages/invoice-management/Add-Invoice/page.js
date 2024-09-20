@@ -38,8 +38,7 @@ export default function ImprovedAddNewPatient() {
     <div className="flex h-screen bg-gray-100">
       <Nav access = {isAdmin} />
       <main className="flex-1 overflow-y-auto p-8">
-        <Header user={user} />
-        <h1 className="text-2xl font-bold mb-6 mt-6">Add New Invoice</h1>
+        <h1 className="text-2xl font-bold mb-6">Add New Invoice</h1>
         <Tabs defaultValue="active" className="w-full">
           <TabsContent value="active">
             <form className="bg-white shadow-sm rounded-lg p-6">

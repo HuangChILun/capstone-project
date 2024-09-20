@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
 import Header from "@/app/components/Header/header"; 
 import Nav from "@/app/components/Navigation-Bar/NavBar";
+import Cookies from 'js-cookie';
 
 export default function Profile() {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -14,7 +15,12 @@ export default function Profile() {
       return false;
     }
   }
-
+  const token = Cookies.get('token');
+  if (!token) {
+    router.push('/');
+    console.log("need login");
+    return;
+  }
   return (
     <div className="flex min-h-screen">
       {/* Nav */}
@@ -22,13 +28,12 @@ export default function Profile() {
 
       <main className="flex-1 p-8 relative">
         {/* Header Component */}
-        <Header user={user} />
         
         {/* Profile */}
         <div className="border p-8 rounded-lg mt-8 relative">
           {/* Edit Button inside the profile box */}
           <div className="absolute top-5 right-5">
-            <Link href="../Account/Edit">
+            <Link href="../Profile/Edit">
               <Button className="bg-blue-500 text-white">Edit</Button>
             </Link>
           </div>

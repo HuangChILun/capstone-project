@@ -1,12 +1,26 @@
-
+"use client"
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import Link from "next/link"
 import { Button } from "@/app/components/HomeUi/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
 import { Badge } from "@/app/components/HomeUi/badge"
 
+
+
 export default function ViewStaffPersonal() {
+
+  const router = useRouter();
+
+useEffect(() => {
+  const token = Cookies.get('token');
+  if (!token) {
+    router.push('/');
+  }
+}, [router]);
   return (
-    <div className="p-4">
+    <div className="p-4 ml-8 mt-2">
     <Link href="./View-Staff">
       <div className="flex items-center mb-4">
         <ArrowLeftIcon className="h-6 w-6 mr-2" />
@@ -25,7 +39,7 @@ export default function ViewStaffPersonal() {
           <TabsTrigger value="account-access">Account Access</TabsTrigger>
         </TabsList>
         <TabsContent value="personal-info">
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-4 mt-4 ">
             <div>
               <div className="text-muted-foreground">First Name</div>
               <div className="text-lg font-bold">Kevin</div>
