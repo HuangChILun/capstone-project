@@ -1,8 +1,7 @@
 "use client"
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-
 import Link from "next/link"
 import { Input } from "@/app/components/HomeUi/input"
 import { Button } from "@/app/components/HomeUi/button"
@@ -11,7 +10,51 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 
 export default function ViewStaff() {
+  const [staff, setStaff] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      const token = Cookies.get('token');
+      if (!token) {
+        router.push('/');
+        console.log("need login");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/staff`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch staff');
+        }
+        const data = await response.json();
+        setStaff(data);
+      } catch (error) {
+        console.error('Error fetching staff:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStaff();
+  }, [router]);
+
+  const filteredStaff = staff.filter(s => 
+    s.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.lastName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   const isAdmin =() =>{
     if (user.isAdmin === 1){
@@ -19,20 +62,21 @@ export default function ViewStaff() {
     } else {
       return false;
     }
-  }  
-  useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token) {
-      router.push('/');
-    }
-  }, [router]);
+  }
+
   return (
     <div className="flex h-screen">
-      <Nav access = {isAdmin} />
+      <Nav access={isAdmin} />
       <main className="flex-1 p-6 bg-gray-50">
-      <header className="flex items-center justify-between pb-4 border-b">
+        <header className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center space-x-2">
-            <Input type="text" placeholder="input Staff name..." className="w-64" />
+            <Input 
+              type="text" 
+              placeholder="input Staff name..." 
+              className="w-64" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <Button className="flex items-center">
               <SearchIcon className="w-4 h-4 mr-2" />
               Search
@@ -51,7 +95,7 @@ export default function ViewStaff() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Staff Name</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Phone Number</TableHead>
                 <TableHead>Email</TableHead>
@@ -59,32 +103,21 @@ export default function ViewStaff() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell>Kevin Huang</TableCell>
-                <TableCell>OT</TableCell>
-                <TableCell>403-123-8888</TableCell>
-                <TableCell>kevin@gmail.com</TableCell>
-                <TableCell>
-                        <Link href="./View-Staff-Personal">
+              {filteredStaff.map((staff) => (
+                <TableRow key={staff.staffId}>
+                  <TableCell>{`${staff.firstName} ${staff.lastName}`}</TableCell>
+                  <TableCell>{staff.role || 'N/A'}</TableCell>
+                  <TableCell>{staff.phone}</TableCell>
+                  <TableCell>{staff.email}</TableCell>
+                  <TableCell>
+                    <Link href={`./View-Staff-Personal?id=${staff.staffId}`}>
                       <Button variant="outline" size="sm">
                         View
                       </Button>
-                      </Link>
-                    </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Bella Jones</TableCell>
-                <TableCell>Aide</TableCell>
-                <TableCell>587-324-7656</TableCell>
-                <TableCell>bella@gmail.com</TableCell>
-                <TableCell>
-                        <Link href="./View-Staff-Personal">
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                      </Link>
-                    </TableCell>
-              </TableRow>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </section>
@@ -114,22 +147,21 @@ function BellIcon(props) {
 }
 
 function SearchIcon(props) {
-    return (
-      <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.3-4.3" />
-      </svg>
-    )
-  }
-  
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  )
+}
