@@ -39,7 +39,7 @@ export default function ViewPatient() {
         let waitlist = 0;
 
         for (let i = 1; i <= 4; i++) {
-          const response = await fetch(`https://capstone-project-backend-weld.vercel.app/patients/${i}`, {
+          const response = await fetch(`/patients/${i}`, {
             headers: {
               "Authorization": `Bearer ${token}`,
             },

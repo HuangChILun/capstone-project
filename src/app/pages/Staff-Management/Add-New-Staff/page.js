@@ -13,7 +13,7 @@ import Nav from '@/app/components/Navigation-Bar/NavBar';
 export default function ImprovedAddNewPatient() {
   const [user, setUser] = useState(null);
   const router = useRouter();
-
+ // ${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/register
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {

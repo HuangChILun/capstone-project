@@ -11,7 +11,7 @@ import Nav from '@/app/components/Navigation-Bar/NavBar';
 const user = JSON.parse(localStorage.getItem('user'));
 
 export default function ImprovedAddNewPatient() {
-
+//backend/patient/
   const token = Cookies.get('token');
   if (!token) {
     router.push('/');

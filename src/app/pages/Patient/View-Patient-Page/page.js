@@ -31,7 +31,7 @@ export default function ViewPatient() {
         setIsLoading(true);
         const allPatients = [];
         for (let i = 1; i <= 4; i++) {
-          const response = await fetch(`https://capstone-project-backend-weld.vercel.app/patients/${i}`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/patients/${i}`, {
             headers: {
               "Authorization": `Bearer ${token}`,
             },
