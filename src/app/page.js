@@ -26,6 +26,7 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         //token is set to expire in 1 hour
         //secure: true will always use https connection
         //sameSite: strict provide highest protection against CSRF attacks, lax is less but works in localhost environment.

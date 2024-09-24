@@ -22,8 +22,9 @@ export default function ForgotPassword() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
+      
       if (response.ok) {
+        const data = await response.json();
         setMessage('Verification code sent to your email.');
         setCurrentStep(2); // Move to step 2
       } else {
@@ -34,13 +35,13 @@ export default function ForgotPassword() {
     }
   };
 
-  // Handle resetting the password
+  //Handle resetting the password
   const handleResetPassword = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/reset-password`, {
-        method: 'POST',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/reset`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
@@ -49,7 +50,6 @@ export default function ForgotPassword() {
         }),
       });
 
-      const data = await response.json();
       if (response.ok) {
         setMessage('Password has been reset successfully.');
         setCurrentStep(3); // Move to success step
@@ -60,6 +60,7 @@ export default function ForgotPassword() {
       setMessage('An error occurred. Please try again later.');
     }
   };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -157,7 +158,7 @@ export default function ForgotPassword() {
               <p className="mb-6 text-center text-green-500">Your password has been reset successfully.</p>
               <button
                 type="button"
-                onClick={() => router.push('/pages/Login')}
+                onClick={() => router.push('/')}
                 className="w-full px-4 py-2 text-white bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
               >
                 Go to Login

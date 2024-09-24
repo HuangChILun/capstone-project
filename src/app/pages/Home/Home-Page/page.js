@@ -71,7 +71,7 @@ export default function ViewPatient() {
       <Header user={user} />
 
         {/* Conditional rendering based on role */}
-        {isAdmin && (
+        {isAdmin === true && (
           <div>
             {/* Admin Dashboard */}
             <h2 className="text-xl font-bold mt-6">Admin Dashboard</h2>
@@ -106,7 +106,7 @@ export default function ViewPatient() {
           </div>
         )}
 
-        {!isAdmin && (
+        {isAdmin === false && (
           <div>
             {/* Service Provider Dashboard */}
             <h2 className="text-xl font-bold mt-6">Service Provider Dashboard</h2>

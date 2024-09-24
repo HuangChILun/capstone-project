@@ -95,7 +95,7 @@ export default function Nav({access}) {
             </div>
           )}
         </div>
-        {isAdmin ? (<div>
+        {isAdmin === true ? (<div>
           <button onClick={toggleStaff} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <UserIcon className="w-5 h-5 mr-2" />
             Staff Management
@@ -111,7 +111,7 @@ export default function Nav({access}) {
               </Link>
             </div>
           )}
-        </div>):(null)}
+        </div>):(<div></div>)}
         <div>
           <button onClick={toggleAccount} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <SettingsIcon className="w-5 h-5 mr-2" />
