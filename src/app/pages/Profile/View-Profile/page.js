@@ -22,7 +22,7 @@ export default function Profile() {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/users`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/users/${user.id}/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

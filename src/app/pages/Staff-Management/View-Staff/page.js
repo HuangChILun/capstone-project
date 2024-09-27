@@ -27,7 +27,7 @@ export default function ViewStaff() {
 
       try {
         setIsLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/staff`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/`, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },

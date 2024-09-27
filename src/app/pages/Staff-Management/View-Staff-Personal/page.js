@@ -26,7 +26,7 @@ export default function ViewStaffPersonal() {
     const fetchStaffData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/staff/${staffId}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/${staffId}`, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
