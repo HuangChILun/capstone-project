@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from 'next/compat/router'
 import { Button } from "@/app/components/HomeUi/button";
 import { Input } from "@/app/components/HomeUi/input";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
@@ -31,7 +31,8 @@ export default function Edit() {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/users/${user.id}/profile`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}`, {
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -55,8 +56,8 @@ export default function Edit() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/users/${user.id}/profile`, {
-        method: "PUT",
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

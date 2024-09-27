@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
-import Header from "@/app/components/Header/header";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
 import Cookies from "js-cookie";
 const user = JSON.parse(localStorage.getItem('user'));
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const token = Cookies.get("token");
 
   useEffect(() => {
@@ -19,7 +17,6 @@ export default function Profile() {
       console.log("need login");
       return;
     }
-
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
@@ -44,6 +41,15 @@ export default function Profile() {
     fetchUserData();
   }, [token]);
 
+  const access =() =>{
+    if (user.isAdmin === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
+  const isAdmin = access();
+  
   if (!userData) {
     return <p>Loading...</p>;
   }
@@ -51,7 +57,7 @@ export default function Profile() {
   return (
     <div className="flex min-h-screen">
       {/* Nav */}
-      <Nav access={isAdmin} />
+      <Nav access= {isAdmin} />
 
       <main className="flex-1 p-8 relative">
         {/* Profile */}
@@ -105,7 +111,7 @@ export default function Profile() {
             </div>
             <div>
               <p className="font-semibold">Role</p>
-              <p>{userData.role === "admin" ? "Administrator" : "Service Provider"}</p>
+              <p>{isAdmin ? "Admin" : "Service Provider"}</p>
             </div>
           </div>
         </div>
