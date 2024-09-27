@@ -1,34 +1,58 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
-import Header from "@/app/components/Header/header"; 
+import Header from "@/app/components/Header/header";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 export default function Profile() {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAdmin =() =>{
-    if (user.isAdmin === 1){
-      return true;
-    } else {
-      return false;
+  const [userData, setUserData] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const token = Cookies.get("token");
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/");
+      console.log("need login");
+      return;
     }
+
+    // Fetch user data from API
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const data = await response.json();
+        setUserData(data);
+        setIsAdmin(data.role === "admin");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
+
+  if (!userData) {
+    return <p>Loading...</p>;
   }
-  const token = Cookies.get('token');
-  if (!token) {
-    router.push('/');
-    console.log("need login");
-    return;
-  }
+
   return (
     <div className="flex min-h-screen">
       {/* Nav */}
-      <Nav access = {isAdmin} />
+      <Nav access={isAdmin} />
 
       <main className="flex-1 p-8 relative">
-        {/* Header Component */}
-        
         {/* Profile */}
         <div className="border p-8 rounded-lg mt-8 relative">
           {/* Edit Button inside the profile box */}
@@ -48,39 +72,39 @@ export default function Profile() {
           <div className="grid grid-cols-2 gap-8">
             <div>
               <p className="font-semibold">First Name</p>
-              <p>John</p>
+              <p>{userData.firstName}</p>
             </div>
             <div>
               <p className="font-semibold">Last Name</p>
-              <p>Doe</p>
+              <p>{userData.lastName}</p>
             </div>
             <div>
               <p className="font-semibold">Email</p>
-              <p>john@gmail.com</p>
+              <p>{userData.email}</p>
             </div>
             <div>
               <p className="font-semibold">Phone Number</p>
-              <p>123-456-7890</p>
+              <p>{userData.phoneNumber}</p>
             </div>
             <div>
               <p className="font-semibold">Address</p>
-              <p>1234 Placeholder Hill SE</p>
+              <p>{userData.address}</p>
             </div>
             <div>
               <p className="font-semibold">City</p>
-              <p>Calgary</p>
+              <p>{userData.city}</p>
             </div>
             <div>
               <p className="font-semibold">Postal Code</p>
-              <p>T3R 1A2</p>
+              <p>{userData.postalCode}</p>
             </div>
             <div>
               <p className="font-semibold">Province</p>
-              <p>Alberta</p>
+              <p>{userData.province}</p>
             </div>
             <div>
               <p className="font-semibold">Role</p>
-              <p>{user.role === "admin" ? "Administrator" : "Service Provider"}</p>
+              <p>{userData.role === "admin" ? "Administrator" : "Service Provider"}</p>
             </div>
           </div>
         </div>
