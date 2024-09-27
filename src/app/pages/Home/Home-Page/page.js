@@ -16,13 +16,14 @@ export default function ViewPatient() {
 
   // Role-based logic
   
-  const isAdmin =() =>{
+  const access =() =>{
     if (user.isAdmin === 1){
       return true;
     } else {
       return false;
     }
   }
+  const isAdmin = access();
   useEffect(() => {
     const fetchPatients = async () => {
       const token = Cookies.get('token');

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Nav({access}) {
   const isAdmin = access;
@@ -16,6 +18,13 @@ export default function Nav({access}) {
   const toggleInvoice = () => setIsInvoiceOpen(!isInvoiceOpen);
   const toggleSchedule = () => setIsScheduleOpen(!isScheduleOpen);
   const toggleAccount = () => setIsAccountOpen(!isAccountOpen);
+  const router = useRouter();
+  const handleLogout = () => {
+    // Clear user data from localStorage or cookies
+    Cookies.remove("token");
+    localStorage.removeItem("user");
+    router.push("/"); // Navigate back to login after logout
+  }; 
 
   return (
     <aside className="w-64 bg-gray-800 text-white flex flex-col">
@@ -95,7 +104,7 @@ export default function Nav({access}) {
             </div>
           )}
         </div>
-        {isAdmin === true ? (<div>
+        {isAdmin ? (<div>
           <button onClick={toggleStaff} className="flex items-center w-full p-2 hover:bg-gray-700 rounded">
             <UserIcon className="w-5 h-5 mr-2" />
             Staff Management
@@ -130,7 +139,33 @@ export default function Nav({access}) {
           )}
         </div>
       </nav>
+      <div className="mt-auto p-4">
+        <button onClick={handleLogout} className="flex items-center w-full p-2 hover:bg-red-700 rounded">
+          <PowerIcon className="w-5 h-5 mr-2" />
+          Log Out
+        </button>
+      </div>
     </aside>
+  );
+}
+
+function PowerIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+      <line x1="12" y1="2" x2="12" y2="12" />
+    </svg>
   );
 }
 
@@ -260,12 +295,14 @@ function SettingsIcon(props) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className="w-5 h-5" // Consistent sizing
     >
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 1 1 1.73v.5a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 1 1.73-1l.43-.25a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1.73 1h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.73v-.5a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2h-.44a2 2 0 0 1-1.73 1l-.43.25a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1.73-1z" />
       <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V20a2 2 0 0 1-2 2h-1.52a2 2 0 0 1-2-2v-.17a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H4a2 2 0 0 1-2-2v-1.52a2 2 0 0 1 2-2h.17a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.06A1.65 1.65 0 0 0 9 4.17V4a2 2 0 0 1 2-2h1.52a2 2 0 0 1 2 2v.17a1.65 1.65 0 0 0 1.51 1h.06a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.06A1.65 1.65 0 0 0 19.4 9h.17a2 2 0 0 1 2 2v1.52a2 2 0 0 1-2 2h-.17a1.65 1.65 0 0 0-1.51 1v.06z" />
     </svg>
   );
 }
+
 
 function UserIcon(props) {
   return (
@@ -280,11 +317,11 @@ function UserIcon(props) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className="w-5 h-5" // Consistent sizing
     >
       <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M4 21v-2a4 4 0 0 1 3-3.87" />
-      <path d="M12 3a4 4 0 0 0-4 4v1a4 4 0 0 0 4 4" />
-      <path d="M16 17a4 4 0 0 0-8 0" />
+      <circle cx="12" cy="7" r="4" />
     </svg>
   );
 }
