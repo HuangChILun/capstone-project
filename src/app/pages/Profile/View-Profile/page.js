@@ -6,6 +6,7 @@ import { Button } from "@/app/components/HomeUi/button";
 import Header from "@/app/components/Header/header";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
 import Cookies from "js-cookie";
+const user = JSON.parse(localStorage.getItem('user'));
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
@@ -22,7 +23,7 @@ export default function Profile() {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/users/${user.id}/profile`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -42,14 +42,13 @@ export default function PasswordChange() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ password, newPassword }),
+        body: JSON.stringify({ "password": newPassword }),
       });
 
       if (response.ok) {
         setMessage('Password has been changed successfully.');
-        // Navigate to the view-profile page
-        router.push('./view-profile');
       } else {
         const data = await response.json();
         setMessage(data.error || 'Incorrect Current Password.');
