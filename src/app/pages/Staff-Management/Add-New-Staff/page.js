@@ -7,6 +7,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeU
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 import StaffRegistrationForm from '@/app/components/Add-Staff/StaffRegistrationForm';
 
+const user = JSON.parse(localStorage.getItem('user'));
+
 export default function AddStaff() {
   const router = useRouter();
 
