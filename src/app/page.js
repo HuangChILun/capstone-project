@@ -35,7 +35,7 @@ export default function Login() {
           expires: 1 / 24,
           // secure: process.env.NODE_ENV === "production",
           // sameSite: 'Lax',
-          // httpOnly: true, 
+          //httpOnly: true, 
         });
         // Store non-sensitive user data in localStorage instead of whole user data
         localStorage.setItem("user", JSON.stringify({
