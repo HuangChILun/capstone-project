@@ -5,7 +5,7 @@ import { Input } from "@/app/components/HomeUi/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/HomeUi/select";
 import { Button } from "@/app/components/HomeUi/button";
 import Cookies from 'js-cookie';
-
+//comment
 export default function StaffRegistrationForm() {
   const [formData, setFormData] = useState({
     firstName: '',
