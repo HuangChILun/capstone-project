@@ -69,13 +69,6 @@ export default function Profile() {
             </Link>
           </div>
 
-          <div className="flex items-center mb-8">
-            <div className="relative w-32 h-32 border rounded-full flex items-center justify-center">
-              <UserIcon className="w-16 h-16 text-muted-foreground" />
-              <FilePenIcon className="absolute top-0 right-0 w-6 h-6 text-muted-foreground" />
-            </div>
-          </div>
-
           <div className="grid grid-cols-2 gap-8">
             <div>
               <p className="font-semibold">First Name</p>

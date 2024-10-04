@@ -1,45 +1,58 @@
-"use client"
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Cookies from 'js-cookie';
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs";
-import { Badge } from "@/app/components/HomeUi/badge";
 
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);
   const [assignedPatients, setAssignedPatients] = useState([]);
   const [accountAccess, setAccountAccess] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const router = useRouter();
   const searchParams = useSearchParams();
-  const staffId = searchParams.get('id');
-
+  const staffId = searchParams.get('id');  // Ensure 'id' exists in the URL
+  
   useEffect(() => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     if (!token) {
-      router.push('/');
+      router.push("/");
       return;
     }
 
     const fetchStaffData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/${staffId}`, {
+        if (!staffId) {
+          throw new Error("Staff ID is missing from URL");
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${1}`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
+
         if (!response.ok) {
-          throw new Error('Failed to fetch staff data');
+          throw new Error(`Failed to fetch staff data. Status: ${response.status}`);
         }
+
         const data = await response.json();
+        if (!data) {
+          throw new Error("No data found for this staff member");
+        }
+
         setStaffData(data);
-        setAssignedPatients(data.assignedPatients); // Assuming this comes from the API
-        setAccountAccess(data.accountAccess); // Assuming this comes from the API
+        setAssignedPatients(data.assignedPatients || []);  // Fallback to empty array if no assigned patients
+        setAccountAccess(data.accountAccess || []);        // Fallback to empty array if no account access info
+
       } catch (error) {
-        console.error('Error fetching staff data:', error);
+        console.error("Error fetching staff data:", error);
+        setError(error.message);
       } finally {
         setIsLoading(false);
       }
@@ -49,6 +62,7 @@ export default function ViewStaffPersonal() {
   }, [router, staffId]);
 
   if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
   if (!staffData) return <div>No staff data found.</div>;
 
   return (
@@ -73,59 +87,27 @@ export default function ViewStaffPersonal() {
 
         {/* Personal Info */}
         <TabsContent value="personal-info">
-          <div className="grid grid-cols-2 gap-4 mt-4 ">
-            <div>
-              <div className="text-muted-foreground">First Name</div>
-              <div className="text-lg font-bold">{staffData.firstName}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Last Name</div>
-              <div className="text-lg font-bold">{staffData.lastName}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">SIN</div>
-              <div className="text-lg font-bold">{staffData.sin}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Rate</div>
-              <div className="text-lg font-bold">{staffData.rate}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Licensing College</div>
-              <div className="text-lg font-bold">{staffData.licensingCollege}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Registration Number</div>
-              <div className="text-lg font-bold">{staffData.registrationNumber}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Address</div>
-              <div className="text-lg font-bold">{staffData.address}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">City</div>
-              <div className="text-lg font-bold">{staffData.city}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Province</div>
-              <div className="text-lg font-bold">{staffData.province}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Postal Code</div>
-              <div className="text-lg font-bold">{staffData.postalCode}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Phone Number</div>
-              <div className="text-lg font-bold">{staffData.phone}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Email</div>
-              <div className="text-lg font-bold">{staffData.email}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Contract</div>
-              <Badge variant="default">{staffData.contractStatus}</Badge>
-            </div>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {/* Display Personal Information */}
+            <div><div className="text-muted-foreground">First Name</div><div className="text-lg font-bold">{staffData.firstName}</div></div>
+            <div><div className="text-muted-foreground">Last Name</div><div className="text-lg font-bold">{staffData.lastName}</div></div>
+            <div><div className="text-muted-foreground">Role</div><div className="text-lg font-bold">{staffData.role}</div></div>
+            <div><div className="text-muted-foreground">Email</div><div className="text-lg font-bold">{staffData.email}</div></div>
+            <div><div className="text-muted-foreground">Phone Number</div><div className="text-lg font-bold">{staffData.phoneNumber}</div></div>
+            <div><div className="text-muted-foreground">address</div><div className="text-lg font-bold">{staffData.address}</div></div>
+            <div><div className="text-muted-foreground">city</div><div className="text-lg font-bold">{staffData.city}</div></div>
+            <div><div className="text-muted-foreground">Postal Code</div><div className="text-lg font-bold">{staffData.postalCode}</div></div>
+            <div><div className="text-muted-foreground">province</div><div className="text-lg font-bold">{staffData.province}</div></div>
+            <div><div className="text-muted-foreground">SIN</div><div className="text-lg font-bold">{staffData.SIN}</div></div>
+            <div><div className="text-muted-foreground">province</div><div className="text-lg font-bold">{staffData.province}</div></div>
+            <div><div className="text-muted-foreground">rate</div><div className="text-lg font-bold">{staffData.rate}</div></div>
+            <div><div className="text-muted-foreground">beneficiary</div><div className="text-lg font-bold">{staffData.beneficiary}</div></div>
+            <div><div className="text-muted-foreground">Licensing College</div><div className="text-lg font-bold">{staffData.licencingCollege}</div></div>
+            <div><div className="text-muted-foreground">Registration Number</div><div className="text-lg font-bold">{staffData.registrationNumber}</div></div>
+            <div><div className="text-muted-foreground">Contract Start Date</div><div className="text-lg font-bold">{staffData.contractStartDate}</div></div>
+            <div><div className="text-muted-foreground">contract End Date</div><div className="text-lg font-bold">{staffData.contractEndDate}</div></div>
+            
+            {/* Continue adding fields as needed... */}
           </div>
         </TabsContent>
 

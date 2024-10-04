@@ -11,7 +11,7 @@ export default function StaffRegistrationForm() {
     firstName: '',
     lastName: '',
     email: '',
-    password: 'Bridging',
+    password: '12345',
     phoneNumber: '',
     address: '',
     postalCode: '',
@@ -130,24 +130,24 @@ export default function StaffRegistrationForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="province">Province</Label>
-            <Select onValueChange={(value) => setFormData({ ...formData, province: value })}>
-              <SelectTrigger id="province" className="w-full">
-                <SelectValue placeholder="Select Province" />
+            <Select value="AB" onValueChange={(value) => setFormData({ ...formData, province: value })}>
+              <SelectTrigger  id="province" className="w-full">
+                <SelectValue  placeholder="Select Province" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="province1">AB</SelectItem>
-                <SelectItem value="province2">BC</SelectItem>
-                <SelectItem value="province3">MB</SelectItem>
-                <SelectItem value="province4">NB</SelectItem>
-                <SelectItem value="province5">NL</SelectItem>
-                <SelectItem value="province6">NS</SelectItem>
-                <SelectItem value="province7">ON</SelectItem>
-                <SelectItem value="province8">PE</SelectItem>
-                <SelectItem value="province9">QC</SelectItem>
-                <SelectItem value="province10">SK</SelectItem>
-                <SelectItem value="province11">NT</SelectItem>
-                <SelectItem value="province12">YT</SelectItem>
-                <SelectItem value="province13">NU</SelectItem>
+                <SelectItem value="AB">AB</SelectItem>
+                <SelectItem value="BC">BC</SelectItem>
+                <SelectItem value="MB">MB</SelectItem>
+                <SelectItem value="NB">NB</SelectItem>
+                <SelectItem value="NL">NL</SelectItem>
+                <SelectItem value="NS">NS</SelectItem>
+                <SelectItem value="ON">ON</SelectItem>
+                <SelectItem value="PE">PE</SelectItem>
+                <SelectItem value="QC">QC</SelectItem>
+                <SelectItem value="SK">SK</SelectItem>
+                <SelectItem value="NT">NT</SelectItem>
+                <SelectItem value="YT">YT</SelectItem>
+                <SelectItem value="NU">NU</SelectItem>
               </SelectContent>
             </Select>
           </div>

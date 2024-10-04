@@ -14,6 +14,7 @@ export default function ViewStaff() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
   const router = useRouter();
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function ViewStaff() {
 
       try {
         setIsLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users`, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -56,13 +57,14 @@ export default function ViewStaff() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const isAdmin =() =>{
+  const access =() =>{
     if (user.isAdmin === 1){
       return true;
     } else {
       return false;
     }
   }
+  const isAdmin = access();
 
   return (
     <div className="flex h-screen">
@@ -72,7 +74,7 @@ export default function ViewStaff() {
           <div className="flex items-center space-x-2">
             <Input 
               type="text" 
-              placeholder="input Staff name..." 
+              placeholder="Input Staff name..." 
               className="w-64" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -104,10 +106,10 @@ export default function ViewStaff() {
             </TableHeader>
             <TableBody>
               {filteredStaff.map((staff) => (
-                <TableRow key={staff.staffId}>
+                <TableRow key={staff.id}>
                   <TableCell>{`${staff.firstName} ${staff.lastName}`}</TableCell>
                   <TableCell>{staff.role || 'N/A'}</TableCell>
-                  <TableCell>{staff.phone}</TableCell>
+                  <TableCell>{staff.phoneNumber}</TableCell>
                   <TableCell>{staff.email}</TableCell>
                   <TableCell>
                     <Link href={`./View-Staff-Personal?id=${staff.staffId}`}>
