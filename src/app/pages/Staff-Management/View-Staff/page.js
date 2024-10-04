@@ -12,6 +12,7 @@ import Nav from '@/app/components/Navigation-Bar/NavBar';
 export default function ViewStaff() {
   const [staff, setStaff] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("name"); // New state for filtering by name or role
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const user = JSON.parse(localStorage.getItem('user'));
@@ -49,16 +50,23 @@ export default function ViewStaff() {
     fetchStaff();
   }, [router]);
 
-  const filteredStaff = staff.filter(s => 
-    s.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.lastName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Adjust filtering logic based on selected filterType
+  const filteredStaff = staff.filter(s => {
+    if (filterType === "name") {
+      return (
+        s.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.lastName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else if (filterType === "role") {
+      return s.role && s.role.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const access =() =>{
-    if (user.isAdmin === 1){
+  const access = () => {
+    if (user.isAdmin === 1) {
       return true;
     } else {
       return false;
@@ -74,7 +82,7 @@ export default function ViewStaff() {
           <div className="flex items-center space-x-2">
             <Input 
               type="text" 
-              placeholder="Input Staff name..." 
+              placeholder={`Search by ${filterType}`} 
               className="w-64" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -83,6 +91,14 @@ export default function ViewStaff() {
               <SearchIcon className="w-4 h-4 mr-2" />
               Search
             </Button>
+            <select 
+              className="border rounded px-2 py-1" 
+              value={filterType} 
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="name">Name</option>
+              <option value="role">Role</option>
+            </select>
           </div>
           <div className="flex items-center space-x-4">
             <BellIcon className="w-6 h-6 text-gray-600" />
