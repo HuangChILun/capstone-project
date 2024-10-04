@@ -58,6 +58,7 @@ export default function HoriNav({ user }) {
 
       <div style={navStyles.rightSection}>
         {/* Profile Button with User Initials */}
+        <Link href="../Profile/View-Profile">
         <div
           style={navStyles.profile}
         >
@@ -72,8 +73,9 @@ export default function HoriNav({ user }) {
               </div>
             </div>
           )} */}
+          
         </div>
-
+        </Link >
         {/* Log out Button with Power Icon */}
         <div onClick={handleLogout} style={navStyles.navItem}>
           <PowerIcon style={navStyles.iconStyle} />
@@ -243,7 +245,8 @@ const navStyles = {
     justifyContent: "space-between", // Align items on left, center, and right
     alignItems: "center", // Center items vertically
     padding: "10px 20px",
-    background: "linear-gradient(90deg, #5A6378, #4A90E2, #2E8B57)", // Gradient from greyish blue to greenish blue
+    //background: "linear-gradient(90deg, #5A6378, #4A90E2, #2E8B57)", // Gradient from greyish blue to greenish blue
+    background: "linear-gradient(90deg, #2b538b, #61A86F, #2b538b)", // Gradient from greyish blue to greenish blue
     color: "#fff",
     position: "fixed", // Fixes the navbar at the top
     top: 0,

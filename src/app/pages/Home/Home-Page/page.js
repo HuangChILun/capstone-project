@@ -264,7 +264,7 @@ const homepageStyle = {
   },
   dashboardCard: {
     padding: "20px",
-    backgroundColor: "white",
+    backgroundColor: "#ffffff",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
     borderRadius: "8px",
   },
