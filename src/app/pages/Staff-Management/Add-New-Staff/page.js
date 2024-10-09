@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
 import Nav from '@/app/components/Navigation-Bar/NavBar';
 import StaffRegistrationForm from '@/app/components/Add-Staff/StaffRegistrationForm';
+import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
 
 
 export default function AddStaff() {
   const router = useRouter();
-
+  const admin = JSON.parse(localStorage.getItem('user'));
   const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
@@ -22,16 +23,11 @@ export default function AddStaff() {
     }
   }, [router]);
 
-  const isAdmin = () => {
-    return user?.isAdmin === 1;
-  };
-
   return (
-    <div className="flex h-screen">
-      <Nav access={isAdmin} />
-      <main className="flex-1 p-6 bg-white">
-        <h1 className="text-2xl font-bold mb-6">Add New Staff</h1>
-        <Tabs defaultValue="active" className="w-full">
+    <div style={styles.pageContainer}>
+      <HoriNav user={admin} />
+      <main style={styles.mainContent}>
+        <Tabs defaultValue="active" style={styles.tabs}>
           <TabsContent value="active">
             <StaffRegistrationForm />
           </TabsContent>
@@ -43,3 +39,20 @@ export default function AddStaff() {
     </div>
   );
 }
+
+// Styles
+const styles = {
+  pageContainer: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+  },
+  mainContent: {
+    flex: 1,
+    padding: "60px",
+    backgroundColor: "#ffffff",
+  },
+  tabs: {
+    width: "100%",
+  },
+};

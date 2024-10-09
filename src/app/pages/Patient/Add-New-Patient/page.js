@@ -9,6 +9,7 @@ import { Input } from '@/app/components/HomeUi/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/HomeUi/select";
 import { Button } from '@/app/components/HomeUi/button';
 import Nav from '@/app/components/Navigation-Bar/NavBar';
+import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
 export default function ImprovedAddNewPatient() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function ImprovedAddNewPatient() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Nav access={isAdmin} />
+      <HoriNav user={user} />
       <main className="flex-1 overflow-y-auto p-8">
         <h1 className="text-2xl font-bold mb-6">Add New Patient</h1>
         <Tabs defaultValue="active" className="w-full">

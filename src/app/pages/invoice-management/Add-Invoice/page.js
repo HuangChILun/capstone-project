@@ -8,10 +8,12 @@ import { Label } from '@/app/components/HomeUi/label';
 import { Input } from '@/app/components/HomeUi/input';
 import { Button } from '@/app/components/HomeUi/button';
 import Nav from '@/app/components/Navigation-Bar/NavBar';
+import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
 export default function ImprovedAddNewPatient() {
   const [user, setUser] = useState(null);
   const router = useRouter();
+  const auser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -36,7 +38,7 @@ export default function ImprovedAddNewPatient() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Nav access = {isAdmin} />
+      <HoriNav user={auser} />
       <main className="flex-1 overflow-y-auto p-8">
         <h1 className="text-2xl font-bold mb-6">Add New Invoice</h1>
         <Tabs defaultValue="active" className="w-full">

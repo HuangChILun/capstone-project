@@ -9,12 +9,14 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { useRouter } from 'next/navigation';
 import { Label } from "@/app/components/HomeUi/label"
 import { Checkbox } from "@/app/components/HomeUi/checkbox"
+import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
 export default function ViewPatientPersonal() {
   const router = useRouter();
   const [patient, setPatient] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -55,6 +57,8 @@ export default function ViewPatientPersonal() {
   if (!patient) return <div>No patient data found</div>;
 
   return (
+    <div>
+    <HoriNav user={user} />
     <div className="p-6">
       <div className="flex items-center mb-4">
         <ArrowLeftIcon className="w-6 h-6 text-muted-foreground" />
@@ -215,6 +219,7 @@ export default function ViewPatientPersonal() {
           </div>
         </TabsContent>
       </Tabs>
+    </div>
     </div>
   )
 }

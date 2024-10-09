@@ -59,7 +59,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <div className="w-full bg-[#0B2C59] text-white text-center py-10">
+      <div className="w-full bg-[#2b538b] text-white text-center py-10">
         <img
           src="/assets/Bridging_Abilities_Logo.jpg"
           alt="Logo"
@@ -117,7 +117,7 @@ export default function Login() {
             </div>
             <button
               type="submit"
-              className="w-full px-4 py-2  bg-[#1a73e8] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+              className="w-full px-4 py-2  bg-[#2b538b] rounded-lg hover:bg-[#1765cc] focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
             >
               <p style={{ color: "white" }}>SIGN IN</p>
             </button>

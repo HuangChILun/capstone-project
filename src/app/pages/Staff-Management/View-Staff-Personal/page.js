@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs";
+import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);
@@ -12,6 +13,7 @@ export default function ViewStaffPersonal() {
   const [accountAccess, setAccountAccess] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -66,7 +68,10 @@ export default function ViewStaffPersonal() {
   if (!staffData) return <div>No staff data found.</div>;
 
   return (
-    <div className="p-4 ml-8 mt-2">
+    <div>
+    <HoriNav user={user} />
+    <div className="p-4 ml-8 mt-2 pt-20">
+      
       <Link href="./View-Staff">
         <div className="flex items-center mb-4">
           <ArrowLeftIcon className="h-6 w-6 mr-2" />
@@ -147,6 +152,7 @@ export default function ViewStaffPersonal() {
           </div>
         </TabsContent>
       </Tabs>
+    </div>
     </div>
   );
 }
