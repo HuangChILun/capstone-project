@@ -33,7 +33,7 @@ export default function ViewStaffPersonal() {
           throw new Error("Staff ID is missing from URL");
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${1}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -104,7 +104,6 @@ export default function ViewStaffPersonal() {
             <div><div className="text-muted-foreground">Postal Code</div><div className="text-lg font-bold">{staffData.postalCode}</div></div>
             <div><div className="text-muted-foreground">province</div><div className="text-lg font-bold">{staffData.province}</div></div>
             <div><div className="text-muted-foreground">SIN</div><div className="text-lg font-bold">{staffData.SIN}</div></div>
-            <div><div className="text-muted-foreground">province</div><div className="text-lg font-bold">{staffData.province}</div></div>
             <div><div className="text-muted-foreground">rate</div><div className="text-lg font-bold">{staffData.rate}</div></div>
             <div><div className="text-muted-foreground">beneficiary</div><div className="text-lg font-bold">{staffData.beneficiary}</div></div>
             <div><div className="text-muted-foreground">Licensing College</div><div className="text-lg font-bold">{staffData.licencingCollege}</div></div>

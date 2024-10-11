@@ -5,15 +5,13 @@ import Cookies from 'js-cookie';
 import Link from "next/link"
 import { Input } from "@/app/components/HomeUi/input"
 import { Button } from "@/app/components/HomeUi/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
-import Nav from '@/app/components/Navigation-Bar/NavBar';
 import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
 export default function ViewStaff() {
   const [staff, setStaff] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("name"); // New state for filtering by name or role
+  const [filterType, setFilterType] = useState("name");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const user = JSON.parse(localStorage.getItem('user'));
@@ -51,7 +49,6 @@ export default function ViewStaff() {
     fetchStaff();
   }, [router]);
 
-  // Adjust filtering logic based on selected filterType
   const filteredStaff = staff.filter(s => {
     if (filterType === "name") {
       return (
@@ -119,13 +116,13 @@ export default function ViewStaff() {
             </TableHeader>
             <TableBody>
               {filteredStaff.map((staff) => (
-                <TableRow key={staff.id}>
+                <TableRow key={staff.staffId}>
                   <TableCell>{`${staff.firstName} ${staff.lastName}`}</TableCell>
                   <TableCell>{staff.role || "N/A"}</TableCell>
                   <TableCell>{staff.phoneNumber}</TableCell>
                   <TableCell>{staff.email}</TableCell>
                   <TableCell>
-                    <Link href={`./View-Staff-Personal?id=${staff.staffId}`}>
+                    <Link href={`./View-Staff-Personal?id=${staff.id}`}>
                       <Button style={styles.viewButton}>View</Button>
                     </Link>
                   </TableCell>

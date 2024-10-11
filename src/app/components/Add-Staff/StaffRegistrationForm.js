@@ -16,7 +16,7 @@ export default function StaffRegistrationForm() {
     address: '',
     postalCode: '',
     city: '',
-    province: 'province1',
+    province: 'AB',
     SIN: '',
     rate: '',
     isAdmin: '0',
@@ -45,7 +45,12 @@ export default function StaffRegistrationForm() {
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
-
+  const handleSelectChange = (field, value) => {
+    setFormData(prevData => ({
+      ...prevData,
+      [field]: value
+    }));
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -129,27 +134,30 @@ export default function StaffRegistrationForm() {
             <Input id="city" placeholder="Input" className="w-full" value={formData.city} onChange={handleInputChange} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="province">Province</Label>
-            <Select value="AB" onValueChange={(value) => setFormData({ ...formData, province: value })}>
-              <SelectTrigger  id="province" className="w-full">
-                <SelectValue  placeholder="Select Province" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="AB">AB</SelectItem>
-                <SelectItem value="BC">BC</SelectItem>
-                <SelectItem value="MB">MB</SelectItem>
-                <SelectItem value="NB">NB</SelectItem>
-                <SelectItem value="NL">NL</SelectItem>
-                <SelectItem value="NS">NS</SelectItem>
-                <SelectItem value="ON">ON</SelectItem>
-                <SelectItem value="PE">PE</SelectItem>
-                <SelectItem value="QC">QC</SelectItem>
-                <SelectItem value="SK">SK</SelectItem>
-                <SelectItem value="NT">NT</SelectItem>
-                <SelectItem value="YT">YT</SelectItem>
-                <SelectItem value="NU">NU</SelectItem>
-              </SelectContent>
-            </Select>
+          <Label htmlFor="province">Province</Label>
+          <Select 
+          value={formData.province}
+          onValueChange={(value) => handleSelectChange('province', value)}
+        >
+          <SelectTrigger id="province" className="w-full">
+            <SelectValue placeholder="Select Province" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="AB">AB</SelectItem>
+            <SelectItem value="BC">BC</SelectItem>
+            <SelectItem value="MB">MB</SelectItem>
+            <SelectItem value="NB">NB</SelectItem>
+            <SelectItem value="NL">NL</SelectItem>
+            <SelectItem value="NS">NS</SelectItem>
+            <SelectItem value="ON">ON</SelectItem>
+            <SelectItem value="PE">PE</SelectItem>
+            <SelectItem value="QC">QC</SelectItem>
+            <SelectItem value="SK">SK</SelectItem>
+            <SelectItem value="NT">NT</SelectItem>
+            <SelectItem value="YT">YT</SelectItem>
+            <SelectItem value="NU">NU</SelectItem>
+          </SelectContent>
+        </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="postalCode">Postal Code</Label>
