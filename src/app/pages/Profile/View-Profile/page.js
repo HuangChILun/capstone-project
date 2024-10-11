@@ -5,11 +5,13 @@ import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
 import Nav from "@/app/components/Navigation-Bar/NavBar";
 import Cookies from "js-cookie";
-const user = JSON.parse(localStorage.getItem('user'));
+import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
+
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
   const token = Cookies.get("token");
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     if (!token) {
@@ -41,70 +43,65 @@ export default function Profile() {
     fetchUserData();
   }, [token]);
 
-  const access =() =>{
-    if (user.isAdmin === 1){
-      return true;
-    } else {
-      return false;
-    }
-  }
-  const isAdmin = access();
   
   if (!userData) {
     return <p>Loading...</p>;
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div style={styles.pageContainer}>
       {/* Nav */}
-      <Nav access= {isAdmin} />
+      <HoriNav user={user} />
 
-      <main className="flex-1 p-8 relative">
+      <main style={styles.mainContent}>
         {/* Profile */}
-        <div className="border p-8 rounded-lg mt-8 relative">
-          {/* Edit Button inside the profile box */}
-          <div className="absolute top-5 right-5">
+        <div style={styles.profileContainer}>
+          {/* Edit and Change Password Buttons */}
+          <div style={styles.buttonContainer}>
             <Link href="../Profile/Edit">
-              <Button className="bg-blue-500 text-white">Edit</Button>
+              <Button >Edit</Button>
+            </Link>
+            <Link href="../Profile/Password-Change">
+              <Button >Change Password</Button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
+          <div style={styles.profileGrid}>
             <div>
-              <p className="font-semibold">First Name</p>
+              <p style={styles.fieldLabel}>First Name</p>
               <p>{userData.firstName}</p>
             </div>
             <div>
-              <p className="font-semibold">Last Name</p>
+              <p style={styles.fieldLabel}>Last Name</p>
               <p>{userData.lastName}</p>
             </div>
             <div>
-              <p className="font-semibold">Email</p>
+              <p style={styles.fieldLabel}>Email</p>
               <p>{userData.email}</p>
             </div>
             <div>
-              <p className="font-semibold">Phone Number</p>
+              <p style={styles.fieldLabel}>Phone Number</p>
               <p>{userData.phoneNumber}</p>
             </div>
             <div>
-              <p className="font-semibold">Address</p>
+              <p style={styles.fieldLabel}>Address</p>
               <p>{userData.address}</p>
             </div>
             <div>
-              <p className="font-semibold">City</p>
+              <p style={styles.fieldLabel}>City</p>
               <p>{userData.city}</p>
             </div>
             <div>
-              <p className="font-semibold">Postal Code</p>
+              <p style={styles.fieldLabel}>Postal Code</p>
               <p>{userData.postalCode}</p>
             </div>
             <div>
-              <p className="font-semibold">Province</p>
+              <p style={styles.fieldLabel}>Province</p>
               <p>{userData.province}</p>
             </div>
             <div>
-              <p className="font-semibold">Role</p>
-              <p>{isAdmin ? "Admin" : "Service Provider"}</p>
+              <p style={styles.fieldLabel}>Role</p>
+              <p>{user.isAdmin === 1 ? "Admin" : "Service Provider"}</p>
             </div>
           </div>
         </div>
@@ -112,6 +109,46 @@ export default function Profile() {
     </div>
   );
 }
+
+// Styles
+const styles = {
+  pageContainer: {
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100vh",
+  },
+  mainContent: {
+    flex: 1,
+    padding: "84px 32px 32px 32px", // Adding padding to move content below the navbar
+    backgroundColor: "#ffffff",
+  },
+  profileContainer: {
+    border: "1px solid #e5e5e5",
+    padding: "32px",
+    borderRadius: "8px",
+    marginTop: "16px",
+    position: "relative",
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "16px", // Adds some space between buttons
+    marginBottom: "16px", // Adds some space below the buttons and profile content
+  },
+  editButtonStyle: {
+    backgroundColor: "#007BFF",
+    color: "#ffffff",
+  },
+  profileGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "32px",
+  },
+  fieldLabel: {
+    fontWeight: "600",
+  },
+};
+
 
 function FilePenIcon(props) {
   return (

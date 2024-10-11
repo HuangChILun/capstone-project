@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/compat/router'
+import { useRouter } from 'next/navigation';
 import { Button } from "@/app/components/HomeUi/button";
 import { Input } from "@/app/components/HomeUi/input";
-import Nav from "@/app/components/Navigation-Bar/NavBar";
 import Cookies from "js-cookie";
+import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
 export default function Edit() {
   const [formData, setFormData] = useState({
@@ -53,7 +53,6 @@ export default function Edit() {
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}`, {
@@ -64,10 +63,10 @@ export default function Edit() {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (response.ok) {
         alert("Profile updated successfully!");
-        router.push("/Profile/View-Profile");
+        window.location.href = "./View-Profile"; //window.location.href will allow redirecting to another page after user click on the ok button in alert
       } else {
         throw new Error("Failed to update profile");
       }
@@ -75,52 +74,55 @@ export default function Edit() {
       console.error("Error updating profile:", error);
     }
   };
+  
 
   return (
-    <div className="flex min-h-screen">
-      {/* Nav */}
-      <Nav access={user.isAdmin} />
-
-      <main className="flex-1 p-8 relative">
-        <div className="border p-8 rounded-lg mt-8 relative">
-          {/* Save Button inside the profile box */}
-          <div className="absolute top-5 right-5">
-            <Button className="bg-blue-500 text-white" onClick={handleSubmit}>
+    <div style={styles.pageContainer}>
+      <HoriNav user={user} />
+      <main style={styles.mainContent}>
+        <div style={styles.profileContainer}>
+          {/* Save and Cancel Buttons */}
+          <div style={styles.buttonContainer}>
+            <Button onClick={handleSubmit}>
               Save
             </Button>
+            <Button style={styles.cancelButton} onClick={() => router.push("./View-Profile")}>
+              Cancel
+            </Button>
           </div>
-
-          <div className="grid grid-cols-2 gap-8">
+  
+          {/* Edit Profile Form */}
+          <div style={styles.profileGrid}>
             <div>
-              <p className="font-semibold mb-2">First Name</p>
+              <p style={styles.fieldLabel}>First Name</p>
               <Input name="firstName" value={formData.firstName} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">Last Name</p>
+              <p style={styles.fieldLabel}>Last Name</p>
               <Input name="lastName" value={formData.lastName} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">Email</p>
+              <p style={styles.fieldLabel}>Email</p>
               <Input name="email" value={formData.email} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">Phone Number</p>
+              <p style={styles.fieldLabel}>Phone Number</p>
               <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">Address</p>
+              <p style={styles.fieldLabel}>Address</p>
               <Input name="address" value={formData.address} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">City</p>
+              <p style={styles.fieldLabel}>City</p>
               <Input name="city" value={formData.city} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">Postal Code</p>
+              <p style={styles.fieldLabel}>Postal Code</p>
               <Input name="postalCode" value={formData.postalCode} onChange={handleChange} />
             </div>
             <div>
-              <p className="font-semibold mb-2">Province</p>
+              <p style={styles.fieldLabel}>Province</p>
               <Input name="province" value={formData.province} onChange={handleChange} />
             </div>
           </div>
@@ -129,3 +131,57 @@ export default function Edit() {
     </div>
   );
 }
+
+const styles = {
+  pageContainer: {
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100vh",
+  },
+  mainContent: {
+    flex: 1,
+    padding: "84px 32px 32px 32px", // Padding to ensure content is below the navbar
+    backgroundColor: "#f8f9fa",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileContainer: {
+    width: "100%",
+    backgroundColor: "#ffffff",
+    padding: "32px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "16px",
+    marginBottom: "24px",
+  },
+  saveButton: {
+    backgroundColor: "#007BFF",
+    color: "#ffffff",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    border: "none",
+  },
+  cancelButton: {
+    backgroundColor: "#6c757d",
+    color: "#ffffff",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    border: "none",
+  },
+  profileGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "32px",
+  },
+  fieldLabel: {
+    fontWeight: "600",
+    marginBottom: "8px",
+  },
+};
