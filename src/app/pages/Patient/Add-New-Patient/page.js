@@ -9,7 +9,7 @@ import { Input } from '@/app/components/HomeUi/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/HomeUi/select";
 import { Button } from '@/app/components/HomeUi/button';
 import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
-import GuardianForm from '@/app/components/Add-Patient/GuardianFor';
+import GuardianForm from '@/app/components/Add-Patient/GuardianForm';
 
 export default function ImprovedAddNewPatient() {
   const router = useRouter();
