@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
+import { Input } from "@/app/components/HomeUi/input";
 
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);
@@ -13,6 +14,7 @@ export default function ViewStaffPersonal() {
   const [accountAccess, setAccountAccess] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false); // Toggle for editing mode
   const user = JSON.parse(localStorage.getItem('user'));
   
   const router = useRouter();
@@ -63,95 +65,257 @@ export default function ViewStaffPersonal() {
     fetchStaffData();
   }, [router, staffId]);
 
+  const handleEditClick = () => {
+    setIsEditing(true); // Enable editing mode
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false); // Cancel editing mode
+  };
+
+  const handleInputChange = (e) => {
+    setStaffData({
+      ...staffData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSaveChanges = async () => {
+    const token = Cookies.get("token");
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(staffData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update staff data");
+      }
+
+      alert("Staff data updated successfully!");
+      setIsEditing(false); // Exit editing mode after successful save
+    } catch (error) {
+      console.error("Error updating staff data:", error);
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!staffData) return <div>No staff data found.</div>;
 
   return (
     <div>
-    <HoriNav user={user} />
-    <div className="p-4 ml-8 mt-2 pt-20">
-      
-      <Link href="./View-Staff">
-        <div className="flex items-center mb-4">
-          <ArrowLeftIcon className="h-6 w-6 mr-2" />
-          <span>Back to Staff List</span>
+      <HoriNav user={user} />
+      <div className="p-4 ml-8 mt-2 pt-20">
+        <Link href="./View-Staff">
+          <div className="flex items-center mb-4">
+            <ArrowLeftIcon className="h-6 w-6 mr-2" />
+            <span>Back to Staff List</span>
+          </div>
+        </Link>
+
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-4xl font-bold">{`${staffData.firstName} ${staffData.lastName}`}</div>
+          <div className="text-xl ml-2">{staffData.role}</div>
+          {!isEditing && (
+            <Button className="ml-auto mr-2" onClick={handleEditClick}>Edit</Button>
+          )}
         </div>
-      </Link>
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-4xl font-bold">{`${staffData.firstName} ${staffData.lastName}`}</div>
-        <div className="text-xl ml-2">{staffData.role}</div>
-        <Button className="ml-auto">Edit</Button>
+
+        {isEditing ? (
+          <div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p>First Name</p>
+                <Input name="firstName" value={staffData.firstName} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Last Name</p>
+                <Input name="lastName" value={staffData.lastName} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Email</p>
+                <Input name="email" value={staffData.email} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Phone Number</p>
+                <Input name="phoneNumber" value={staffData.phoneNumber} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Address</p>
+                <Input name="address" value={staffData.address} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>City</p>
+                <Input name="city" value={staffData.city} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Postal Code</p>
+                <Input name="postalCode" value={staffData.postalCode} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Province</p>
+                <Input name="province" value={staffData.province} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>SIN</p>
+                <Input name="SIN" value={staffData.SIN} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Rate</p>
+                <Input name="rate" value={staffData.rate} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Beneficiary</p>
+                <Input name="beneficiary" value={staffData.beneficiary} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Licensing College</p>
+                <Input name="licencingCollege" value={staffData.licencingCollege} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Registration Number</p>
+                <Input name="registrationNumber" value={staffData.registrationNumber} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Contract Start Date</p>
+                <Input name="contractStartDate" value={staffData.contractStartDate} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Contract End Date</p>
+                <Input name="contractEndDate" value={staffData.contractEndDate} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Role</p>
+                <Input name="role" value={staffData.role} onChange={handleInputChange} />
+              </div>
+              <div>
+                <p>Agency</p>
+                <Input name="agency" value={staffData.agency} onChange={handleInputChange} />
+              </div>
+            </div>
+            <div className="mt-4">
+              <Button onClick={handleSaveChanges}>Save Changes</Button>
+              <Button className="ml-4" onClick={handleCancelEdit}>Cancel</Button>
+            </div>
+          </div>
+        ) : (
+          <Tabs defaultValue="personal-info">
+            <TabsList>
+              <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
+              <TabsTrigger value="assigned-patient">Assigned Patients</TabsTrigger>
+              <TabsTrigger value="account-access">Account Access</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="personal-info">
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <div className="text-muted-foreground">First Name</div>
+                  <div className="text-lg font-bold">{staffData.firstName}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Last Name</div>
+                  <div className="text-lg font-bold">{staffData.lastName}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Role</div>
+                  <div className="text-lg font-bold">{staffData.role}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Email</div>
+                  <div className="text-lg font-bold">{staffData.email}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Phone Number</div>
+                  <div className="text-lg font-bold">{staffData.phoneNumber}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Address</div>
+                  <div className="text-lg font-bold">{staffData.address}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">City</div>
+                  <div className="text-lg font-bold">{staffData.city}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Postal Code</div>
+                  <div className="text-lg font-bold">{staffData.postalCode}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Province</div>
+                  <div className="text-lg font-bold">{staffData.province}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">SIN</div>
+                  <div className="text-lg font-bold">{staffData.SIN}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Rate</div>
+                  <div className="text-lg font-bold">{staffData.rate}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Beneficiary</div>
+                  <div className="text-lg font-bold">{staffData.beneficiary}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Licensing College</div>
+                  <div className="text-lg font-bold">{staffData.licencingCollege}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Registration Number</div>
+                  <div className="text-lg font-bold">{staffData.registrationNumber}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Contract Start Date</div>
+                  <div className="text-lg font-bold">{staffData.contractStartDate}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Contract End Date</div>
+                  <div className="text-lg font-bold">{staffData.contractEndDate}</div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="assigned-patient">
+              <div className="mt-4">
+                {assignedPatients.length === 0 ? (
+                  <p>No patients assigned.</p>
+                ) : (
+                  <ul>
+                    {assignedPatients.map((patient) => (
+                      <li key={patient.id}>
+                        <div className="text-lg font-bold">{`${patient.firstName} ${patient.lastName}`}</div>
+                        <div className="text-muted-foreground">Condition: {patient.condition}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="account-access">
+              <div className="mt-4">
+                {accountAccess.length === 0 ? (
+                  <p>No account access details available.</p>
+                ) : (
+                  <ul>
+                    {accountAccess.map((access) => (
+                      <li key={access.id}>
+                        <div className="text-lg font-bold">Access Level: {access.level}</div>
+                        <div className="text-muted-foreground">Permissions: {access.permissions.join(', ')}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
-      <Tabs defaultValue="personal-info">
-        <TabsList>
-          <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
-          <TabsTrigger value="assigned-patient">Assigned Patients</TabsTrigger>
-          <TabsTrigger value="account-access">Account Access</TabsTrigger>
-        </TabsList>
-
-        {/* Personal Info */}
-        <TabsContent value="personal-info">
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            {/* Display Personal Information */}
-            <div><div className="text-muted-foreground">First Name</div><div className="text-lg font-bold">{staffData.firstName}</div></div>
-            <div><div className="text-muted-foreground">Last Name</div><div className="text-lg font-bold">{staffData.lastName}</div></div>
-            <div><div className="text-muted-foreground">Role</div><div className="text-lg font-bold">{staffData.role}</div></div>
-            <div><div className="text-muted-foreground">Email</div><div className="text-lg font-bold">{staffData.email}</div></div>
-            <div><div className="text-muted-foreground">Phone Number</div><div className="text-lg font-bold">{staffData.phoneNumber}</div></div>
-            <div><div className="text-muted-foreground">address</div><div className="text-lg font-bold">{staffData.address}</div></div>
-            <div><div className="text-muted-foreground">city</div><div className="text-lg font-bold">{staffData.city}</div></div>
-            <div><div className="text-muted-foreground">Postal Code</div><div className="text-lg font-bold">{staffData.postalCode}</div></div>
-            <div><div className="text-muted-foreground">province</div><div className="text-lg font-bold">{staffData.province}</div></div>
-            <div><div className="text-muted-foreground">SIN</div><div className="text-lg font-bold">{staffData.SIN}</div></div>
-            <div><div className="text-muted-foreground">rate</div><div className="text-lg font-bold">{staffData.rate}</div></div>
-            <div><div className="text-muted-foreground">beneficiary</div><div className="text-lg font-bold">{staffData.beneficiary}</div></div>
-            <div><div className="text-muted-foreground">Licensing College</div><div className="text-lg font-bold">{staffData.licencingCollege}</div></div>
-            <div><div className="text-muted-foreground">Registration Number</div><div className="text-lg font-bold">{staffData.registrationNumber}</div></div>
-            <div><div className="text-muted-foreground">Contract Start Date</div><div className="text-lg font-bold">{staffData.contractStartDate}</div></div>
-            <div><div className="text-muted-foreground">contract End Date</div><div className="text-lg font-bold">{staffData.contractEndDate}</div></div>
-            
-            {/* Continue adding fields as needed... */}
-          </div>
-        </TabsContent>
-
-        {/* Assigned Patients */}
-        <TabsContent value="assigned-patient">
-          <div className="mt-4">
-            {assignedPatients.length === 0 ? (
-              <p>No patients assigned.</p>
-            ) : (
-              <ul>
-                {assignedPatients.map((patient) => (
-                  <li key={patient.id}>
-                    <div className="text-lg font-bold">{`${patient.firstName} ${patient.lastName}`}</div>
-                    <div className="text-muted-foreground">Condition: {patient.condition}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* Account Access */}
-        <TabsContent value="account-access">
-          <div className="mt-4">
-            {accountAccess.length === 0 ? (
-              <p>No account access details available.</p>
-            ) : (
-              <ul>
-                {accountAccess.map((access) => (
-                  <li key={access.id}>
-                    <div className="text-lg font-bold">Access Level: {access.level}</div>
-                    <div className="text-muted-foreground">Permissions: {access.permissions.join(', ')}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
     </div>
   );
 }

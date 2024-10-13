@@ -6,7 +6,10 @@ import { Button } from "@/app/components/HomeUi/button";
 import { Input } from "@/app/components/HomeUi/input";
 import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
-
+{/*!!! notice when the 
+  user or admin tried to edit 
+  the information(profile and edit staff page), the user can not 
+  login duo to some unknown error*/}
 export default function Edit() {
   const [formData, setFormData] = useState({
     firstName: "",
