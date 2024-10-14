@@ -1,82 +1,150 @@
-"use client"
+"use client";
 
 import React from 'react';
 import { Label } from '@/app/components/HomeUi/label';
 import { Input } from '@/app/components/HomeUi/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/HomeUi/select";
-import { Button } from '../HomeUi/button';
-const GuardianForm = ({ formData, handleChange }) => {
+import { Button } from '@/app/components/HomeUi/button';
+
+const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelectChange, handleSubmit, goBack }) => {
   return (
-    <form className="bg-white shadow-sm rounded-lg p-6">
+    <form className="bg-white shadow-sm rounded-lg p-6" onSubmit={handleSubmit}>
       <fieldset>
         <legend className="text-lg font-semibold mb-4">Guardian Information</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
             <Label htmlFor="guardianFirstName">First Name</Label>
-            <Input id="guardianFirstName" placeholder="Input" className="w-full" value={formData.firstName} onChange={handleChange} />
+            <Input
+              id="guardianFirstName"
+              name="firstName"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.firstName}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianLastName">Last Name</Label>
-            <Input id="guardianLastName" placeholder="Input" className="w-full" value={formData.lastName} onChange={handleChange} />
+            <Input
+              id="guardianLastName"
+              name="lastName"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.lastName}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianBirthDate">Date Of Birth</Label>
-            <Input id="guardianBirthDate" type="date" className="w-full" value={formData.birthDate} onChange={handleChange} />
+            <Input
+              id="guardianBirthDate"
+              name="birthDate"
+              type="date"
+              className="w-full"
+              value={guardianData.birthDate}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianGender">Gender</Label>
-            <Input id="guardianGender" placeholder="Input" className="w-full" value={formData.gender} onChange={handleChange} />
+            <Input
+              id="guardianGender"
+              name="gender"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.gender}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianAge">Age</Label>
-            <Input id="guardianAge" type="number" placeholder="Input" className="w-full" value={formData.age} onChange={handleChange} />
+            <Input
+              id="guardianAge"
+              name="age"
+              type="number"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.age}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianAddress">Address</Label>
-            <Input id="guardianAddress" placeholder="Input" className="w-full" value={formData.address} onChange={handleChange} />
+            <Input
+              id="guardianAddress"
+              name="address"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.address}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianCity">City</Label>
-            <Input id="guardianCity" placeholder="Input" className="w-full" value={formData.city} onChange={handleChange} />
+            <Input
+              id="guardianCity"
+              name="city"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.city}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianProvince">Province</Label>
-            <Select>
+            <Select onValueChange={(value) => handleGuardianSelectChange('province', value)}>
               <SelectTrigger id="guardianProvince" className="w-full">
-                <SelectValue placeholder="Select province" />
+                <SelectValue placeholder={guardianData.province || "Select province"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="AB">AB</SelectItem>
-                <SelectItem value="BC">BC</SelectItem>
-                <SelectItem value="MB">MB</SelectItem>
-                <SelectItem value="NB">NB</SelectItem>
-                <SelectItem value="NL">NL</SelectItem>
-                <SelectItem value="NS">NS</SelectItem>
-                <SelectItem value="ON">ON</SelectItem>
-                <SelectItem value="PE">PE</SelectItem>
-                <SelectItem value="QC">QC</SelectItem>
-                <SelectItem value="SK">SK</SelectItem>
-                <SelectItem value="NT">NT</SelectItem>
-                <SelectItem value="YT">YT</SelectItem>
-                <SelectItem value="NU">NU</SelectItem>
+                {/* Options for selecting province */}
+                {["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK", "NT", "YT", "NU"].map((prov) => (
+                  <SelectItem key={prov} value={prov}>{prov}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianPostalCode">Postal Code</Label>
-            <Input id="guardianPostalCode" placeholder="Input" className="w-full" value={formData.postalCode} onChange={handleChange} />
+            <Input
+              id="guardianPostalCode"
+              name="postalCode"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.postalCode}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianPhoneNumber">Phone Number</Label>
-            <Input id="guardianPhoneNumber" type="tel" placeholder="Input" className="w-full" value={formData.phoneNumber} onChange={handleChange} />
+            <Input
+              id="guardianPhoneNumber"
+              name="phoneNumber"
+              type="tel"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.phoneNumber}
+              onChange={handleGuardianChange}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="guardianEmail">Email</Label>
-            <Input id="guardianEmail" type="email" placeholder="Input" className="w-full" value={formData.email} onChange={handleChange} />
+            <Input
+              id="guardianEmail"
+              name="email"
+              type="email"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.email}
+              onChange={handleGuardianChange}
+            />
           </div>
         </div>
       </fieldset>
-      <Button type="submit" className="mt-4">Submit</Button>
+      <div className="mt-4 flex">
+        <Button type="button" onClick={goBack} className="mr-2">Back</Button>
+        <Button type="submit">Submit</Button>
+      </div>
     </form>
   );
 };
