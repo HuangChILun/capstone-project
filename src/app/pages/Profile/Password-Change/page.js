@@ -33,7 +33,7 @@ export default function PasswordChange() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}/profile`,
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}/profile`,
         {
           method: "PATCH",
           headers: {

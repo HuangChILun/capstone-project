@@ -39,7 +39,7 @@ export default function Login() {
         });
         // Store non-sensitive user data in localStorage instead of whole user data
         localStorage.setItem("user", JSON.stringify({
-          id: data.user.id,
+          userId: data.user.userId,
           firstName: data.user.firstName,
           lastName: data.user.lastName,
           email: data.user.email,

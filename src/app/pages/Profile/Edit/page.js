@@ -12,9 +12,9 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
   login duo to some unknown error*/}
 export default function Edit() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    //firstName: "",
+    //lastName: "",
+    //email: "",
     phoneNumber: "",
     address: "",
     city: "",
@@ -34,14 +34,20 @@ export default function Edit() {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
-        setFormData(data);
+        setFormData({
+          phoneNumber: data.phoneNumber,
+    address: data.address,
+    city: data.city,
+    postalCode: data.postalCode,
+    province: data.province,
+        });
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -58,7 +64,7 @@ export default function Edit() {
   };
   const handleSubmit = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}/profile`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +72,7 @@ export default function Edit() {
         },
         body: JSON.stringify(formData),
       });
-  
+      console.log(formData);
       if (response.ok) {
         alert("Profile updated successfully!");
         window.location.href = "./View-Profile"; //window.location.href will allow redirecting to another page after user click on the ok button in alert
@@ -96,7 +102,7 @@ export default function Edit() {
   
           {/* Edit Profile Form */}
           <div style={styles.profileGrid}>
-            <div>
+            {/* <div>
               <p style={styles.fieldLabel}>First Name</p>
               <Input name="firstName" value={formData.firstName} onChange={handleChange} />
             </div>
@@ -107,7 +113,7 @@ export default function Edit() {
             <div>
               <p style={styles.fieldLabel}>Email</p>
               <Input name="email" value={formData.email} onChange={handleChange} />
-            </div>
+            </div> */}
             <div>
               <p style={styles.fieldLabel}>Phone Number</p>
               <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
