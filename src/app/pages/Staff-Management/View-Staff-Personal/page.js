@@ -16,10 +16,9 @@ export default function ViewStaffPersonal() {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false); // Toggle for editing mode
   const user = JSON.parse(localStorage.getItem('user'));
-  
   const router = useRouter();
   const searchParams = useSearchParams();
-  const staffId = searchParams.get('id');  // Ensure 'id' exists in the URL
+  const staffId = searchParams.get('userId');  // Ensure 'id' exists in the URL
   
   useEffect(() => {
     const token = Cookies.get("token");
@@ -83,25 +82,69 @@ export default function ViewStaffPersonal() {
   const handleSaveChanges = async () => {
     const token = Cookies.get("token");
     try {
+      // Ensure all NOT NULL fields are included and valid
+      const updatedData = {
+        firstName: staffData.firstName || '',
+        lastName: staffData.lastName || '',
+        email: staffData.email || '',
+        password: staffData.password || 'defaultPassword123', // If password is required
+        phoneNumber: staffData.phoneNumber || '',
+        address: staffData.address || '',
+        postalCode: staffData.postalCode || '',
+        city: staffData.city || '',
+        province: staffData.province || '',
+        SIN: staffData.SIN || '',
+        rate: parseFloat(staffData.rate) || 0,
+        isAdmin: staffData.isAdmin !== undefined ? staffData.isAdmin : 0,
+        isOutsideProvider: staffData.isOutsideProvider !== undefined ? staffData.isOutsideProvider : 0,
+        agency: staffData.agency || '',
+        contractStartDate: staffData.contractStartDate || '',
+        contractEndDate: staffData.contractEndDate || '',
+        role: staffData.role || '',
+        // Include other NOT NULL fields as necessary
+      };
+  
+      // Validate that all required fields are not empty
+      for (const [key, value] of Object.entries(updatedData)) {
+        if ((value === '' || value === null || value === undefined) && key !== 'password') {
+          throw new Error(`Field ${key} is required and cannot be empty.`);
+        }
+      }
+  
+      // Format dates to 'YYYY-MM-DD'
+      if (updatedData.contractStartDate) {
+        updatedData.contractStartDate = updatedData.contractStartDate.split('T')[0];
+      }
+      if (updatedData.contractEndDate) {
+        updatedData.contractEndDate = updatedData.contractEndDate.split('T')[0];
+      }
+  
+      console.log('Updated Data:', updatedData);
+  
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(staffData),
+        body: JSON.stringify(updatedData),
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to update staff data");
+        const errorData = await response.json();
+        throw new Error(`Failed to update staff data: ${errorData.message || response.statusText}`);
       }
-
+  
       alert("Staff data updated successfully!");
-      setIsEditing(false); // Exit editing mode after successful save
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating staff data:", error);
+      alert(`Error updating staff data: ${error.message}`);
     }
   };
+  
+  
+  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -182,13 +225,24 @@ export default function ViewStaffPersonal() {
                 <Input name="registrationNumber" value={staffData.registrationNumber} onChange={handleInputChange} />
               </div>
               <div>
-                <p>Contract Start Date</p>
-                <Input name="contractStartDate" value={staffData.contractStartDate} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Contract End Date</p>
-                <Input name="contractEndDate" value={staffData.contractEndDate} onChange={handleInputChange} />
-              </div>
+  <p>Contract Start Date</p>
+  <Input
+    type="date"
+    name="contractStartDate"
+    value={staffData.contractStartDate || ''}
+    onChange={handleInputChange}
+  />
+</div>
+<div>
+  <p>Contract End Date</p>
+  <Input
+    type="date"
+    name="contractEndDate"
+    value={staffData.contractEndDate || ''}
+    onChange={handleInputChange}
+  />
+</div>
+
               <div>
                 <p>Role</p>
                 <Input name="role" value={staffData.role} onChange={handleInputChange} />

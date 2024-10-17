@@ -46,29 +46,6 @@ const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelect
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="guardianGender">Gender</Label>
-            <Input
-              id="guardianGender"
-              name="gender"
-              placeholder="Input"
-              className="w-full"
-              value={guardianData.gender}
-              onChange={handleGuardianChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="guardianAge">Age</Label>
-            <Input
-              id="guardianAge"
-              name="age"
-              type="number"
-              placeholder="Input"
-              className="w-full"
-              value={guardianData.age}
-              onChange={handleGuardianChange}
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="guardianAddress">Address</Label>
             <Input
               id="guardianAddress"

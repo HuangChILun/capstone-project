@@ -1,14 +1,12 @@
 "use client"
-
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Cookies from 'js-cookie';
-import { Button } from "@/app/components/HomeUi/button"
-import { Input } from "@/app/components/HomeUi/input"
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
+import { Button } from "@/app/components/HomeUi/button";
+import { Input } from "@/app/components/HomeUi/input";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
 export default function ViewPatient() {
@@ -30,24 +28,18 @@ export default function ViewPatient() {
 
       try {
         setIsLoading(true);
-        const allPatients = [];
-        for (let i = 1; i <= 4; i++) {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/auth/patients/${i}`, {
-            headers: {
-              "Authorization": `Bearer ${token}`,
-            },
-          });
-          if (!response.ok) {
-            if (response.status === 404) {
-              // If patient not found, skip to the next one
-              continue;
-            }
-            throw new Error(`Failed to fetch patient ${i}`);
-          }
-          const data = await response.json();
-          allPatients.push(data);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/patients`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch patients');
         }
-        setPatients(allPatients);
+
+        const data = await response.json();
+        setPatients(data);
       } catch (error) {
         console.error('Error fetching patients:', error);
         setError(error.message);
@@ -55,7 +47,7 @@ export default function ViewPatient() {
         setIsLoading(false);
       }
     };
-  
+
     fetchPatients();
   }, [router]);
 
@@ -66,9 +58,11 @@ export default function ViewPatient() {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
+
   const handleAddPatient = () => {
     router.push('/pages/Patient/Add-New-Patient'); 
   };
+
   return (
     <div style={styles.pageContainer}>
       <HoriNav user={user} />
@@ -77,7 +71,7 @@ export default function ViewPatient() {
           <div style={styles.searchContainer}>
             <Input
               type="text"
-              placeholder="input patient name..."
+              placeholder="Input patient name..."
               style={styles.searchInput}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -90,8 +84,8 @@ export default function ViewPatient() {
           <div style={styles.rightHeaderSection}>
             <Button style={styles.searchButton} onClick={handleAddPatient}>Add New Patient</Button>
           </div>
-
         </header>
+
         <Tabs defaultValue="active" style={styles.tabs}>
           <TabsList>
             <TabsTrigger value="active">Active</TabsTrigger>
@@ -117,11 +111,13 @@ export default function ViewPatient() {
                     <TableCell>{patient.phone}</TableCell>
                     <TableCell>{patient.email}</TableCell>
                     <TableCell>
-                      <Link href={`./View-Patient-Personal?id=${patient.clientId}`}>
-                        <Button style={styles.viewButton}>
-                          View
-                        </Button>
-                      </Link>
+                    <Link href={`./View-Patient-Personal?clientId=${patient.clientId}`}>
+  <Button style={styles.viewButton}>
+    View
+  </Button>
+</Link>
+
+
                     </TableCell>
                   </TableRow>
                 ))}
@@ -151,7 +147,7 @@ function SearchIcon(props) {
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
-  )
+  );
 }
 
 // Styles
@@ -195,11 +191,6 @@ const styles = {
     width: "16px",
     height: "16px",
     marginRight: "8px",
-  },
-  iconLarge: {
-    width: "24px",
-    height: "24px",
-    color: "#4B5563",
   },
   tabs: {
     marginTop: "16px",

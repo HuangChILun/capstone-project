@@ -122,9 +122,10 @@ export default function ViewStaff() {
                   <TableCell>{staff.phoneNumber}</TableCell>
                   <TableCell>{staff.email}</TableCell>
                   <TableCell>
-                    <Link href={`./View-Staff-Personal?id=${staff.id}`}>
-                      <Button style={styles.viewButton}>View</Button>
-                    </Link>
+                  <Link href={`./View-Staff-Personal?userId=${staff.userId}`}>
+                    <Button style={styles.viewButton}>View</Button>
+                  </Link>
+
                   </TableCell>
                 </TableRow>
               ))}

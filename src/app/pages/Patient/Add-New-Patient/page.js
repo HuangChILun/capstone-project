@@ -16,6 +16,7 @@ export default function ImprovedAddNewPatient() {
   const token = Cookies.get('token');
 
   const [patientData, setPatientData] = useState({
+    clientId: '1',
     psNote: '',
     firstName: '',
     lastName: '',
@@ -27,21 +28,20 @@ export default function ImprovedAddNewPatient() {
     postalCode: '',
     phoneNumber: '',
     email: '',
+    diagnosisId: '1',
     school: '',
-    currentStatus: 1,
     age: '',
+    currentStatus: 1,
     fscdIdNum: '',
-    contractId: '',
-    guardianId: '',
-    //grade: '',
+    contractId: '1',
+    guardianId: '1',
+    grade: '',
   });
 
   const [guardianData, setGuardianData] = useState({
     firstName: '',
     lastName: '',
     birthDate: '',
-    gender: '',
-    age: '',
     address: '',
     city: '',
     province: '',
