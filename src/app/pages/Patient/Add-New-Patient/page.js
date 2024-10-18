@@ -16,7 +16,6 @@ export default function ImprovedAddNewPatient() {
   const token = Cookies.get('token');
 
   const [patientData, setPatientData] = useState({
-    clientId: '1',
     psNote: '',
     firstName: '',
     lastName: '',
@@ -28,13 +27,16 @@ export default function ImprovedAddNewPatient() {
     postalCode: '',
     phoneNumber: '',
     email: '',
-    diagnosisId: '1',
+    diagnosisId: 1,        // Corrected to integer
     school: '',
-    age: '',
-    currentStatus: 1,
+    age: 0,                // Initialized as integer
+    currentStatus: true,   // Boolean value
     fscdIdNum: '',
-    contractId: '1',
-    guardianId: '1',
+    contractId: 1,         // Corrected to integer
+    guardianId: 1,         // Corrected to integer
+    insuranceInfoId: 1,    // Corrected field name and integer value
+    consentId: 1,          // Corrected to integer
+    teamMemberId: 1,       // Corrected to integer
     grade: '',
   });
 
@@ -64,7 +66,15 @@ export default function ImprovedAddNewPatient() {
   // Handle changes for patient form
   const handlePatientChange = (e) => {
     const { id, value } = e.target;
-    setPatientData({ ...patientData, [id]: value });
+    // Convert numeric fields to numbers
+    const numericFields = ['diagnosisId', 'age', 'contractId', 'guardianId', 'insuranceInfoId', 'consentId', 'teamMemberId'];
+    if (numericFields.includes(id)) {
+      setPatientData({ ...patientData, [id]: Number(value) });
+    } else if (id === 'currentStatus') {
+      setPatientData({ ...patientData, [id]: value === 'true' });
+    } else {
+      setPatientData({ ...patientData, [id]: value });
+    }
   };
 
   const handlePatientSelectChange = (id, value) => {
@@ -85,6 +95,19 @@ export default function ImprovedAddNewPatient() {
   const handleSubmitPersonalInfo = async (e) => {
     e.preventDefault();
 
+    // Prepare data to send, ensuring correct data types
+    const dataToSend = {
+      ...patientData,
+      diagnosisId: Number(patientData.diagnosisId),
+      age: Number(patientData.age),
+      currentStatus: Boolean(patientData.currentStatus),
+      contractId: Number(patientData.contractId),
+      guardianId: Number(patientData.guardianId),
+      insuranceInfoId: Number(patientData.insuranceInfoId),
+      consentId: Number(patientData.consentId),
+      teamMemberId: Number(patientData.teamMemberId),
+    };
+
     try {
       let response;
       if (!patientId) {
@@ -95,7 +118,7 @@ export default function ImprovedAddNewPatient() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify(patientData),
+          body: JSON.stringify(dataToSend),
         });
 
         if (response.ok) {
@@ -104,7 +127,8 @@ export default function ImprovedAddNewPatient() {
           alert('Patient added successfully!');
           setStep(2); // Proceed to Step 2
         } else {
-          alert('Failed to add patient');
+          const errorData = await response.json();
+          alert(`Failed to add patient: ${errorData.message || 'Unknown error'}`);
         }
       } else {
         // If patientId exists, update the patient data
@@ -114,14 +138,15 @@ export default function ImprovedAddNewPatient() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify(patientData),
+          body: JSON.stringify(dataToSend),
         });
 
         if (response.ok) {
           alert('Patient information updated successfully!');
           setStep(2); // Proceed to Step 2
         } else {
-          alert('Failed to update patient');
+          const errorData = await response.json();
+          alert(`Failed to update patient: ${errorData.message || 'Unknown error'}`);
         }
       }
     } catch (error) {
@@ -158,7 +183,8 @@ export default function ImprovedAddNewPatient() {
         alert('Guardian added successfully!');
         router.push('/View-Patient-Page'); // Redirect to patient list page
       } else {
-        alert('Failed to add guardian');
+        const errorData = await guardianResponse.json();
+        alert(`Failed to add guardian: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error:', error);
