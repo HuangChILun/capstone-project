@@ -36,14 +36,14 @@ export default function HoriNav({ user }) {
           <NavItem icon={<PatientIcon />} label="Patient" page="../Patient/View-Patient-Page"/>
           <NavItem icon={<StaffIcon />} label="Staff" page="../Staff-Management/View-Staff"/>
           <NavItem icon={<InvoiceIcon />} label="Invoice" page="../invoice-management/View-Invoice"/>
-          <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Schedule/View-Schedule" />
+          <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Test/" />
         </div>
       ) : (
         <div style={navStyles.leftSection}>
           <NavItem icon={<HomeIcon />} label="Home" page="../Home/Home-Page"/>
           <NavItem icon={<PatientIcon />} label="Patient" page="../Patient/View-Patient-Page"/>
           <NavItem icon={<InvoiceIcon />} label="Invoice" page="../invoice-management/View-Invoice"/>
-          <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Schedule/View-Schedule" />
+          <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Test/" />
         </div>
       )}
 

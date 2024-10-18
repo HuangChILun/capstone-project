@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/app/components/Header/header";
-import Nav from "@/app/components/Navigation-Bar/NavBar";
 import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import AppointmentCard from "@/app/components/HomeUi/appointment-card";
@@ -12,6 +10,7 @@ import InvoiceSection from "@/app/components/HomeUi/invoice-display";
 export default function Homepage() {
   const [activeClients, setActiveClients] = useState(0);
   const [waitlistClients, setWaitlistClients] = useState(0);
+  const [assignedClients, setAssignedClients] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0); // Placeholder for pending tasks
   const [invoiceAmount, setInvoiceAmount] = useState(0); // Placeholder for invoice amount
   const user = JSON.parse(localStorage.getItem("user"));
@@ -38,28 +37,27 @@ export default function Homepage() {
 
       try {
         // Fetch clients data (if necessary for both roles)
-        const allPatients = [];
-        let active = 0;
-        let waitlist = 0;
-
-        for (let i = 1; i <= 4; i++) {
-          const response = await fetch(`/patients/${i}`, {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/patients/`,
+          {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
-          if (!response.ok) {
-            if (response.status === 404) continue;
-            throw new Error(`Failed to fetch patient ${i}`);
           }
+        );
+        if (response.ok) {
           const data = await response.json();
-          allPatients.push(data);
-          if (data.status === "active") active++;
-          if (data.status === "waitlist") waitlist++;
-        }
+          const allPatients = [...data];
+          let active = 0;
 
-        setActiveClients(active);
-        setWaitlistClients(waitlist);
+          for (const patient of allPatients) {
+            if (patient.currentStatus === 1) {
+              active++;
+            }
+          }
+          setActiveClients(active);
+        } else {
+        }
       } catch (error) {
         console.error("Error fetching patients:", error);
       }
@@ -75,84 +73,84 @@ export default function Homepage() {
     { patientName: "Anna Johnson", date: "2024-10-15", time: "11:00 AM" },
   ];
   // Mock Monthly Data (Bar Chart Data)
-const testMonthlyData = {
-  January: 1500,
-  February: 2000,
-  March: 1800,
-  April: 2200,
-  May: 2500,
-  June: 2300,
-  July: 1700,
-  August: 1900,
-  September: 2400,
-  October: 2100,
-  November: 1600,
-  December: 3000,
-};
+  const testMonthlyData = {
+    January: 1500,
+    February: 2000,
+    March: 1800,
+    April: 2200,
+    May: 2500,
+    June: 2300,
+    July: 1700,
+    August: 1900,
+    September: 2400,
+    October: 2100,
+    November: 1600,
+    December: 3000,
+  };
 
-// Mock Client Breakdown Data (Pie Chart Data by Month)
-const testClientData = {
-  January: {
-    "John Doe": 500,
-    "Jane Smith": 300,
-    "Anna Johnson": 700,
-  },
-  February: {
-    "John Doe": 800,
-    "Jane Smith": 500,
-    "Anna Johnson": 700,
-  },
-  March: {
-    "John Doe": 600,
-    "Jane Smith": 600,
-    "Anna Johnson": 600,
-  },
-  April: {
-    "John Doe": 1000,
-    "Jane Smith": 800,
-    "Anna Johnson": 400,
-  },
-  May: {
-    "John Doe": 1300,
-    "Jane Smith": 900,
-    "Anna Johnson": 300,
-  },
-  June: {
-    "John Doe": 1000,
-    "Jane Smith": 800,
-    "Anna Johnson": 500,
-  },
-  July: {
-    "John Doe": 800,
-    "Jane Smith": 500,
-    "Anna Johnson": 400,
-  },
-  August: {
-    "John Doe": 900,
-    "Jane Smith": 600,
-    "Anna Johnson": 400,
-  },
-  September: {
-    "John Doe": 1200,
-    "Jane Smith": 800,
-    "Anna Johnson": 400,
-  },
-  October: {
-    "John Doe": 1000,
-    "Jane Smith": 700,
-    "Anna Johnson": 400,
-  },
-  November: {
-    "John Doe": 900,
-    "Jane Smith": 500,
-    "Anna Johnson": 200,
-  },
-  December: {
-    "John Doe": 1500,
-    "Jane Smith": 1000,
-    "Anna Johnson": 500,
-  },
-};
+  // Mock Client Breakdown Data (Pie Chart Data by Month)
+  const testClientData = {
+    January: {
+      "John Doe": 500,
+      "Jane Smith": 300,
+      "Anna Johnson": 700,
+    },
+    February: {
+      "John Doe": 800,
+      "Jane Smith": 500,
+      "Anna Johnson": 700,
+    },
+    March: {
+      "John Doe": 600,
+      "Jane Smith": 600,
+      "Anna Johnson": 600,
+    },
+    April: {
+      "John Doe": 1000,
+      "Jane Smith": 800,
+      "Anna Johnson": 400,
+    },
+    May: {
+      "John Doe": 1300,
+      "Jane Smith": 900,
+      "Anna Johnson": 300,
+    },
+    June: {
+      "John Doe": 1000,
+      "Jane Smith": 800,
+      "Anna Johnson": 500,
+    },
+    July: {
+      "John Doe": 800,
+      "Jane Smith": 500,
+      "Anna Johnson": 400,
+    },
+    August: {
+      "John Doe": 900,
+      "Jane Smith": 600,
+      "Anna Johnson": 400,
+    },
+    September: {
+      "John Doe": 1200,
+      "Jane Smith": 800,
+      "Anna Johnson": 400,
+    },
+    October: {
+      "John Doe": 1000,
+      "Jane Smith": 700,
+      "Anna Johnson": 400,
+    },
+    November: {
+      "John Doe": 900,
+      "Jane Smith": 500,
+      "Anna Johnson": 200,
+    },
+    December: {
+      "John Doe": 1500,
+      "Jane Smith": 1000,
+      "Anna Johnson": 500,
+    },
+  };
 
   // Function to filter appointments within 2 weeks
   function filterUpcomingAppointments(appointments) {
@@ -178,57 +176,64 @@ const testClientData = {
 
         {/* Main Content */}
         <main style={homepageStyle.mainContent}>
-  <div>
-    <h2 style={homepageStyle.sectionTitle}>
-      Welcome, {user.firstName} {user.lastName}
-    </h2>
+          <div>
+            <h2 style={homepageStyle.sectionTitle}>
+              Welcome, {user.firstName} {user.lastName}
+            </h2>
 
-    <div style={homepageStyle.gridLayout}>
-      {/* Admin: Active Clients */}
-      {isAdmin && (
-        <div style={homepageStyle.dashboardCard}>
-          <p style={homepageStyle.cardTitle}>Active Clients</p>
-          <p style={homepageStyle.cardValue}>{activeClients}</p>
-        </div>
-      )}
+            <div style={homepageStyle.gridLayout}>
+              {/* Admin: Active Clients */}
+              {isAdmin && (
+                <div style={homepageStyle.dashboardCard}>
+                  <p style={homepageStyle.cardTitle}>Active Clients</p>
+                  <p style={homepageStyle.cardValue}>{activeClients}</p>
+                </div>
+              )}
 
-      {/* Admin: Waitlisted Clients */}
-      {isAdmin && (
-        <div style={homepageStyle.dashboardCard}>
-          <p style={homepageStyle.cardTitle}>Waitlisted Clients</p>
-          <p style={homepageStyle.cardValue}>{waitlistClients}</p>
-        </div>
-      )}
-      {/* Service Provider: Assigned Clients */}
-      {!isAdmin && (
-        <div style={homepageStyle.dashboardCard}>
-          <p style={homepageStyle.cardTitle}>Assigned Clients</p>
-          <p style={homepageStyle.cardValue}>{activeClients}</p>
-        </div>
-      )}
+              {/* Admin: Waitlisted Clients */}
+              {isAdmin && (
+                <div style={homepageStyle.dashboardCard}>
+                  <p style={homepageStyle.cardTitle}>Waitlisted Clients</p>
+                  <p style={homepageStyle.cardValue}>{waitlistClients}</p>
+                </div>
+              )}
+              {/* Service Provider: Assigned Clients */}
+              {!isAdmin && (
+                <div style={homepageStyle.dashboardCard}>
+                  <p style={homepageStyle.cardTitle}>Assigned Clients</p>
+                  <p style={homepageStyle.cardValue}>{activeClients}</p>
+                </div>
+              )}
 
-      {/* Shared: Upcoming Appointments for both Admin and Service Provider */}
-      <div style={homepageStyle.dashboardCard}>
-        <p style={homepageStyle.cardTitle}>Upcoming Appointments</p>
-        {upcomingAppointments.length > 0 ? (
-          upcomingAppointments.map((appointment, index) => (
-            <AppointmentCard key={index} appointment={appointment} />
-          ))
-        ) : (
-          <p>No upcoming appointments within the next two weeks.</p>
-        )}
-      </div>
+              {/* Shared: Upcoming Appointments for both Admin and Service Provider */}
+              <div style={homepageStyle.dashboardCard}>
+                <p style={homepageStyle.cardTitle}>Upcoming Appointments</p>
+                {upcomingAppointments.length > 0 ? (
+                  upcomingAppointments.map((appointment, index) => (
+                    <AppointmentCard key={index} appointment={appointment} />
+                  ))
+                ) : (
+                  <p>No upcoming appointments within the next two weeks.</p>
+                )}
+              </div>
 
-      {/* Shared: Invoice for both Admin and Service Provider */}
-      <div style={{ ...homepageStyle.dashboardCard, ...homepageStyle.invoiceCard }}>
-        <p style={homepageStyle.cardTitle}>Invoice</p>
-        {/* <p style={homepageStyle.cardValue}>$ {invoiceAmount}</p> */}
-        <InvoiceSection monthlyData={testMonthlyData} clientData={testClientData}/>
-      </div>
-    </div>
-  </div>
-</main>
-
+              {/* Shared: Invoice for both Admin and Service Provider */}
+              <div
+                style={{
+                  ...homepageStyle.dashboardCard,
+                  ...homepageStyle.invoiceCard,
+                }}
+              >
+                <p style={homepageStyle.cardTitle}>Invoice</p>
+                {/* <p style={homepageStyle.cardValue}>$ {invoiceAmount}</p> */}
+                <InvoiceSection
+                  monthlyData={testMonthlyData}
+                  clientData={testClientData}
+                />
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Label } from "@/app/components/HomeUi/label";
+import { useState } from "react";
 import { Input } from "@/app/components/HomeUi/input";
 import { Button } from "@/app/components/HomeUi/button";
-import Nav from "@/app/components/Navigation-Bar/NavBar";
-import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 export default function PasswordChange() {
@@ -14,33 +12,81 @@ export default function PasswordChange() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [validations, setValidations] = useState({
+    upperCase: false,
+    lowerCase: false,
+    number: false,
+    specialChar: false,
+    minLength: false,
+  });
   const user = JSON.parse(localStorage.getItem("user"));
   const router = useRouter();
   const token = Cookies.get("token");
+  
   if (!token) {
     router.push("/");
     console.log("need login");
     return;
   }
 
+  // Check new password criteria
+  const handleNewPasswordChange = (e) => {
+    const password = e.target.value;
+    setNewPassword(password);
+
+    // Validation checks
+    setValidations({
+      upperCase: /[A-Z]/.test(password),
+      lowerCase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      minLength: password.length >= 8,
+    });
+  };
+
   const ChangePassword = async (e) => {
     e.preventDefault();
 
-    if (newPassword !== confirmPassword) {
-      setMessage("New password and confirm password do not match.");
+    if (!currentPassword) {
+      setMessage("Current password is required.");
+      setModalVisible(true);
       return;
     }
 
+    if (
+      !validations.upperCase ||
+      !validations.lowerCase ||
+      !validations.number ||
+      !validations.specialChar ||
+      !validations.minLength
+    ) {
+      setMessage("New password does not meet the required criteria.");
+      setModalVisible(true);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setMessage("New password and confirm password do not match.");
+      setModalVisible(true);
+      return;
+    }
+
+    
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}/profile`,
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}/change-password`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ password: newPassword }),
+          body: JSON.stringify({
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+          }),
         }
       );
 
@@ -48,16 +94,21 @@ export default function PasswordChange() {
         setMessage("Password has been changed successfully.");
       } else {
         const data = await response.json();
-        setMessage(data.error || "Incorrect Current Password.");
+        setMessage(data.error || "Password change failed,\n Check new password is not same as current password.");
       }
     } catch (error) {
       console.error(error);
       setMessage("An error occurred. Please try again later.");
     }
+    setModalVisible(true);
 
     setConfirmPassword("");
     setCurrentPassword("");
     setNewPassword("");
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
   };
 
   return (
@@ -70,7 +121,6 @@ export default function PasswordChange() {
             <h2 style={styles.headerText}>Change Password</h2>
           </div>
           <form onSubmit={ChangePassword} style={styles.form}>
-            {message && <p style={styles.errorMessage}>{message}</p>}
             <div style={styles.inputGroup}>
               <label htmlFor="current-password" style={styles.label}>
                 Current Password
@@ -93,9 +143,27 @@ export default function PasswordChange() {
                 type="password"
                 placeholder="Input"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={handleNewPasswordChange}
                 style={styles.input}
               />
+              <ul style={styles.validationList}>
+                <li>
+                  {validations.upperCase ? "✔️" : "❌"} At least one uppercase letter
+                </li>
+                <li>
+                  {validations.lowerCase ? "✔️" : "❌"} At least one lowercase letter
+                </li>
+                <li>
+                  {validations.number ? "✔️" : "❌"} At least one number
+                </li>
+                <li>
+                  {validations.specialChar ? "✔️" : "❌"} At least one special character
+                  (!@#$%^&*)
+                </li>
+                <li>
+                  {validations.minLength ? "✔️" : "❌"} At least 8 characters long
+                </li>
+              </ul>
             </div>
             <div style={styles.inputGroup}>
               <label htmlFor="confirm-password" style={styles.label}>
@@ -110,21 +178,38 @@ export default function PasswordChange() {
                 style={styles.input}
               />
             </div>
-            {/* Buttons for "Change Password" and "Cancel" */}
-          <div style={styles.buttonContainer}>
-            <Button type="submit">
-              Change Password
-            </Button>
-            <Button type="button" style={styles.cancelButton} onClick={() => router.push('./View-Profile')}>
-              Cancel
-            </Button>
-          </div>
+            <div style={styles.buttonContainer}>
+              <Button type="submit">Change Password</Button>
+              <Button
+                type="button"
+                style={styles.cancelButton}
+                onClick={() => router.push("./View-Profile")}
+              >
+                Cancel
+              </Button>
+            </div>
           </form>
         </div>
       </main>
+
+      {modalVisible && (
+        <Modal message={message} onClose={closeModal} />
+      )}
     </div>
   );
 }
+
+// Modal Component
+const Modal = ({ message, onClose }) => {
+  return (
+    <div style={modalStyles.overlay}>
+      <div style={modalStyles.modal}>
+        <p>{message}</p>
+        <Button onClick={onClose}>OK</Button>
+      </div>
+    </div>
+  );
+};
 
 // Styles
 const styles = {
@@ -207,8 +292,34 @@ const styles = {
     cursor: "pointer",
     border: "none",
   },
+  validationList: {
+    listStyleType: "none",
+    padding: 0,
+    margin: "10px 0",
+    color: "#333",
+  },
 };
-
+// Modal Styles
+const modalStyles = {
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    backgroundColor: "#fff",
+    padding: "20px",
+    borderRadius: "8px",
+    textAlign: "center",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+  },
+};
 function LockIcon(props) {
   return (
     <svg
