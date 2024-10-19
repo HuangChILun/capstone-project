@@ -9,6 +9,7 @@ export default function FileUpload({ onClose }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [token, setToken] = useState('');
   const [error, setError] = useState(null);
+  const [fileId,setFileId] = useState(0);
 
   useEffect(() => {
     const storedToken = Cookies.get('token');
@@ -33,6 +34,7 @@ export default function FileUpload({ onClose }) {
   const onSubmitContractInfo = async () => {
     const contractData = {
       clientId: 1, // Replace with dynamic clientId if needed
+      fileId: fileId,
       contractStartDate,
       contractEndDate,
       serviceProviders,
@@ -83,6 +85,7 @@ export default function FileUpload({ onClose }) {
 
       if (response.ok) {
         const data = await response.json();
+        setFileId(data.fileId);
         alert('File uploaded successfully.');
       } else {
         const errorData = await response.json();
