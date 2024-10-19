@@ -27,33 +27,34 @@ export default function ImprovedAddNewPatient() {
     postalCode: '',
     phoneNumber: '',
     email: '',
-    diagnosisId: 1,        // Corrected to integer
+    diagnosisId: '',
     school: '',
-    age: 0,                // Initialized as integer
-    currentStatus: true,   // Boolean value
+    age: 0,
+    currentStatus: true,
     fscdIdNum: '',
-    contractId: 1,         // Corrected to integer
-    guardianId: 1,         // Corrected to integer
-    insuranceInfoId: 1,    // Corrected field name and integer value
-    consentId: 1,          // Corrected to integer
-    teamMemberId: 1,       // Corrected to integer
+    contractId: 1,
+    guardianId: 1,
+    insuranceInfoId: 1,
+    consentId: 1,
+    teamMemberId: 1,
     grade: '',
   });
 
   const [guardianData, setGuardianData] = useState({
+    custody: '',
     firstName: '',
     lastName: '',
-    birthDate: '',
+    relationship: '',
+    phoneNumber: '',
+    email: '',
     address: '',
     city: '',
     province: '',
     postalCode: '',
-    phoneNumber: '',
-    email: '',
   });
 
   const [step, setStep] = useState(1); // Step 1 is the default for personal information
-  const [patientId, setPatientId] = useState(null); // Store patientId after creating patient
+  const [clientId, setClientId] = useState(null); // Store clientId after creating patient
 
   if (!token) {
     router.push('/');
@@ -66,6 +67,7 @@ export default function ImprovedAddNewPatient() {
   // Handle changes for patient form
   const handlePatientChange = (e) => {
     const { id, value } = e.target;
+    console.log(`${id}: ${value}`); // Log field and value
     // Convert numeric fields to numbers
     const numericFields = ['diagnosisId', 'age', 'contractId', 'guardianId', 'insuranceInfoId', 'consentId', 'teamMemberId'];
     if (numericFields.includes(id)) {
@@ -78,22 +80,27 @@ export default function ImprovedAddNewPatient() {
   };
 
   const handlePatientSelectChange = (id, value) => {
+    console.log(`${id}: ${value}`); // Log selected value
     setPatientData({ ...patientData, [id]: value });
   };
 
   // Handle changes for guardian form
   const handleGuardianChange = (e) => {
     const { name, value } = e.target;
+    console.log(`${name}: ${value}`); // Log guardian field and value
     setGuardianData({ ...guardianData, [name]: value });
   };
 
   const handleGuardianSelectChange = (name, value) => {
+    console.log(`${name}: ${value}`); // Log selected value for guardian
     setGuardianData({ ...guardianData, [name]: value });
   };
 
   // Handles personal info form submission and moves to the next step
   const handleSubmitPersonalInfo = async (e) => {
     e.preventDefault();
+
+    console.log("Submitting patient data:", patientData);
 
     // Prepare data to send, ensuring correct data types
     const dataToSend = {
@@ -110,8 +117,8 @@ export default function ImprovedAddNewPatient() {
 
     try {
       let response;
-      if (!patientId) {
-        // If patientId doesn't exist, create a new patient
+      if (!clientId) {
+        // If clientId doesn't exist, create a new patient
         response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/patients/`, {
           method: 'POST',
           headers: {
@@ -123,16 +130,18 @@ export default function ImprovedAddNewPatient() {
 
         if (response.ok) {
           const patientResult = await response.json();
-          setPatientId(patientResult.id); // Store the patientId
+          console.log("Patient added successfully:", patientResult);
+          setClientId(patientResult.clientId); // Store the clientId
           alert('Patient added successfully!');
           setStep(2); // Proceed to Step 2
         } else {
           const errorData = await response.json();
+          console.log("Failed to add patient:", errorData);
           alert(`Failed to add patient: ${errorData.message || 'Unknown error'}`);
         }
       } else {
-        // If patientId exists, update the patient data
-        response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/patient/${patientId}/`, {
+        // If clientId exists, update the patient data
+        response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/patients/${clientId}/`, {
           method: 'PUT', // or PATCH 
           headers: {
             'Content-Type': 'application/json',
@@ -142,12 +151,24 @@ export default function ImprovedAddNewPatient() {
         });
 
         if (response.ok) {
-          alert('Patient information updated successfully!');
+          const patientResult = await response.json();
+          console.log("Patient added successfully:", patientResult);
+          
+          // Double-check how the `clientId` is received from the backend response
+          if (patientResult.clientId) {
+            setClientId(patientResult.clientId); // Store the clientId
+          } else {
+            console.error("Client ID not found in the response");
+          }
+        
+          alert('Patient added successfully!');
           setStep(2); // Proceed to Step 2
         } else {
           const errorData = await response.json();
-          alert(`Failed to update patient: ${errorData.message || 'Unknown error'}`);
+          console.log("Failed to add patient:", errorData);
+          alert(`Failed to add patient: ${errorData.message || 'Unknown error'}`);
         }
+        
       }
     } catch (error) {
       console.error('Error:', error);
@@ -158,32 +179,41 @@ export default function ImprovedAddNewPatient() {
   // Handles submission of the guardian information
   const handleSubmitGuardianInfo = async (e) => {
     e.preventDefault();
-
+  
+    console.log("Submitting guardian data:", guardianData);
+  
     try {
-      if (!patientId) {
-        alert('Patient ID not found. Please complete patient information first.');
+      if (!clientId) {
+        alert('Client ID not found. Please complete patient information first.');
         setStep(1);
         return;
       }
-
+  
+      // Include clientId in the data to send
+      const dataToSend = {
+        ...guardianData,
+        clientId: clientId, // Use the clientId state here
+      };
+  
       // Sending guardian data to the backend server, linking it to the patient
-      const guardianResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/primary/`, {
+      const guardianResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...guardianData,
-          patientId: patientId, // Link guardian to patient
-        }),
+        body: JSON.stringify(dataToSend),
       });
-
+  
       if (guardianResponse.ok) {
+        console.log("Guardian added successfully");
         alert('Guardian added successfully!');
         router.push('/View-Patient-Page'); // Redirect to patient list page
       } else {
         const errorData = await guardianResponse.json();
+        console.log("Failed to add guardian:", errorData);
+        console.log("clientId after creating patient:", clientId);
+  
         alert(`Failed to add guardian: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
@@ -191,6 +221,8 @@ export default function ImprovedAddNewPatient() {
       alert('An error occurred while adding the guardian');
     }
   };
+  
+
 
   const goBackToPatientForm = () => {
     setStep(1);

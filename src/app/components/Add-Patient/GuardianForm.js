@@ -12,10 +12,11 @@ const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelect
       <fieldset>
         <legend className="text-lg font-semibold mb-4">Guardian Information</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* First Name */}
           <div className="space-y-2">
-            <Label htmlFor="guardianFirstName">First Name</Label>
+            <Label htmlFor="firstName">First Name</Label>
             <Input
-              id="guardianFirstName"
+              id="firstName"
               name="firstName"
               placeholder="Input"
               className="w-full"
@@ -23,10 +24,11 @@ const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelect
               onChange={handleGuardianChange}
             />
           </div>
+          {/* Last Name */}
           <div className="space-y-2">
-            <Label htmlFor="guardianLastName">Last Name</Label>
+            <Label htmlFor="lastName">Last Name</Label>
             <Input
-              id="guardianLastName"
+              id="lastName"
               name="lastName"
               placeholder="Input"
               className="w-full"
@@ -34,21 +36,61 @@ const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelect
               onChange={handleGuardianChange}
             />
           </div>
+          {/* Relationship */}
           <div className="space-y-2">
-            <Label htmlFor="guardianBirthDate">Date Of Birth</Label>
+            <Label htmlFor="relationship">Relationship</Label>
             <Input
-              id="guardianBirthDate"
-              name="birthDate"
-              type="date"
+              id="relationship"
+              name="relationship"
+              placeholder="Input"
               className="w-full"
-              value={guardianData.birthDate}
+              value={guardianData.relationship}
               onChange={handleGuardianChange}
             />
           </div>
+          {/* Custody */}
           <div className="space-y-2">
-            <Label htmlFor="guardianAddress">Address</Label>
+            <Label htmlFor="custody">Custody</Label>
+            <Select onValueChange={(value) => handleGuardianSelectChange('custody', value)}>
+              <SelectTrigger id="custody" className="w-full">
+                <SelectValue placeholder={guardianData.custody || "Select custody"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="living together">Living Together</SelectItem>
+                <SelectItem value="joint custody">Joint Custody</SelectItem>
+                <SelectItem value="sole custody">Sole Custody</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber">Phone Number</Label>
             <Input
-              id="guardianAddress"
+              id="phoneNumber"
+              name="phoneNumber"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.phoneNumber}
+              onChange={handleGuardianChange}
+            />
+          </div>
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              placeholder="Input"
+              className="w-full"
+              value={guardianData.email}
+              onChange={handleGuardianChange}
+            />
+          </div>
+          {/* Address */}
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Input
+              id="address"
               name="address"
               placeholder="Input"
               className="w-full"
@@ -56,10 +98,11 @@ const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelect
               onChange={handleGuardianChange}
             />
           </div>
+          {/* City */}
           <div className="space-y-2">
-            <Label htmlFor="guardianCity">City</Label>
+            <Label htmlFor="city">City</Label>
             <Input
-              id="guardianCity"
+              id="city"
               name="city"
               placeholder="Input"
               className="w-full"
@@ -67,52 +110,29 @@ const GuardianForm = ({ guardianData, handleGuardianChange, handleGuardianSelect
               onChange={handleGuardianChange}
             />
           </div>
+          {/* Province */}
           <div className="space-y-2">
-            <Label htmlFor="guardianProvince">Province</Label>
+            <Label htmlFor="province">Province</Label>
             <Select onValueChange={(value) => handleGuardianSelectChange('province', value)}>
-              <SelectTrigger id="guardianProvince" className="w-full">
+              <SelectTrigger id="province" className="w-full">
                 <SelectValue placeholder={guardianData.province || "Select province"} />
               </SelectTrigger>
               <SelectContent>
-                {/* Options for selecting province */}
                 {["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK", "NT", "YT", "NU"].map((prov) => (
                   <SelectItem key={prov} value={prov}>{prov}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          {/* Postal Code */}
           <div className="space-y-2">
-            <Label htmlFor="guardianPostalCode">Postal Code</Label>
+            <Label htmlFor="postalCode">Postal Code</Label>
             <Input
-              id="guardianPostalCode"
+              id="postalCode"
               name="postalCode"
               placeholder="Input"
               className="w-full"
               value={guardianData.postalCode}
-              onChange={handleGuardianChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="guardianPhoneNumber">Phone Number</Label>
-            <Input
-              id="guardianPhoneNumber"
-              name="phoneNumber"
-              type="tel"
-              placeholder="Input"
-              className="w-full"
-              value={guardianData.phoneNumber}
-              onChange={handleGuardianChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="guardianEmail">Email</Label>
-            <Input
-              id="guardianEmail"
-              name="email"
-              type="email"
-              placeholder="Input"
-              className="w-full"
-              value={guardianData.email}
               onChange={handleGuardianChange}
             />
           </div>
