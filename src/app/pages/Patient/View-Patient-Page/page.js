@@ -24,7 +24,6 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 export default function ViewPatient() {
   const [patients, setPatients] = useState([]);
   const [searchInput, setSearchInput] = useState(""); // State for the search input
-  const [searchQuery, setSearchQuery] = useState(""); // State for the actual search query
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
@@ -76,16 +75,11 @@ export default function ViewPatient() {
     fetchPatients();
   }, [router]);
 
-  // Function to handle the search button click
-  const handleSearchClick = () => {
-    setSearchQuery(searchInput);
-  };
-
-  // Filter patients based on the search query
+  // Filter patients dynamically based on the search input
   const filteredPatients = patients.filter(
     (patient) =>
-      patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.lastName.toLowerCase().includes(searchQuery.toLowerCase())
+      patient.firstName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      patient.lastName.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   const handleAddPatient = () => {
@@ -108,10 +102,6 @@ export default function ViewPatient() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <Button style={styles.searchButton} onClick={handleSearchClick}>
-              <SearchIcon style={styles.iconSmall} />
-              Search
-            </Button>
           </div>
           <div style={styles.rightHeaderSection}>
             <Button style={styles.searchButton} onClick={handleAddPatient}>

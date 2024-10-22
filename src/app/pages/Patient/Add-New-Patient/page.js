@@ -267,10 +267,10 @@ export default function ImprovedAddNewPatient() {
       );
 
       if (guardianResponse.ok) {
-        console.log("Guardian added successfully");
         alert("Guardian added successfully!");
         router.push("/View-Patient-Page"); // Redirect to patient list page
-      } else {
+      } 
+      else {
         const errorData = await guardianResponse.json();
         console.log("Failed to add guardian:", errorData);
         console.log("clientId after creating patient:", clientId);
@@ -293,7 +293,7 @@ export default function ImprovedAddNewPatient() {
   const handleWaitlistSubmit = async (formData) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist/createWaitlistClient`,
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlistClient/createWaitlistClient`,
         {
           method: "POST",
           headers: {
@@ -402,7 +402,7 @@ export default function ImprovedAddNewPatient() {
                         onChange={handlePatientChange}
                       />
                     </div>
-                    <div className="space-y-2">
+                    {/*<div className="space-y-2">
                       <Label htmlFor="age">Age</Label>
                       <Input
                         id="age"
@@ -412,7 +412,8 @@ export default function ImprovedAddNewPatient() {
                         value={patientData.age}
                         onChange={handlePatientChange}
                       />
-                    </div>
+                      
+                    </div>*/}     
                     <div className="space-y-2">
                       <Label htmlFor="school">School</Label>
                       <Input

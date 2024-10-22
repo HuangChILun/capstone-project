@@ -11,6 +11,7 @@ import {
   TabsContent,
 } from "@/app/components/HomeUi/tabs";
 import { Label } from "@/app/components/HomeUi/label";
+import { Input } from "@/app/components/HomeUi/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
@@ -36,7 +37,10 @@ export default function ViewPatientPersonal() {
   const searchParams = useSearchParams();
   const clientId = searchParams.get("clientId");
   const [patient, setPatient] = useState(null);
-  const [guardian, setGuardian] = useState(null); // Changed to single guardian
+  const [guardian, setGuardian] = useState(null);
+  const [editedPatient, setEditedPatient] = useState(null);
+  const [editedGuardian, setEditedGuardian] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
@@ -73,9 +77,10 @@ export default function ViewPatientPersonal() {
 
         const data = await response.json();
         setPatient(data);
+        setEditedPatient(data);
 
-        // Fetch guardian by guardianId (assuming guardianId is part of patient data)
-        const guardianId = data.guardianId; // Assuming patient data includes guardianId
+        // Fetch guardian by guardianId
+        const guardianId = data.guardianId;
         if (guardianId) {
           const guardianResponse = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${guardianId}`,
@@ -92,8 +97,10 @@ export default function ViewPatientPersonal() {
 
           const guardianData = await guardianResponse.json();
           setGuardian(guardianData);
+          setEditedGuardian(guardianData);
         } else {
           setGuardian(null);
+          setEditedGuardian(null);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -107,6 +114,75 @@ export default function ViewPatientPersonal() {
       fetchPatientAndGuardian();
     }
   }, [clientId, router]);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedPatient(patient);
+    setEditedGuardian(guardian);
+  };
+
+  const handlePatientInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedPatient({ ...editedPatient, [name]: value });
+  };
+
+  const handleGuardianInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedGuardian({ ...editedGuardian, [name]: value });
+  };
+
+  const handleSaveChanges = async () => {
+    const token = Cookies.get("token");
+    try {
+      // Update patient data
+      const patientResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlistClient/updateWaitlistClient/${clientId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editedPatient),
+        }
+      );
+
+      if (!patientResponse.ok) {
+        throw new Error("Failed to update patient data");
+      }
+
+      // Update guardian data if guardian exists
+      if (editedGuardian && editedGuardian.guardianId) {
+        const guardianResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${editedGuardian.guardianId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(editedGuardian),
+          }
+        );
+
+        if (!guardianResponse.ok) {
+          throw new Error("Failed to update guardian data");
+        }
+      }
+
+      alert("Changes saved successfully!");
+      setIsEditing(false);
+      setPatient(editedPatient);
+      setGuardian(editedGuardian);
+    } catch (error) {
+      console.error("Error saving changes:", error);
+      alert(`Error saving changes: ${error.message}`);
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -131,7 +207,9 @@ export default function ViewPatientPersonal() {
               {patient.currentStatus ? "Active" : "Inactive"}
             </Badge>
           </div>
-          <Button>Edit</Button>
+          {!isEditing && (
+            <Button onClick={handleEditClick}>Edit</Button>
+          )}
         </div>
         <Tabs defaultValue="personal-info" className="mb-6">
           <TabsList>
@@ -145,37 +223,102 @@ export default function ViewPatientPersonal() {
           <TabsContent value="personal-info">
             {/* Patient Info */}
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">Patient Information</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Patient Information
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label className="text-muted-foreground">First Name</Label>
-                  <p className="text-lg font-semibold">{patient.firstName}</p>
+                  {isEditing ? (
+                    <Input
+                      name="firstName"
+                      value={editedPatient.firstName || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.firstName}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Last Name</Label>
-                  <p className="text-lg font-semibold">{patient.lastName}</p>
+                  {isEditing ? (
+                    <Input
+                      name="lastName"
+                      value={editedPatient.lastName || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.lastName}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Address</Label>
-                  <p className="text-lg font-semibold">{patient.address}</p>
+                  {isEditing ? (
+                    <Input
+                      name="address"
+                      value={editedPatient.address || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.address}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">City</Label>
-                  <p className="text-lg font-semibold">{patient.city}</p>
+                  {isEditing ? (
+                    <Input
+                      name="city"
+                      value={editedPatient.city || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.city}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Province</Label>
-                  <p className="text-lg font-semibold">{patient.province}</p>
+                  {isEditing ? (
+                    <Input
+                      name="province"
+                      value={editedPatient.province || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.province}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Postal Code</Label>
-                  <p className="text-lg font-semibold">{patient.postalCode}</p>
+                  {isEditing ? (
+                    <Input
+                      name="postalCode"
+                      value={editedPatient.postalCode || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {patient.postalCode}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Date Of Birth</Label>
-                  <p className="text-lg font-semibold">
-                    {new Date(patient.birthDate).toLocaleDateString()}
-                  </p>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="birthDate"
+                      value={
+                        editedPatient.birthDate
+                          ? editedPatient.birthDate.split("T")[0]
+                          : ""
+                      }
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {new Date(patient.birthDate).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Age</Label>
@@ -185,81 +328,257 @@ export default function ViewPatientPersonal() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Gender</Label>
-                  <p className="text-lg font-semibold">{patient.gender}</p>
+                  {isEditing ? (
+                    <Input
+                      name="gender"
+                      value={editedPatient.gender || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.gender}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">School</Label>
-                  <p className="text-lg font-semibold">{patient.school}</p>
+                  {isEditing ? (
+                    <Input
+                      name="school"
+                      value={editedPatient.school || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.school}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">FSCD ID#</Label>
-                  <p className="text-lg font-semibold">{patient.fscdIdNum}</p>
+                  {isEditing ? (
+                    <Input
+                      name="fscdIdNum"
+                      value={editedPatient.fscdIdNum || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {patient.fscdIdNum}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Email</Label>
-                  <p className="text-lg font-semibold">{patient.email}</p>
+                  {isEditing ? (
+                    <Input
+                      name="email"
+                      value={editedPatient.email || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">{patient.email}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Phone Number</Label>
-                  <p className="text-lg font-semibold">{patient.phoneNumber}</p>
+                  {isEditing ? (
+                    <Input
+                      name="phoneNumber"
+                      value={editedPatient.phoneNumber || ""}
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {patient.phoneNumber}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
             {/* Guardian Info */}
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">Guardian Information</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Guardian Information
+              </h2>
               {guardian ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label className="text-muted-foreground">Name</Label>
-                    <p className="text-lg font-semibold">{`${guardian.firstName} ${guardian.lastName}`}</p>
+                    <Label className="text-muted-foreground">First Name</Label>
+                    {isEditing ? (
+                      <Input
+                        name="firstName"
+                        value={editedGuardian.firstName || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.firstName}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Last Name</Label>
+                    {isEditing ? (
+                      <Input
+                        name="lastName"
+                        value={editedGuardian.lastName || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.lastName}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">Address</Label>
-                    <p className="text-lg font-semibold">{guardian.address}</p>
+                    {isEditing ? (
+                      <Input
+                        name="address"
+                        value={editedGuardian.address || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.address}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">City</Label>
-                    <p className="text-lg font-semibold">{guardian.city}</p>
+                    {isEditing ? (
+                      <Input
+                        name="city"
+                        value={editedGuardian.city || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">{guardian.city}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">Province</Label>
-                    <p className="text-lg font-semibold">{guardian.province}</p>
+                    {isEditing ? (
+                      <Input
+                        name="province"
+                        value={editedGuardian.province || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.province}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">Postal Code</Label>
-                    <p className="text-lg font-semibold">{guardian.postalCode}</p>
+                    {isEditing ? (
+                      <Input
+                        name="postalCode"
+                        value={editedGuardian.postalCode || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.postalCode}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">
                       Relation to Patient
                     </Label>
-                    <p className="text-lg font-semibold">{guardian.relationship}</p>
+                    {isEditing ? (
+                      <Input
+                        name="relationship"
+                        value={editedGuardian.relationship || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.relationship}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">Custody</Label>
-                    <p className="text-lg font-semibold">{guardian.custody}</p>
+                    {isEditing ? (
+                      <Input
+                        name="custody"
+                        value={editedGuardian.custody || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.custody}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-muted-foreground">Email</Label>
-                    <p className="text-lg font-semibold">{guardian.email}</p>
+                    {isEditing ? (
+                      <Input
+                        name="email"
+                        value={editedGuardian.email || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">{guardian.email}</p>
+                    )}
                   </div>
                   <div>
-                    <Label className="text-muted-foreground">Phone Number</Label>
-                    <p className="text-lg font-semibold">{guardian.phoneNumber}</p>
+                    <Label className="text-muted-foreground">
+                      Phone Number
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        name="phoneNumber"
+                        value={editedGuardian.phoneNumber || ""}
+                        onChange={handleGuardianInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {guardian.phoneNumber}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (
                 <p>No guardian found for this patient.</p>
               )}
             </div>
+            {/* Move the Save and Cancel buttons here when in edit mode */}
+            {isEditing && (
+              <div className="mt-4">
+                <Button onClick={handleSaveChanges}>Save Changes</Button>
+                <Button onClick={handleCancelEdit} className="ml-4">
+                  Cancel
+                </Button>
+              </div>
+            )}
           </TabsContent>
           {/* Medical info and other tabs remain the same */}
           <TabsContent value="additional-note">
-          <div className="mb-6"> 
-            <p>{patient.psNote}</p>
+            <div className="mb-6">
+              <Label className="text-muted-foreground">Additional Note</Label>
+              {isEditing ? (
+                <Input
+                  name="psNote"
+                  value={editedPatient.psNote || ""}
+                  onChange={handlePatientInputChange}
+                />
+              ) : (
+                <p>{patient.psNote}</p>
+              )}
             </div>
+            {/* Move the Save and Cancel buttons here when in edit mode */}
+            {isEditing && (
+              <div className="mt-4">
+                <Button onClick={handleSaveChanges}>Save Changes</Button>
+                <Button onClick={handleCancelEdit} className="ml-4">
+                  Cancel
+                </Button>
+              </div>
+            )}
           </TabsContent>
+          {/* You can add similar adjustments for other tabs if needed */}
         </Tabs>
       </div>
     </div>
