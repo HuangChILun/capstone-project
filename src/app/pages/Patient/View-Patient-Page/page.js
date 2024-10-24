@@ -43,7 +43,7 @@ export default function ViewPatient() {
 
         // Fetch patients
         const patientResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/patients`,
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ export default function ViewPatient() {
           <div style={styles.searchContainer}>
             <Input
               type="text"
-              placeholder="Input patient name..."
+              placeholder="Input client name..."
               style={styles.searchInput}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -120,7 +120,7 @@ export default function ViewPatient() {
             <Table style={styles.table}>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Patient Name</TableHead>
+                  <TableHead>Client Name</TableHead>
                   <TableHead>Phone Number</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Action</TableHead>

@@ -167,7 +167,7 @@ export default function ImprovedAddNewPatient() {
       if (!clientId) {
         // If clientId doesn't exist, create a new patient
         response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/patients/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients/`,
           {
             method: "POST",
             headers: {
@@ -194,7 +194,7 @@ export default function ImprovedAddNewPatient() {
       } else {
         // If clientId exists, update the patient data
         response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/patients/${clientId}/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients/${clientId}/`,
           {
             method: "PUT", // or PATCH
             headers: {

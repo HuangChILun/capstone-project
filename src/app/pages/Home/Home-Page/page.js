@@ -38,7 +38,7 @@ export default function Homepage() {
       try {
         // Fetch clients data (if necessary for both roles)
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/patients/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
