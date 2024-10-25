@@ -1,11 +1,12 @@
-
+"use client";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function HoriNav({ user }) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   // Function to get user's initials for the profile button
   const getInitials = (user) => {
     return `${user.firstName[0]}${user.lastName[0]}`;
@@ -18,6 +19,18 @@ export default function HoriNav({ user }) {
       return false;
     }
   };
+  // Track window width to determine mobile view
+  useEffect(() => {
+    const handleResize = () => {
+      setIsNarrow(window.innerWidth <= 1175);
+    };
+
+    handleResize(); // Initialize state on mount
+    window.addEventListener("resize", handleResize); // Add event listener for resize
+
+    // Cleanup the event listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const userAccess = CheckAdmin(user);
   const userInitial = getInitials(user);
@@ -28,21 +41,69 @@ export default function HoriNav({ user }) {
     localStorage.removeItem("user");
     router.push("/"); // Navigate back to login after logout
   };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   return (
     <nav style={navStyles.navBar}>
-      {userAccess ? (
+      {isNarrow ? (
         <div style={navStyles.leftSection}>
-          <NavItem icon={<HomeIcon />} label="Home" page="../Home/Home-Page"/>
-          <NavItem icon={<PatientIcon />} label="Patient" page="../Patient/View-Patient-Page"/>
-          <NavItem icon={<StaffIcon />} label="Staff" page="../Staff-Management/View-Staff"/>
-          <NavItem icon={<InvoiceIcon />} label="Invoice" page="../invoice-management/View-Invoice"/>
-          <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Test/" />
+          <div style={navStyles.hamburgerMenu} onClick={toggleMenu}>
+            <HamburgerIcon />
+          </div>
+          {isNarrow && isMenuOpen && (
+            <div style={navStyles.mobileMenu}>
+              <NavItem
+                icon={<HomeIcon />}
+                label="Home"
+                page="../Home/Home-Page"
+              />
+              <NavItem
+                icon={<PatientIcon />}
+                label="Client"
+                page="../Patient/View-Patient-Page"
+              />
+              {userAccess && (
+                <NavItem
+                  icon={<StaffIcon />}
+                  label="Staff"
+                  page="../Staff-Management/View-Staff"
+                />
+              )}
+              <NavItem
+                icon={<InvoiceIcon />}
+                label="Invoice"
+                page="../invoice-management/View-Invoice"
+              />
+              <NavItem
+                icon={<ScheduleIcon />}
+                label="Schedule"
+                page="../Test/"
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div style={navStyles.leftSection}>
-          <NavItem icon={<HomeIcon />} label="Home" page="../Home/Home-Page"/>
-          <NavItem icon={<PatientIcon />} label="Patient" page="../Patient/View-Patient-Page"/>
-          <NavItem icon={<InvoiceIcon />} label="Invoice" page="../invoice-management/View-Invoice"/>
+          <NavItem icon={<HomeIcon />} label="Home" page="../Home/Home-Page" />
+          <NavItem
+            icon={<PatientIcon />}
+            label="Client"
+            page="../Patient/View-Patient-Page"
+          />
+          {userAccess && (
+            <NavItem
+              icon={<StaffIcon />}
+              label="Staff"
+              page="../Staff-Management/View-Staff"
+            />
+          )}
+          <NavItem
+            icon={<InvoiceIcon />}
+            label="Invoice"
+            page="../invoice-management/View-Invoice"
+          />
           <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Test/" />
         </div>
       )}
@@ -59,13 +120,11 @@ export default function HoriNav({ user }) {
       <div style={navStyles.rightSection}>
         {/* Profile Button with User Initials */}
         <Link href="../Profile/View-Profile">
-        <div
-          style={navStyles.profile}
-        >
-          <div style={navStyles.profileCircle}>{userInitial}</div>
+          <div style={navStyles.profile}>
+            <div style={navStyles.profileCircle}>{userInitial}</div>
 
-          {/* Hover Overlay */}
-          {/* {isHovered && (
+            {/* Hover Overlay */}
+            {/* {isHovered && (
             <div style={navStyles.overlayContainer}>
               <div style={navStyles.overlay}>
                 <p style={navStyles.overlayItem}>Profile</p>
@@ -73,9 +132,8 @@ export default function HoriNav({ user }) {
               </div>
             </div>
           )} */}
-          
-        </div>
-        </Link >
+          </div>
+        </Link>
         {/* Log out Button with Power Icon */}
         <div onClick={handleLogout} style={navStyles.navItem}>
           <PowerIcon style={navStyles.iconStyle} />
@@ -88,15 +146,35 @@ export default function HoriNav({ user }) {
 //Nav components
 
 function NavItem({ icon, label, page }) {
-    return (
-      <Link href={page} passHref>
-        <div style={navStyles.navItem}>
-          {icon}
-          <span>{label}</span>
-        </div>
-      </Link>
-    );
-  }
+  return (
+    <Link href={page} passHref>
+      <div style={navStyles.navItem}>
+        {icon}
+        <span>{label}</span>
+      </div>
+    </Link>
+  );
+}
+
+function HamburgerIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 6h16M4 12h16M4 18h16"
+      />
+    </svg>
+  );
+}
 
 function HomeIcon(props) {
   return (
@@ -259,6 +337,18 @@ const navStyles = {
     alignItems: "center",
     gap: "8px", // Spacing between icon and text
     cursor: "pointer",
+  },
+  hamburgerMenu: {
+    cursor: "pointer",
+  },
+  mobileMenu: {
+    position: "absolute",
+    top: "60px",
+    left: 0,
+    background: "#2b538b",
+    width: "200px",
+    padding: "10px",
+    zIndex: 999, // Ensure it's above other content
   },
   leftSection: {
     display: "flex",

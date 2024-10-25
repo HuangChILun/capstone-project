@@ -14,39 +14,39 @@ import Cookies from "js-cookie";
 
 export default function StaffRegistrationForm() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: null,
+    lastName: null,
+    email: null,
     password: "12345",
-    phoneNumber: "",
-    address: "",
-    postalCode: "",
-    city: "",
+    phoneNumber: null,
+    address: null,
+    postalCode: null,
+    city: "Calgary",
     province: "AB",
-    SIN: "",
-    rate: "",
+    SIN: null,
+    rate: null,
     isAdmin: "0",
     isOutsideProvider: "0",
     agency: "Bridging Abilities",
-    beneficiary: "",
-    licencingCollege: "",
-    registrationNumber: "",
-    contractStartDate: "",
-    contractEndDate: "",
-    role: "",
+    beneficiary: null,
+    licencingCollege: null,
+    registrationNumber: null,
+    contractStartDate: null,
+    contractEndDate: null,
+    role: null,
   });
 
   const [validationErrors, setValidationErrors] = useState({});
   const [token, setToken] = useState("");
   const [formError, setFormError] = useState(null); // General form error
+  const [disableButton, setDisableButton] = useState(true);
 
   // Regular expressions for validation
-  const nameRegex = /^[A-Za-z'-]+$/;
+  const nameRegex = /^[A-Za-z'-\s]+$/;
   const sinRegex = /^\d{9}$/;
   const phoneRegex = /^\d{10}$/;
   const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 
   // Check for token on mount
   useEffect(() => {
@@ -102,7 +102,6 @@ export default function StaffRegistrationForm() {
     }));
   };
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
 
@@ -121,6 +120,31 @@ export default function StaffRegistrationForm() {
       [field]: value,
     }));
   };
+
+  // Function to check if required fields are filled
+  const areRequiredFieldsFilled = () => {
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "phoneNumber",
+      "SIN",
+      "address",
+      "city",
+      "province",
+      "postalCode",
+      "contractStartDate",
+      "contractEndDate",
+      "role",
+      "rate",
+    ];
+    return requiredFields.every((field) => formData[field]);
+  };
+
+  // useEffect to monitor changes in formData and update button state
+  useEffect(() => {
+    setDisableButton(!areRequiredFieldsFilled());
+  }, [formData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -154,20 +178,28 @@ export default function StaffRegistrationForm() {
     } catch (error) {
       console.error("Error submitting form:", error);
       if (error.response) {
+        console.log(error.response);
         if (error.response.status === 403) {
           setFormError(
             "Access forbidden. Your session may have expired or you may not have the necessary permissions."
           );
         } else {
-          setFormError(
-            `Error: ${
-              error.response.data.message ||
-              "The field cannot be empty, and some fields must not exceed the maximum word length."
-            }`
-          );
+          if(error.response.data.errno === 1062){
+            setFormError(
+              "Duplicate User, Please Check Email Field"
+          )} else{
+            setFormError(
+              `Error: ${
+                error.response.data.sqlMessage
+              }`
+            );
+          }
+          
         }
       } else if (error.request) {
-        setFormError("No response received from the server. Please try again later.");
+        setFormError(
+          "No response received from the server. Please try again later."
+        );
       } else {
         setFormError("Error setting up the request. Please try again.");
       }
@@ -182,7 +214,7 @@ export default function StaffRegistrationForm() {
         </legend>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName">First Name*</Label>
             {/*if the black was too long, className="w-fsll" can set w-64*/}
             <Input
               id="firstName"
@@ -192,11 +224,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.firstName && (
-              <p style={{ color: 'red' }}>{validationErrors.firstName}</p>
+              <p style={{ color: "red" }}>{validationErrors.firstName}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName">Last Name*</Label>
             <Input
               id="lastName"
               placeholder="Input"
@@ -205,11 +237,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.lastName && (
-              <p style={{ color: 'red' }}>{validationErrors.lastName}</p>
+              <p style={{ color: "red" }}>{validationErrors.lastName}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="SIN">SIN</Label>
+            <Label htmlFor="SIN">SIN*</Label>
             <Input
               id="SIN"
               placeholder="Input"
@@ -218,11 +250,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.SIN && (
-              <p style={{ color: 'red' }}>{validationErrors.SIN}</p>
+              <p style={{ color: "red" }}>{validationErrors.SIN}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">Role*</Label>
             <Input
               id="role"
               placeholder="Input"
@@ -231,7 +263,7 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.role && (
-              <p style={{ color: 'red' }}>{validationErrors.role}</p>
+              <p style={{ color: "red" }}>{validationErrors.role}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -244,7 +276,7 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.licencingCollege && (
-              <p style={{ color: 'red' }}>
+              <p style={{ color: "red" }}>
                 {validationErrors.licencingCollege}
               </p>
             )}
@@ -259,13 +291,13 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.registrationNumber && (
-              <p style={{ color: 'red' }}>
+              <p style={{ color: "red" }}>
                 {validationErrors.registrationNumber}
               </p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="rate">Rate</Label>
+            <Label htmlFor="rate">Rate*</Label>
             <Input
               id="rate"
               placeholder="Input"
@@ -274,11 +306,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.rate && (
-              <p style={{ color: 'red' }}>{validationErrors.rate}</p>
+              <p style={{ color: "red" }}>{validationErrors.rate}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">Address*</Label>
             <Input
               id="address"
               placeholder="Input"
@@ -287,11 +319,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.address && (
-              <p style={{ color: 'red' }}>{validationErrors.address}</p>
+              <p style={{ color: "red" }}>{validationErrors.address}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="city">City</Label>
+            <Label htmlFor="city">City*</Label>
             <Input
               id="city"
               placeholder="Input"
@@ -300,11 +332,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.city && (
-              <p style={{ color: 'red' }}>{validationErrors.city}</p>
+              <p style={{ color: "red" }}>{validationErrors.city}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="province">Province</Label>
+            <Label htmlFor="province">Province*</Label>
             <Select
               value={formData.province}
               onValueChange={(value) => handleSelectChange("province", value)}
@@ -329,11 +361,11 @@ export default function StaffRegistrationForm() {
               </SelectContent>
             </Select>
             {validationErrors.province && (
-              <p style={{ color: 'red' }}>{validationErrors.province}</p>
+              <p style={{ color: "red" }}>{validationErrors.province}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="postalCode">Postal Code</Label>
+            <Label htmlFor="postalCode">Postal Code*</Label>
             <Input
               id="postalCode"
               placeholder="Input"
@@ -342,11 +374,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.postalCode && (
-              <p style={{ color: 'red' }}>{validationErrors.postalCode}</p>
+              <p style={{ color: "red" }}>{validationErrors.postalCode}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Label htmlFor="phoneNumber">Phone Number*</Label>
             <Input
               id="phoneNumber"
               type="tel"
@@ -356,11 +388,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.phoneNumber && (
-              <p style={{ color: 'red' }}>{validationErrors.phoneNumber}</p>
+              <p style={{ color: "red" }}>{validationErrors.phoneNumber}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email*</Label>
             <Input
               id="email"
               type="email"
@@ -370,11 +402,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.email && (
-              <p style={{ color: 'red' }}>{validationErrors.email}</p>
+              <p style={{ color: "red" }}>{validationErrors.email}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="isAdmin">Is Admin</Label>
+            <Label htmlFor="isAdmin">Is Admin*</Label>
             <Select
               onValueChange={(value) =>
                 setFormData({ ...formData, isAdmin: value })
@@ -389,28 +421,7 @@ export default function StaffRegistrationForm() {
               </SelectContent>
             </Select>
             {validationErrors.isAdmin && (
-              <p style={{ color: 'red' }}>{validationErrors.isAdmin}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="isOutsideProvider">Is Outside Provider</Label>
-            <Select
-              onValueChange={(value) =>
-                setFormData({ ...formData, isOutsideProvider: value })
-              }
-            >
-              <SelectTrigger id="isOutsideProvider" className="w-full">
-                <SelectValue placeholder="Select Provider Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Yes</SelectItem>
-                <SelectItem value="0">No</SelectItem>
-              </SelectContent>
-            </Select>
-            {validationErrors.isOutsideProvider && (
-              <p style={{ color: 'red' }}>
-                {validationErrors.isOutsideProvider}
-              </p>
+              <p style={{ color: "red" }}>{validationErrors.isAdmin}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -423,11 +434,11 @@ export default function StaffRegistrationForm() {
               onChange={handleInputChange}
             />
             {validationErrors.beneficiary && (
-              <p style={{ color: 'red' }}>{validationErrors.beneficiary}</p>
+              <p style={{ color: "red" }}>{validationErrors.beneficiary}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contractStartDate">Contract Start Date</Label>
+            <Label htmlFor="contractStartDate">Contract Start Date*</Label>
             <Input
               id="contractStartDate"
               type="date"
@@ -436,14 +447,9 @@ export default function StaffRegistrationForm() {
               value={formData.contractStartDate}
               onChange={handleInputChange}
             />
-            {validationErrors.contractStartDate && (
-              <p style={{ color: 'red' }}>
-                {validationErrors.contractStartDate}
-              </p>
-            )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contractEndDate">Contract End Date</Label>
+            <Label htmlFor="contractEndDate">Contract End Date*</Label>
             <Input
               id="contractEndDate"
               type="date"
@@ -451,19 +457,13 @@ export default function StaffRegistrationForm() {
               className="w-full"
               value={formData.contractEndDate}
               onChange={handleInputChange}
+              min={formData.contractStartDate}
             />
-            {validationErrors.contractEndDate && (
-              <p style={{ color: 'red' }}>{validationErrors.contractEndDate}</p>
-            )}
           </div>
         </div>
       </fieldset>
-      {formError && <div className="text-red-500 mb-4">{error}</div>}
-      <Button
-        type="submit"
-        className="mt-6"
-        disabled={!token || Object.keys(validationErrors).length > 0}
-      >
+      {formError && <div className="text-red-500 mb-4">{formError}</div>}
+      <Button type="submit" className="mt-6" disabled={disableButton}>
         Submit
       </Button>
     </form>
