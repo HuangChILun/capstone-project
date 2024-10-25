@@ -23,25 +23,44 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
 export default function ViewPatient() {
   const [patients, setPatients] = useState([]);
-  const [searchInput, setSearchInput] = useState(""); // State for the search input
+  const [waitlistClients, setWaitlistClients] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = Cookies.get("token");
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      const token = Cookies.get("token");
+    const fetchWaitlist = async () => {
       if (!token) {
         router.push("/");
         console.log("need login");
         return;
       }
-
       try {
-        setIsLoading(true);
+        const waitlistResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/getAllWaitlistClient`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        // Fetch patients
+        if (!waitlistResponse.ok) {
+          throw new Error("Failed to fetch waitlist clients");
+        }
+        const waitlistData = await waitlistResponse.json();
+        setWaitlistClients(waitlistData);
+      } catch (error) {
+        console.error("Error fetching waitlist data:", error);
+        setError(error.message);
+      }
+    };
+
+    const fetchPatients = async () => {
+      try {
         const patientResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients`,
           {
@@ -52,17 +71,10 @@ export default function ViewPatient() {
         );
 
         if (!patientResponse.ok) {
-          throw new Error("Failed to fetch patients");
+          throw new Error("Failed to fetch clients");
         }
 
-        let patientData = await patientResponse.json();
-        patientData = patientData.map((patient) => ({
-          ...patient,
-          clientId: Number(patient.clientId),
-        }));
-
-        console.log("Patients:", patientData);
-
+        const patientData = await patientResponse.json();
         setPatients(patientData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -72,11 +84,25 @@ export default function ViewPatient() {
       }
     };
 
+    fetchWaitlist();
     fetchPatients();
-  }, [router]);
+  }, [router, token]);
 
-  // Filter patients dynamically based on the search input
-  const filteredPatients = patients.filter(
+  // Filter active and archived patients based on currentStatus
+  const activePatients = patients.filter(
+    (patient) => patient.currentStatus === 1 || patient.currentStatus === null
+  );
+  const archivedPatients = patients.filter(
+    (patient) => patient.currentStatus !== 1 && patient.currentStatus !== null
+  );
+
+  // Further filter patients by search input
+  const filteredActivePatients = activePatients.filter(
+    (patient) =>
+      patient.firstName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      patient.lastName.toLowerCase().includes(searchInput.toLowerCase())
+  );
+  const filteredArchivedPatients = archivedPatients.filter(
     (patient) =>
       patient.firstName.toLowerCase().includes(searchInput.toLowerCase()) ||
       patient.lastName.toLowerCase().includes(searchInput.toLowerCase())
@@ -105,7 +131,7 @@ export default function ViewPatient() {
           </div>
           <div style={styles.rightHeaderSection}>
             <Button style={styles.searchButton} onClick={handleAddPatient}>
-              Add New Patient
+              Add New Client
             </Button>
           </div>
         </header>
@@ -116,6 +142,7 @@ export default function ViewPatient() {
             <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
             <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
+
           <TabsContent value="active">
             <Table style={styles.table}>
               <TableHeader>
@@ -127,15 +154,69 @@ export default function ViewPatient() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPatients.map((patient) => (
+                {filteredActivePatients.map((patient) => (
                   <TableRow key={patient.clientId}>
                     <TableCell>{`${patient.firstName} ${patient.lastName}`}</TableCell>
                     <TableCell>{patient.phoneNumber}</TableCell>
                     <TableCell>{patient.email}</TableCell>
                     <TableCell>
-                      <Link
-                        href={`./View-Patient-Personal?clientId=${patient.clientId}`}
-                      >
+                      <Link href={`./View-Patient-Personal?clientId=${patient.clientId}`}>
+                        <Button style={styles.viewButton}>View</Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="waitlist">
+            <Table style={styles.table}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client Name</TableHead>
+                  <TableHead>Date Placed</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Service Needed</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {waitlistClients.map((client) => (
+                  <TableRow key={client.waitlistClientId}>
+                    <TableCell>{`${client.firstName} ${client.lastName}`}</TableCell>
+                    <TableCell>{client.datePlaced}</TableCell>
+                    <TableCell>{client.phoneNumber}</TableCell>
+                    <TableCell>{client.serviceNeeded}</TableCell>
+                    <TableCell>
+                      <Link href={`./View-Waitlist-Client?waitlistClientId=${client.waitlistClientId}`}>
+                        <Button style={styles.viewButton}>View</Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="archived">
+            <Table style={styles.table}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client Name</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredArchivedPatients.map((patient) => (
+                  <TableRow key={patient.clientId}>
+                    <TableCell>{`${patient.firstName} ${patient.lastName}`}</TableCell>
+                    <TableCell>{patient.phoneNumber}</TableCell>
+                    <TableCell>{patient.email}</TableCell>
+                    <TableCell>
+                      <Link href={`./View-Patient-Personal?clientId=${patient.clientId}`}>
                         <Button style={styles.viewButton}>View</Button>
                       </Link>
                     </TableCell>

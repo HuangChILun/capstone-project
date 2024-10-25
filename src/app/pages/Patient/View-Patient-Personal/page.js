@@ -122,7 +122,7 @@ export default function ViewPatientPersonal() {
         setEditedPatient(data);
 
         // Fetch guardian by guardianId
-        const guardianId = data.guardianId;
+        const guardianId = data.clientId; // as known as clientId
         if (guardianId) {
           const guardianResponse = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${guardianId}`,
@@ -202,11 +202,17 @@ export default function ViewPatientPersonal() {
   const updateClientInfo = async () => {
     const token = Cookies.get("token");
     try {
-      // Format the birthDate to 'YYYY-MM-DD'
+      // Format the dates to 'YYYY-MM-DD'
       const formattedPatientData = {
         ...editedPatient,
         birthDate: editedPatient.birthDate
           ? editedPatient.birthDate.split("T")[0]
+          : null,
+        serviceStartDate: editedPatient.serviceStartDate
+          ? editedPatient.serviceStartDate.split("T")[0]
+          : null,
+        serviceEndDate: editedPatient.serviceEndDate
+          ? editedPatient.serviceEndDate.split("T")[0]
           : null,
       };
   
@@ -239,7 +245,7 @@ export default function ViewPatientPersonal() {
       throw error;
     }
   };
-
+  
   const updateGuardianInfo = async () => {
   const token = Cookies.get("token");
   if (editedGuardian && editedGuardian.guardianId) {
@@ -322,15 +328,14 @@ export default function ViewPatientPersonal() {
     const token = Cookies.get("token");
     try {
       for (const user of selectedUsers) {
+        // Ensure dates are in the correct format or handle empty strings
+        const formatDate = (date) => (date ? date : null);
+  
         const formattedUserData = {
           clientId: patient.clientId,
           userId: user.userId,
-          startServiceDate: user.startServiceDate
-            ? user.startServiceDate.split("T")[0]
-            : null,
-          endServiceDate: user.endServiceDate
-            ? user.endServiceDate.split("T")[0]
-            : null,
+          startServiceDate: formatDate(user.startServiceDate),
+          endServiceDate: formatDate(user.endServiceDate),
         };
   
         const response = await fetch(
@@ -478,12 +483,16 @@ export default function ViewPatientPersonal() {
       <HoriNav user={user} />
       <div className="p-6">
         <div className="flex items-center mb-4">
-          <ArrowLeftIcon className="w-6 h-6 text-muted-foreground" />
-          <Link href="./View-Patient-Page">
-            <span className="ml-2 text-lg font-semibold text-muted-foreground">
-              Back to client List
-            </span>
+          
+        <Link href="./View-Patient-Page">
+          <div className="flex items-center mb-4">
+          
+            <ArrowLeftIcon className="h-6 w-6 mr-2" />
+            
+            <span>Back to Client List</span>
+          </div>
           </Link>
+
         </div>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">

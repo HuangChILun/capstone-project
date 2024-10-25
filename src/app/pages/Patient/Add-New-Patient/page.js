@@ -39,17 +39,13 @@ export default function ImprovedAddNewPatient() {
     postalCode: "",
     phoneNumber: "",
     email: "",
-    diagnosisId: "",
     school: "",
     age: 0,
     currentStatus: true,
     fscdIdNum: "",
-    contractId: 1,
-    guardianId: 1,
-    insuranceInfoId: 1,
-    consentId: 1,
-    teamMemberId: 1,
     grade: "",
+    serviceStartDate: "",
+    serviceEndDate: ""
   });
 
   const [guardianData, setGuardianData] = useState({
@@ -531,6 +527,26 @@ export default function ImprovedAddNewPatient() {
                         placeholder="Note"
                         className="w-full"
                         value={patientData.psNote}
+                        onChange={handlePatientChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="serviceStartDate">Service Start Date</Label>
+                      <Input
+                        id="serviceStartDate"
+                        type="date"
+                        className="w-full"
+                        value={patientData.serviceStartDate}
+                        onChange={handlePatientChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="serviceEndDate">Service End Date</Label>
+                      <Input
+                        id="serviceEndDate"
+                        type="date"
+                        className="w-full"
+                        value={patientData.serviceEndDate}
                         onChange={handlePatientChange}
                       />
                     </div>
