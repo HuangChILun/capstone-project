@@ -152,7 +152,7 @@ export default function StaffRegistrationForm() {
     // Check for validation errors
     const hasErrors = Object.values(validationErrors).some((error) => error);
     if (hasErrors) {
-      alert("Please fix the errors before submitting.");
+      alert("Please check all fields before submitting.");
       return;
     }
 

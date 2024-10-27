@@ -1,4 +1,5 @@
 "use client"
+import Diagnosis from '@/app/components/Add-Patient/Diagnosis';
 import FileUpload from '@/app/components/file-upload/upload';
 import { Button } from '@/app/components/HomeUi/button';
 import React, { useState } from 'react';
@@ -15,6 +16,7 @@ export default function TestPage(){
  return (
     <div>
       <h1>Test Page</h1>
+      <Diagnosis />
       <button onClick={toggleOverlay}>Open File Upload</button>
 
       {showOverlay && (
