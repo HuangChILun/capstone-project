@@ -27,6 +27,7 @@ export default function ViewPatient() {
   const [searchInput, setSearchInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const router = useRouter();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = Cookies.get("token");
@@ -95,6 +96,14 @@ export default function ViewPatient() {
   const archivedPatients = patients.filter(
     (patient) => patient.currentStatus !== 1 && patient.currentStatus !== null
   );
+  // Filter waitlist clients based on isArchived value
+  const activeWaitlistClients = waitlistClients.filter(
+    (client) => client.isArchived === 0 || client.isArchived === null
+  );
+
+  const archivedWaitlistClients = waitlistClients.filter(
+    (client) => client.isArchived === 1 || client.isArchived === true
+  );
 
   // Further filter patients by search input
   const filteredActivePatients = activePatients.filter(
@@ -123,7 +132,7 @@ export default function ViewPatient() {
           <div style={styles.searchContainer}>
             <Input
               type="text"
-              placeholder="Input client name..."
+              placeholder="Search by client name"
               style={styles.searchInput}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -140,7 +149,10 @@ export default function ViewPatient() {
           <TabsList>
             <TabsTrigger value="active">Active</TabsTrigger>
             <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
+            <TabsTrigger value="active-archived">Active Archived</TabsTrigger>
+            <TabsTrigger value="waitlist-archived">
+              Waitlist Archived
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="active">
@@ -160,7 +172,9 @@ export default function ViewPatient() {
                     <TableCell>{patient.phoneNumber}</TableCell>
                     <TableCell>{patient.email}</TableCell>
                     <TableCell>
-                      <Link href={`./View-Patient-Personal?clientId=${patient.clientId}`}>
+                      <Link
+                        href={`./View-Patient-Personal?clientId=${patient.clientId}`}
+                      >
                         <Button style={styles.viewButton}>View</Button>
                       </Link>
                     </TableCell>
@@ -182,14 +196,22 @@ export default function ViewPatient() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {waitlistClients.map((client) => (
+                {activeWaitlistClients.map((client) => (
                   <TableRow key={client.waitlistClientId}>
                     <TableCell>{`${client.firstName} ${client.lastName}`}</TableCell>
-                    <TableCell>{client.datePlaced}</TableCell>
+                    <TableCell>
+                      {new Date(client.datePlaced).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })}
+                    </TableCell>
                     <TableCell>{client.phoneNumber}</TableCell>
                     <TableCell>{client.serviceNeeded}</TableCell>
                     <TableCell>
-                      <Link href={`./View-Waitlist-Client?waitlistClientId=${client.waitlistClientId}`}>
+                      <Link
+                        href={`./view-waitlist-client?waitlistClientId=${client.waitlistClientId}`}
+                      >
                         <Button style={styles.viewButton}>View</Button>
                       </Link>
                     </TableCell>
@@ -199,7 +221,7 @@ export default function ViewPatient() {
             </Table>
           </TabsContent>
 
-          <TabsContent value="archived">
+          <TabsContent value="active-archived">
             <Table style={styles.table}>
               <TableHeader>
                 <TableRow>
@@ -216,7 +238,46 @@ export default function ViewPatient() {
                     <TableCell>{patient.phoneNumber}</TableCell>
                     <TableCell>{patient.email}</TableCell>
                     <TableCell>
-                      <Link href={`./View-Patient-Personal?clientId=${patient.clientId}`}>
+                      <Link
+                        href={`./View-Patient-Personal?clientId=${patient.clientId}`}
+                      >
+                        <Button style={styles.viewButton}>View</Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="waitlist-archived">
+            <Table style={styles.table}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client Name</TableHead>
+                  <TableHead>Date Placed</TableHead>
+                  <TableHead>Phone Number</TableHead>
+                  <TableHead>Service Needed</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {archivedWaitlistClients.map((client) => (
+                  <TableRow key={client.waitlistClientId}>
+                    <TableCell>{`${client.firstName} ${client.lastName}`}</TableCell>
+                    <TableCell>
+                      {new Date(client.datePlaced).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })}
+                    </TableCell>
+                    <TableCell>{client.phoneNumber}</TableCell>
+                    <TableCell>{client.serviceNeeded}</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`./view-waitlist-client?waitlistClientId=${client.waitlistClientId}`}
+                      >
                         <Button style={styles.viewButton}>View</Button>
                       </Link>
                     </TableCell>

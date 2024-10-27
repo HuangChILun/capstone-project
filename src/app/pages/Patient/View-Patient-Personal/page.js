@@ -498,7 +498,7 @@ export default function ViewPatientPersonal() {
           <div className="flex items-center">
             <h1 className="text-4xl font-bold">{`${patient.firstName} ${patient.lastName}`}</h1>
             <Badge variant="default" className="ml-4">
-              {patient.currentStatus ? "Active" : "Inactive"}
+              {patient.currentStatus ? "Active" : "Archived"}
             </Badge>
           </div>
           {!isEditing && <Button onClick={handleEditClick}>Edit</Button>}
