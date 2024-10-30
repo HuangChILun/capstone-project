@@ -83,15 +83,17 @@ export default function ViewStaff() {
           <div style={styles.searchContainer}>
             <Input
               type="text"
-              placeholder={`Search by ${filterType}`}
+              placeholder={`Search by staff ${filterType}`}
               style={styles.searchInput}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            {/*  
             <Button style={styles.searchButton}>
               <SearchIcon style={styles.iconSmall} />
               Search
             </Button>
+            */}
             <select style={styles.filterDropdown} value={filterType} onChange={(e) => setFilterType(e.target.value)}>
               <option value="name">Name</option>
               <option value="role">Role</option>

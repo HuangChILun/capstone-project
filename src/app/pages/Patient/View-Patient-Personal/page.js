@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -15,23 +16,29 @@ import { Input } from "@/app/components/HomeUi/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
-// Helper function to calculate age from birthDate
+// Function to calculate age based on birthDate
 function calculateAge(birthDate) {
   const today = new Date();
   const birth = new Date(birthDate);
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
 
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birth.getDate())
-  ) {
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     age--;
   }
 
   return age;
 }
-
+// format date to store in the database
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  return dateStr.split("T")[0];
+}
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return "N/A";
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  return `${month}/${day}/${year}`;
+}
 export default function ViewPatientPersonal() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,6 +47,14 @@ export default function ViewPatientPersonal() {
   const [guardian, setGuardian] = useState(null);
   const [editedPatient, setEditedPatient] = useState(null);
   const [editedGuardian, setEditedGuardian] = useState(null);
+  const [diagnosis, setDiagnosis] = useState(null);
+  const [editedDiagnosis, setEditedDiagnosis] = useState(null);
+  const [insurance, setInsurance] = useState(null);
+  const [editedInsurance, setEditedInsurance] = useState(null);
+  const [consent, setConsent] = useState(null);
+  const [editedConsent, setEditedConsent] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [editedContract, setEditedContract] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +65,9 @@ export default function ViewPatientPersonal() {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [assignedTeamMembers, setAssignedTeamMembers] = useState([]);
-  const [editedAssignedTeamMembers, setEditedAssignedTeamMembers] = useState([]);
+  const [editedAssignedTeamMembers, setEditedAssignedTeamMembers] = useState(
+    []
+  );
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -87,6 +104,197 @@ export default function ViewPatientPersonal() {
     }
   };
 
+  // assign new team members
+  const assignNewTeamMembers = async () => {
+    const token = Cookies.get("token");
+    try {
+      for (const user of selectedUsers) {
+        // Ensure dates are in the correct format or handle empty strings
+        const formatDate = (date) => (date ? date : null);
+
+        const formattedUserData = {
+          clientId: patient.clientId,
+          userId: user.userId,
+          startServiceDate: formatDate(user.startServiceDate),
+          endServiceDate: formatDate(user.endServiceDate),
+        };
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/assign`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(formattedUserData),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error assigning team member:", errorData);
+          throw new Error(
+            `Failed to assign team member: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+      }
+
+      // Clear selected users and refresh the team members list
+      setSelectedUsers([]);
+      await fetchAssignedTeamMembers();
+    } catch (error) {
+      console.error("Error assigning team members:", error);
+      throw error;
+    }
+  };
+
+  // Fetch Diagnosis
+  const fetchDiagnosis = async () => {
+    const token = Cookies.get("token");
+    try {
+      const diagnosisResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/diagnosis/clients/${clientId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!diagnosisResponse.ok) {
+        throw new Error("Failed to fetch assigned diagnosis");
+      }
+      const diagnosisData = await diagnosisResponse.json();
+
+      // Check if diagnosisData is an array
+      let diagnosisItem;
+      if (Array.isArray(diagnosisData)) {
+        if (diagnosisData.length > 0) {
+          diagnosisItem = diagnosisData[0]; // Use the first item
+        } else {
+          diagnosisItem = null; // No diagnosis data available
+        }
+      } else {
+        diagnosisItem = diagnosisData;
+      }
+
+      // Map aType to "typical" or "atypical" for display
+      if (diagnosisItem) {
+        diagnosisItem.aType =
+          diagnosisItem.aType === 1 ? "typical" : "atypical";
+      }
+
+      setDiagnosis(diagnosisItem);
+      setEditedDiagnosis(diagnosisItem);
+    } catch (error) {
+      console.error("Error fetching assigned diagnosis:", error);
+    }
+  };
+
+  // fetch insurance table
+  // Fetch Insurance
+  const fetchInsurance = async () => {
+    const token = Cookies.get("token");
+    try {
+      const insuranceResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/insurance-info/client/${clientId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!insuranceResponse.ok) {
+        throw new Error("Failed to fetch insurance information");
+      }
+
+      const insuranceData = await insuranceResponse.json();
+
+      // Handle array data
+      let insuranceItem;
+      if (Array.isArray(insuranceData)) {
+        if (insuranceData.length > 0) {
+          insuranceItem = insuranceData[0];
+        } else {
+          insuranceItem = null;
+        }
+      } else {
+        insuranceItem = insuranceData;
+      }
+
+      setInsurance(insuranceItem);
+      setEditedInsurance(insuranceItem);
+    } catch (error) {
+      console.error("Error fetching insurance information:", error);
+    }
+  };
+
+  // Fetch Consent
+  const fetchConsent = async () => {
+    const token = Cookies.get("token");
+    try {
+      const consentResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/consents/client/${clientId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!consentResponse.ok) {
+        throw new Error("Failed to fetch consent information");
+      }
+
+      const consentData = await consentResponse.json();
+
+      // Handle array data
+      let consentItem;
+      if (Array.isArray(consentData)) {
+        if (consentData.length > 0) {
+          consentItem = consentData[0];
+        } else {
+          consentItem = null;
+        }
+      } else {
+        consentItem = consentData;
+      }
+
+      setConsent(consentItem);
+      setEditedConsent(consentItem);
+    } catch (error) {
+      console.error("Error fetching consent information:", error);
+    }
+  };
+
+  // fetch contract information
+  const fetchContract = async () => {
+    const token = Cookies.get("token");
+    try {
+      const contractResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/client-contract/client/${clientId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!contractResponse.ok) {
+        throw new Error("Failed to fetch contract information");
+      }
+      const contractData = await contractResponse.json();
+      setContract(contractData);
+      setEditedContract(contractData);
+    } catch (error) {
+      console.error("Error fetching contract information:", error);
+    }
+  };
+
+  // fetch client and guardian by this effect
   useEffect(() => {
     const fetchPatientAndGuardian = async () => {
       const token = Cookies.get("token");
@@ -103,7 +311,7 @@ export default function ViewPatientPersonal() {
           return;
         }
 
-        // Fetch patient data
+        // Fetch client data
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients/${clientId}`,
           {
@@ -146,6 +354,10 @@ export default function ViewPatientPersonal() {
         }
 
         // Fetch assigned team members
+        await fetchConsent();
+        await fetchDiagnosis();
+        await fetchInsurance();
+        await fetchContract();
         await fetchAssignedTeamMembers();
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -164,11 +376,14 @@ export default function ViewPatientPersonal() {
   const handleEditClick = () => {
     setIsEditing(true);
   };
-
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditedPatient(patient);
     setEditedGuardian(guardian);
+    setEditedDiagnosis(diagnosis);
+    setEditedInsurance(insurance);
+    setEditedConsent(consent);
+    setEditedContract(contract);
     setSelectedUsers([]);
     setSearchResults([]);
     setSearchName("");
@@ -185,6 +400,26 @@ export default function ViewPatientPersonal() {
   const handleGuardianInputChange = (e) => {
     const { name, value } = e.target;
     setEditedGuardian({ ...editedGuardian, [name]: value });
+  };
+
+  const handleDiagnosisInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedDiagnosis({ ...editedDiagnosis, [name]: value });
+  };
+
+  const handleInsuranceInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedInsurance({ ...editedInsurance, [name]: value || null });
+  };
+
+  const handleConsentInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedConsent({ ...editedConsent, [name]: value });
+  };
+
+  const handleContractInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedContract({ ...editedContract, [name]: value });
   };
 
   // Handle date changes for assigned team members
@@ -215,7 +450,7 @@ export default function ViewPatientPersonal() {
           ? editedPatient.serviceEndDate.split("T")[0]
           : null,
       };
-  
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients/${clientId}`,
         {
@@ -227,7 +462,7 @@ export default function ViewPatientPersonal() {
           body: JSON.stringify(formattedPatientData),
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error updating client data:", errorData);
@@ -237,7 +472,7 @@ export default function ViewPatientPersonal() {
           }`
         );
       }
-  
+
       // Update the state with the latest client data
       setPatient(formattedPatientData);
     } catch (error) {
@@ -245,49 +480,208 @@ export default function ViewPatientPersonal() {
       throw error;
     }
   };
-  
+
   const updateGuardianInfo = async () => {
-  const token = Cookies.get("token");
-  if (editedGuardian && editedGuardian.guardianId) {
-    try {
-      // Format date fields if any (e.g., birthDate)
-      const formattedGuardianData = {
-        ...editedGuardian,
-        // birthDate: editedGuardian.birthDate
-        //   ? editedGuardian.birthDate.split("T")[0]
-        //   : null,
-      };
+    const token = Cookies.get("token");
+    if (editedGuardian && editedGuardian.guardianId) {
+      try {
+        const formattedGuardianData = {
+          ...editedGuardian,
+        };
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${editedGuardian.guardianId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formattedGuardianData),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error updating guardian data:", errorData);
-        throw new Error(
-          `Failed to update guardian data: ${
-            errorData.message || errorData.error || "Unknown error"
-          }`
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${editedGuardian.guardianId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(formattedGuardianData),
+          }
         );
-      }
 
-      // Update the state with the latest guardian data
-      setGuardian(formattedGuardianData);
-    } catch (error) {
-      console.error("Error updating guardian data:", error);
-      throw error;
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error updating guardian data:", errorData);
+          throw new Error(
+            `Failed to update guardian data: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+
+        // Update the state with the latest guardian data
+        setGuardian(formattedGuardianData);
+      } catch (error) {
+        console.error("Error updating guardian data:", error);
+        throw error;
+      }
     }
-  }
-};
+  };
+
+  const updateDiagnosisInfo = async () => {
+    const token = Cookies.get("token");
+    if (editedDiagnosis && editedDiagnosis.diagnosisId) {
+      try {
+        // Map "typical"/"atypical" back to 1/0
+        const aTypeValue = editedDiagnosis.aType === "typical" ? 1 : 0;
+
+        const updatedDiagnosis = {
+          ...editedDiagnosis,
+          aType: aTypeValue,
+        };
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/diagnosis/${editedDiagnosis.diagnosisId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(updatedDiagnosis),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error updating diagnosis data:", errorData);
+          throw new Error(
+            `Failed to update diagnosis data: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+
+        // Update the state with the latest diagnosis data
+        setDiagnosis({
+          ...editedDiagnosis,
+          aType: editedDiagnosis.aType,
+        });
+      } catch (error) {
+        console.error("Error updating diagnosis data:", error);
+        throw error;
+      }
+    }
+  };
+
+  const updateInsuranceInfo = async () => {
+    const token = Cookies.get("token");
+    if (editedInsurance && editedInsurance.insuranceInfoId) {
+      try {
+        const updatedInsurance = {
+          ...editedInsurance,
+          startDate: formatDate(editedInsurance.startDate),
+          endDate: formatDate(editedInsurance.endDate),
+        };
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/insurance-info/${editedInsurance.insuranceInfoId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(updatedInsurance),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error updating insurance data:", errorData);
+          throw new Error(
+            `Failed to update insurance data: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+
+        // Update the state with the latest insurance data
+        setInsurance(updatedInsurance);
+      } catch (error) {
+        console.error("Error updating insurance data:", error);
+        throw error;
+      }
+    }
+  };
+
+  const updateConsentInfo = async () => {
+    const token = Cookies.get("token");
+    if (editedConsent && editedConsent.consentId) {
+      try {
+        const updatedConsent = {
+          ...editedConsent,
+          receivedDate: formatDate(editedConsent.receivedDate),
+          withdrawDate: formatDate(editedConsent.withdrawDate),
+        };
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/consents/${editedConsent.consentId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(updatedConsent),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error updating consent data:", errorData);
+          throw new Error(
+            `Failed to update consent data: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+
+        // Update the state with the latest consent data
+        setConsent(editedConsent);
+      } catch (error) {
+        console.error("Error updating consent data:", error);
+        throw error;
+      }
+    }
+  };
+
+  const updateContractInfo = async () => {
+    const token = Cookies.get("token");
+    if (editedContract && editedContract.contractId) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/client-contract/${editedContract.contractId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(editedContract),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error updating contract data:", errorData);
+          throw new Error(
+            `Failed to update contract data: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+
+        // Update the state with the latest contract data
+        setContract(editedContract);
+      } catch (error) {
+        console.error("Error updating contract data:", error);
+        throw error;
+      }
+    }
+  };
 
   const updateAssignedTeamMembers = async () => {
     const token = Cookies.get("token");
@@ -324,56 +718,15 @@ export default function ViewPatientPersonal() {
     }
   };
 
-  const assignNewTeamMembers = async () => {
-    const token = Cookies.get("token");
-    try {
-      for (const user of selectedUsers) {
-        // Ensure dates are in the correct format or handle empty strings
-        const formatDate = (date) => (date ? date : null);
-  
-        const formattedUserData = {
-          clientId: patient.clientId,
-          userId: user.userId,
-          startServiceDate: formatDate(user.startServiceDate),
-          endServiceDate: formatDate(user.endServiceDate),
-        };
-  
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/assign`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(formattedUserData),
-          }
-        );
-  
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error assigning team member:", errorData);
-          throw new Error(
-            `Failed to assign team member: ${
-              errorData.message || errorData.error || "Unknown error"
-            }`
-          );
-        }
-      }
-  
-      // Clear selected users and refresh the team members list
-      setSelectedUsers([]);
-      await fetchAssignedTeamMembers();
-    } catch (error) {
-      console.error("Error assigning team members:", error);
-      throw error;
-    }
-  };
   // Handle saving changes
   const handleSaveChanges = async () => {
     try {
       await updateClientInfo();
       await updateGuardianInfo();
+      await updateDiagnosisInfo();
+      await updateInsuranceInfo();
+      await updateConsentInfo();
+      await updateContractInfo();
       await updateAssignedTeamMembers();
 
       if (selectedUsers.length > 0) {
@@ -452,8 +805,15 @@ export default function ViewPatientPersonal() {
     setSelectedUsers(updatedUsers);
   };
 
-  // Handler for assigning team members
-  // (Already defined as assignNewTeamMembers)
+  // Handle downloading the contract PDF
+  const handleDownloadContract = () => {
+    if (contract && contract.fileId) {
+      const fileUrl = `${process.env.NEXT_PUBLIC_BACKEND_IP}/files/${contract.fileId}`;
+      window.open(fileUrl, "_blank");
+    } else {
+      alert("No contract file available.");
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -468,32 +828,32 @@ export default function ViewPatientPersonal() {
     : [];
 
   const currentTeamMembers = assignedTeamMembersArray.filter((member) => {
-    const endDate = member.endServiceDate ? new Date(member.endServiceDate) : null;
+    const endDate = member.endServiceDate
+      ? new Date(member.endServiceDate)
+      : null;
     return !endDate || endDate >= today;
   });
 
   const pastTeamMembers = assignedTeamMembersArray.filter((member) => {
-    const endDate = member.endServiceDate ? new Date(member.endServiceDate) : null;
+    const endDate = member.endServiceDate
+      ? new Date(member.endServiceDate)
+      : null;
     return endDate && endDate < today;
   });
-
 
   return (
     <div>
       <HoriNav user={user} />
       <div className="p-6">
         <div className="flex items-center mb-4">
-          
-        <Link href="./View-Patient-Page">
-          <div className="flex items-center mb-4">
-          
-            <ArrowLeftIcon className="h-6 w-6 mr-2" />
-            
-            <span>Back to Client List</span>
-          </div>
+          <Link href="/View-Patient-Page">
+            <div className="flex items-center mb-4 cursor-pointer">
+              <ArrowLeftIcon className="h-6 w-6 mr-2" />
+              <span>Back to Client List</span>
+            </div>
           </Link>
-
         </div>
+
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <h1 className="text-4xl font-bold">{`${patient.firstName} ${patient.lastName}`}</h1>
@@ -521,7 +881,9 @@ export default function ViewPatientPersonal() {
           <TabsContent value="personal-info">
             {/* Patient Info */}
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">Client Information</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Client Information
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* First Name */}
                 <div>
@@ -598,7 +960,9 @@ export default function ViewPatientPersonal() {
                       onChange={handlePatientInputChange}
                     />
                   ) : (
-                    <p className="text-lg font-semibold">{patient.postalCode}</p>
+                    <p className="text-lg font-semibold">
+                      {patient.postalCode}
+                    </p>
                   )}
                 </div>
                 {/* Date of Birth */}
@@ -617,7 +981,7 @@ export default function ViewPatientPersonal() {
                     />
                   ) : (
                     <p className="text-lg font-semibold">
-                      {new Date(patient.birthDate).toLocaleDateString()}
+                      {formatDisplayDate(patient.birthDate)}
                     </p>
                   )}
                 </div>
@@ -690,7 +1054,9 @@ export default function ViewPatientPersonal() {
                       onChange={handlePatientInputChange}
                     />
                   ) : (
-                    <p className="text-lg font-semibold">{patient.phoneNumber}</p>
+                    <p className="text-lg font-semibold">
+                      {patient.phoneNumber}
+                    </p>
                   )}
                 </div>
               </div>
@@ -712,7 +1078,9 @@ export default function ViewPatientPersonal() {
                         onChange={handleGuardianInputChange}
                       />
                     ) : (
-                      <p className="text-lg font-semibold">{guardian.firstName}</p>
+                      <p className="text-lg font-semibold">
+                        {guardian.firstName}
+                      </p>
                     )}
                   </div>
                   {/* Last Name */}
@@ -725,7 +1093,9 @@ export default function ViewPatientPersonal() {
                         onChange={handleGuardianInputChange}
                       />
                     ) : (
-                      <p className="text-lg font-semibold">{guardian.lastName}</p>
+                      <p className="text-lg font-semibold">
+                        {guardian.lastName}
+                      </p>
                     )}
                   </div>
                   {/* Address */}
@@ -738,7 +1108,9 @@ export default function ViewPatientPersonal() {
                         onChange={handleGuardianInputChange}
                       />
                     ) : (
-                      <p className="text-lg font-semibold">{guardian.address}</p>
+                      <p className="text-lg font-semibold">
+                        {guardian.address}
+                      </p>
                     )}
                   </div>
                   {/* City */}
@@ -764,7 +1136,9 @@ export default function ViewPatientPersonal() {
                         onChange={handleGuardianInputChange}
                       />
                     ) : (
-                      <p className="text-lg font-semibold">{guardian.province}</p>
+                      <p className="text-lg font-semibold">
+                        {guardian.province}
+                      </p>
                     )}
                   </div>
                   {/* Postal Code */}
@@ -809,7 +1183,9 @@ export default function ViewPatientPersonal() {
                         onChange={handleGuardianInputChange}
                       />
                     ) : (
-                      <p className="text-lg font-semibold">{guardian.custody}</p>
+                      <p className="text-lg font-semibold">
+                        {guardian.custody}
+                      </p>
                     )}
                   </div>
                   {/* Email */}
@@ -827,7 +1203,9 @@ export default function ViewPatientPersonal() {
                   </div>
                   {/* Phone Number */}
                   <div>
-                    <Label className="text-muted-foreground">Phone Number</Label>
+                    <Label className="text-muted-foreground">
+                      Phone Number
+                    </Label>
                     {isEditing ? (
                       <Input
                         name="phoneNumber"
@@ -846,6 +1224,191 @@ export default function ViewPatientPersonal() {
               )}
             </div>
           </TabsContent>
+
+          {/* Medical Info Tab */}
+          <TabsContent value="medical-info">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold mb-4">
+                Medical Information
+              </h2>
+              {/* Diagnosis Information */}
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2">Diagnosis</h3>
+                {diagnosis ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Diagnosis */}
+                    <div>
+                      <Label className="text-muted-foreground">Diagnosis</Label>
+                      {isEditing ? (
+                        <Input
+                          name="diagnosis"
+                          value={editedDiagnosis.diagnosis || ""}
+                          onChange={handleDiagnosisInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {diagnosis.diagnosis}
+                        </p>
+                      )}
+                    </div>
+                    {/* aType */}
+                    <div>
+                      <Label className="text-muted-foreground">Type</Label>
+                      {isEditing ? (
+                        <div>
+                          <select
+                            name="aType"
+                            value={editedDiagnosis.aType || "typical"}
+                            onChange={(e) =>
+                              setEditedDiagnosis({
+                                ...editedDiagnosis,
+                                aType: e.target.value,
+                              })
+                            }
+                            className="border rounded p-2 w-full"
+                          >
+                            <option value="typical">Typical</option>
+                            <option value="atypical">Atypical</option>
+                          </select>
+                        </div>
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {diagnosis.aType}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p>No diagnosis data available.</p>
+                )}
+              </div>
+              {/* Insurance Information */}
+              <div className="mb-4">
+                <h2 className="text-2xl font-semibold mb-4">Insurance</h2>
+                {insurance ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Insurance Provider */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Insurance Provider
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          name="insuranceProvider"
+                          value={editedInsurance.insuranceProvider || ""}
+                          onChange={handleInsuranceInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {insurance.insuranceProvider || "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    {/* Primary Plan Name */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Primary Plan Name
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          name="primaryPlanName"
+                          value={editedInsurance.primaryPlanName || ""}
+                          onChange={handleInsuranceInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {insurance.primaryPlanName || "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    {/* Certificate ID */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Certificate ID
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          name="certificateId"
+                          value={editedInsurance.certificateId || ""}
+                          onChange={handleInsuranceInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {insurance.certificateId || "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    {/* Coverage Detail */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Coverage Detail
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          name="coverateDetail"
+                          value={editedInsurance.coverateDetail || ""}
+                          onChange={handleInsuranceInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {insurance.coverateDetail || "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    {/* Start Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Start Date
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          name="startDate"
+                          value={
+                            editedInsurance.startDate
+                              ? editedInsurance.startDate.split("T")[0]
+                              : ""
+                          }
+                          onChange={handleInsuranceInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {insurance.startDate
+                            ? formatDisplayDate(insurance.startDate)
+                            : "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    {/* End Date */}
+                    <div>
+                      <Label className="text-muted-foreground">End Date</Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          name="endDate"
+                          value={
+                            editedInsurance.endDate
+                              ? editedInsurance.endDate.split("T")[0]
+                              : ""
+                          }
+                          onChange={handleInsuranceInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {insurance.endDate
+                            ? formatDisplayDate(insurance.endDate)
+                            : "N/A"}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p>No insurance data available.</p>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
           {/* Team Tab */}
           <TabsContent value="team">
             <div className="mb-6">
@@ -858,7 +1421,10 @@ export default function ViewPatientPersonal() {
                     Currently Working with This Client
                   </h3>
                   {currentTeamMembers.map((member) => (
-                    <div key={member.teamMemberId} className="flex items-center mb-2">
+                    <div
+                      key={member.teamMemberId}
+                      className="flex items-center mb-2"
+                    >
                       <p>
                         {`${member.userFirstName} ${member.userLastName} (${member.role})`}
                       </p>
@@ -905,13 +1471,17 @@ export default function ViewPatientPersonal() {
                             <p>
                               Service Start Date:{" "}
                               {member.startServiceDate
-                                ? new Date(member.startServiceDate).toLocaleDateString()
+                                ? new Date(
+                                    member.startServiceDate
+                                  ).toLocaleDateString()
                                 : "N/A"}
                             </p>
                             <p>
                               Service End Date:{" "}
                               {member.endServiceDate
-                                ? new Date(member.endServiceDate).toLocaleDateString()
+                                ? new Date(
+                                    member.endServiceDate
+                                  ).toLocaleDateString()
                                 : "N/A"}
                             </p>
                           </>
@@ -929,35 +1499,72 @@ export default function ViewPatientPersonal() {
                     Past Working with This Client
                   </h3>
                   {pastTeamMembers.map((member) => (
-                    <div key={member.teamMemberId} className="flex items-center mb-2">
-                    <p className="mr-4">
-                      {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                    </p>
-                    <div className="flex items-center">
-                      {isEditing ? (
-                        <div className="flex items-center">
-                          <Label className="mr-2">Service Start Date:</Label>
-                          <Input
-                            type="date"
-                            value={member.startServiceDate ? member.startServiceDate.split("T")[0] : ""}
-                            onChange={(e) => handleAssignedDateChange(member.teamMemberId, "startServiceDate", e.target.value)}
-                            className="mr-4"
-                          />
-                          <Label className="mr-2">Service End Date:</Label>
-                          <Input
-                            type="date"
-                            value={member.endServiceDate ? member.endServiceDate.split("T")[0] : ""}
-                            onChange={(e) => handleAssignedDateChange(member.teamMemberId, "endServiceDate", e.target.value)}
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex">
-                          <p className="mr-4">Service Start Date: {member.startServiceDate ? new Date(member.startServiceDate).toLocaleDateString() : "N/A"}</p>
-                          <p>Service End Date: {member.endServiceDate ? new Date(member.endServiceDate).toLocaleDateString() : "N/A"}</p>
-                        </div>
-                      )}
+                    <div
+                      key={member.teamMemberId}
+                      className="flex items-center mb-2"
+                    >
+                      <p className="mr-4">
+                        {`${member.userFirstName} ${member.userLastName} (${member.role})`}
+                      </p>
+                      <div className="flex items-center">
+                        {isEditing ? (
+                          <div className="flex items-center">
+                            <Label className="mr-2">Service Start Date:</Label>
+                            <Input
+                              type="date"
+                              value={
+                                member.startServiceDate
+                                  ? member.startServiceDate.split("T")[0]
+                                  : ""
+                              }
+                              onChange={(e) =>
+                                handleAssignedDateChange(
+                                  member.teamMemberId,
+                                  "startServiceDate",
+                                  e.target.value
+                                )
+                              }
+                              className="mr-4"
+                            />
+                            <Label className="mr-2">Service End Date:</Label>
+                            <Input
+                              type="date"
+                              value={
+                                member.endServiceDate
+                                  ? member.endServiceDate.split("T")[0]
+                                  : ""
+                              }
+                              onChange={(e) =>
+                                handleAssignedDateChange(
+                                  member.teamMemberId,
+                                  "endServiceDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex">
+                            <p className="mr-4">
+                              Service Start Date:{" "}
+                              {member.startServiceDate
+                                ? new Date(
+                                    member.startServiceDate
+                                  ).toLocaleDateString()
+                                : "N/A"}
+                            </p>
+                            <p>
+                              Service End Date:{" "}
+                              {member.endServiceDate
+                                ? new Date(
+                                    member.endServiceDate
+                                  ).toLocaleDateString()
+                                : "N/A"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
                   ))}
                 </div>
               )}
@@ -992,7 +1599,10 @@ export default function ViewPatientPersonal() {
                     <div className="mb-4">
                       <h3 className="text-xl font-semibold">Search Results</h3>
                       {searchResults.map((user) => (
-                        <div key={user.userId} className="flex items-center mb-2">
+                        <div
+                          key={user.userId}
+                          className="flex items-center mb-2"
+                        >
                           <p>{`${user.firstName} ${user.lastName} (${user.role})`}</p>
                           <Button
                             className="ml-2"
@@ -1008,7 +1618,9 @@ export default function ViewPatientPersonal() {
                   {/* Selected Users for Assignment */}
                   {selectedUsers.length > 0 && (
                     <div className="mb-4">
-                      <h3 className="text-xl font-semibold">Selected Team Members</h3>
+                      <h3 className="text-xl font-semibold">
+                        Selected Team Members
+                      </h3>
                       {selectedUsers.map((user, index) => (
                         <div key={user.userId} className="mb-2">
                           <p>{`${user.firstName} ${user.lastName} (${user.role})`}</p>
@@ -1018,7 +1630,11 @@ export default function ViewPatientPersonal() {
                               type="date"
                               value={user.startServiceDate}
                               onChange={(e) =>
-                                handleDateChange(index, "startServiceDate", e.target.value)
+                                handleDateChange(
+                                  index,
+                                  "startServiceDate",
+                                  e.target.value
+                                )
                               }
                               className="ml-2 mr-4"
                             />
@@ -1027,7 +1643,11 @@ export default function ViewPatientPersonal() {
                               type="date"
                               value={user.endServiceDate}
                               onChange={(e) =>
-                                handleDateChange(index, "endServiceDate", e.target.value)
+                                handleDateChange(
+                                  index,
+                                  "endServiceDate",
+                                  e.target.value
+                                )
                               }
                               className="ml-2 mr-4"
                             />
@@ -1047,19 +1667,173 @@ export default function ViewPatientPersonal() {
               )}
             </div>
           </TabsContent>
+          <TabsContent value="contract">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold mb-4">Contract</h2>
+              {contract ? (
+                <div>
+                  {/* Display contract details */}
+                  <div className="mb-4">
+                    {/* Start Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Start Date
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          name="startDate"
+                          value={
+                            editedContract.startDate
+                              ? editedContract.startDate.split("T")[0]
+                              : ""
+                          }
+                          onChange={handleContractInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {formatDisplayDate(contract.startDate)}
+                        </p>
+                      )}
+                    </div>
+                    {/* End Date */}
+                    <div>
+                      <Label className="text-muted-foreground">End Date</Label>
+                      {isEditing ? (
+                        <Input
+                          type="date"
+                          name="endDate"
+                          value={
+                            editedContract.endDate
+                              ? editedContract.endDate.split("T")[0]
+                              : ""
+                          }
+                          onChange={handleContractInputChange}
+                        />
+                      ) : (
+                        <p className="text-lg font-semibold">
+                          {formatDisplayDate(contract.endDate)}
+                        </p>
+                      )}
+                    </div>
+                    {/* Hours fields can be added here if needed */}
+                  </div>
+                  {/* View or Update Contract File */}
+                  <div>
+                    {isEditing ? (
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Upload New Contract
+                        </Label>
+                        <Input
+                          type="file"
+                          name="contractFile"
+                          onChange={handleContractInputChange}
+                        />
+                      </div>
+                    ) : (
+                      <Button onClick={handleDownloadContract}>
+                        View Contract
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p>No contract information available.</p>
+              )}
+            </div>
+          </TabsContent>
+
           {/* Additional Note Tab */}
           <TabsContent value="additional-note">
             <div className="mb-6">
-              <Label className="text-muted-foreground">Additional Note</Label>
-              {isEditing ? (
-                <Input
-                  name="psNote"
-                  value={editedPatient.psNote || ""}
-                  onChange={handlePatientInputChange}
-                />
+              {/* Consent Information */}
+              <h2 className="text-2xl font-semibold mb-4">Consent</h2>
+              {consent ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Permission Note */}
+                  <div>
+                    <Label className="text-muted-foreground">
+                      Permission Note
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        name="permissionNote"
+                        value={editedConsent.permissionNote || ""}
+                        onChange={handleConsentInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {consent.permissionNote || "N/A"}
+                      </p>
+                    )}
+                  </div>
+                  {/* Received Date */}
+                  <div>
+                    <Label className="text-muted-foreground">
+                      Received Date
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        type="date"
+                        name="receivedDate"
+                        value={
+                          editedConsent.receivedDate
+                            ? editedConsent.receivedDate.split("T")[0]
+                            : ""
+                        }
+                        onChange={handleConsentInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {consent.receivedDate
+                          ? formatDisplayDate(consent.receivedDate)
+                          : "N/A"}
+                      </p>
+                    )}
+                  </div>
+                  {/* Withdraw Date */}
+                  <div>
+                    <Label className="text-muted-foreground">
+                      Withdraw Date
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        type="date"
+                        name="withdrawDate"
+                        value={
+                          editedConsent.withdrawDate
+                            ? editedConsent.withdrawDate.split("T")[0]
+                            : ""
+                        }
+                        onChange={handleConsentInputChange}
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">
+                        {consent.withdrawDate
+                          ? formatDisplayDate(consent.withdrawDate)
+                          : "N/A"}
+                      </p>
+                    )}
+                  </div>
+                </div>
               ) : (
-                <p>{patient.psNote}</p>
+                <p>No consent information available.</p>
               )}
+
+              {/* Additional Note */}
+              <div className="mt-6">
+                <Label className="text-muted-foreground">Additional Note</Label>
+                {isEditing ? (
+                  <Input
+                    name="psNote"
+                    value={editedPatient.psNote || ""}
+                    onChange={handlePatientInputChange}
+                  />
+                ) : (
+                  <p>{patient.psNote}</p>
+                )}
+              </div>
             </div>
           </TabsContent>
         </Tabs>
