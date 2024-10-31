@@ -690,7 +690,7 @@ export default function ViewPatientPersonal() {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/${member.teamMemberId}`,
           {
-            method: "PUT",
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
@@ -1856,8 +1856,8 @@ function ArrowLeftIcon(props) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="m12 19-7-7 7-7" />
       <path d="M19 12H5" />
+      <polyline points="12 19 5 12 12 5" />
     </svg>
   );
 }

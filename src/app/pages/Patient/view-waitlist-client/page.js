@@ -184,7 +184,7 @@ export default function ViewWaitList() {
         <Link href="./View-Patient-Page">
           <div className="flex items-center mb-4">
             <ArrowLeftIcon className="h-6 w-6 mr-2" />
-            <span>Back to Waitlist</span>
+            <span>Back to Client List</span>
           </div>
         </Link>
 

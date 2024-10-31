@@ -4,22 +4,28 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/app/components/HomeUi/tabs";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { Input } from "@/app/components/HomeUi/input";
+import { Label } from "@/app/components/HomeUi/label";
 
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);
-  const [assignedPatients, setAssignedPatients] = useState([]);
-  const [accountAccess, setAccountAccess] = useState([]);
+  const [editedStaffData, setEditedStaffData] = useState(null); // For editing
+  const [assignedClients, setAssignedClients] = useState([]); // Updated
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false); // Toggle for editing mode
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [isEditing, setIsEditing] = useState(false); // Changed to boolean
+  const user = JSON.parse(localStorage.getItem("user"));
   const router = useRouter();
   const searchParams = useSearchParams();
-  const staffId = searchParams.get('userId');  // Ensure 'id' exists in the URL
-  
+  const staffId = searchParams.get("userId");
+
   useEffect(() => {
     const token = Cookies.get("token");
     if (!token) {
@@ -34,25 +40,49 @@ export default function ViewStaffPersonal() {
           throw new Error("Staff ID is missing from URL");
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // Fetch staff data
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch staff data. Status: ${response.status}`);
+          throw new Error(
+            `Failed to fetch staff data. Status: ${response.status}`
+          );
         }
 
         const data = await response.json();
-        if (!data) {
-          throw new Error("No data found for this staff member");
+        setStaffData(data);
+        setEditedStaffData(data); // Initialize editedStaffData
+
+        // Fetch assigned clients
+        const clientsResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/user/${staffId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!clientsResponse.ok) {
+          throw new Error(
+            `Failed to fetch assigned clients. Status: ${clientsResponse.status}`
+          );
         }
 
-        setStaffData(data);
-        setAssignedPatients(data.assignedPatients || []);  // Fallback to empty array if no assigned patients
-        setAccountAccess(data.accountAccess || []);        // Fallback to empty array if no account access info
+        const clientsData = await clientsResponse.json();
+        console.log('clientsData:', clientsData);
 
+        // Assuming clientsData has the structure { data: [ { client }, { client }, ... ] }
+        const clients = clientsData.data || [];
+
+        setAssignedClients(clients);
       } catch (error) {
         console.error("Error fetching staff data:", error);
         setError(error.message);
@@ -65,90 +95,72 @@ export default function ViewStaffPersonal() {
   }, [router, staffId]);
 
   const handleEditClick = () => {
-    setIsEditing(true); // Enable editing mode
+    setIsEditing(true);
+    setEditedStaffData(staffData);
   };
 
   const handleCancelEdit = () => {
-    setIsEditing(false); // Cancel editing mode
+    setIsEditing(false);
+    setEditedStaffData(staffData);
   };
 
   const handleInputChange = (e) => {
-    setStaffData({
-      ...staffData,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+    setEditedStaffData({
+      ...editedStaffData,
+      [name]: name === "isAdmin" ? parseInt(value) : value,
     });
   };
 
   const handleSaveChanges = async () => {
     const token = Cookies.get("token");
     try {
-      // Ensure all NOT NULL fields are included and valid
-      const updatedData = {
-        firstName: staffData.firstName || '',
-        lastName: staffData.lastName || '',
-        email: staffData.email || '',
-        password: staffData.password || 'defaultPassword123', // If password is required
-        phoneNumber: staffData.phoneNumber || '',
-        address: staffData.address || '',
-        postalCode: staffData.postalCode || '',
-        city: staffData.city || '',
-        province: staffData.province || '',
-        SIN: staffData.SIN || '',
-        rate: parseFloat(staffData.rate) || 0,
-        isAdmin: staffData.isAdmin !== undefined ? staffData.isAdmin : 0,
-        isOutsideProvider: staffData.isOutsideProvider !== undefined ? staffData.isOutsideProvider : 0,
-        agency: staffData.agency || '',
-        contractStartDate: staffData.contractStartDate || '',
-        contractEndDate: staffData.contractEndDate || '',
-        role: staffData.role || '',
-        // Include other NOT NULL fields as necessary
-      };
-  
-      // Validate that all required fields are not empty
-      for (const [key, value] of Object.entries(updatedData)) {
-        if ((value === '' || value === null || value === undefined) && key !== 'password') {
-          throw new Error(`Field ${key} is required and cannot be empty.`);
+      const updatedData = { ...editedStaffData };
+
+      // Validate required fields if necessary
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
         }
-      }
-  
-      // Format dates to 'YYYY-MM-DD'
-      if (updatedData.contractStartDate) {
-        updatedData.contractStartDate = updatedData.contractStartDate.split('T')[0];
-      }
-      if (updatedData.contractEndDate) {
-        updatedData.contractEndDate = updatedData.contractEndDate.split('T')[0];
-      }
-  
-      console.log('Updated Data:', updatedData);
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
-  
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Failed to update staff data: ${errorData.message || response.statusText}`);
+        throw new Error(
+          `Failed to update staff data: ${
+            errorData.message || response.statusText
+          }`
+        );
       }
-  
+
       alert("Staff data updated successfully!");
+      setStaffData(updatedData); // Update staffData with saved data
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating staff data:", error);
       alert(`Error updating staff data: ${error.message}`);
     }
   };
-  
-  
-  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!staffData) return <div>No staff data found.</div>;
+
+  const styles = {
+    viewButton: {
+      border: "1px solid #e5e5e5",
+      padding: "8px 16px",
+      cursor: "pointer",
+      marginLeft: "10px",
+    },
+  };
 
   return (
     <div>
@@ -162,213 +174,312 @@ export default function ViewStaffPersonal() {
         </Link>
 
         <div className="flex items-center justify-between mb-4">
-          <div className="text-4xl font-bold">{`${staffData.firstName} ${staffData.lastName}`}</div>
-          <div className="text-xl ml-2">{staffData.role}</div>
+          <div className="flex items-center">
+            <div className="text-4xl font-bold">{`${staffData.firstName} ${staffData.lastName}`}</div>
+            <div className="text-xl ml-2">{staffData.role}</div>
+          </div>
           {!isEditing && (
-            <Button className="ml-auto mr-2" onClick={handleEditClick}>Edit</Button>
+            <Button className="ml-auto mr-2" onClick={handleEditClick}>
+              Edit
+            </Button>
+          )}
+          {isEditing && (
+            <div>
+              <Button onClick={handleSaveChanges}>Save Changes</Button>
+              <Button className="ml-2" onClick={handleCancelEdit}>
+                Cancel
+              </Button>
+            </div>
           )}
         </div>
 
-        {isEditing ? (
-          <div>
+        <Tabs defaultValue="personal-info">
+          <TabsList>
+            <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
+            <TabsTrigger value="assigned-client">Assigned Clients</TabsTrigger>
+            <TabsTrigger value="account-access">Account Access</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="personal-info">
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <p>First Name</p>
-                <Input name="firstName" value={staffData.firstName} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Last Name</p>
-                <Input name="lastName" value={staffData.lastName} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Email</p>
-                <Input name="email" value={staffData.email} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Phone Number</p>
-                <Input name="phoneNumber" value={staffData.phoneNumber} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Address</p>
-                <Input name="address" value={staffData.address} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>City</p>
-                <Input name="city" value={staffData.city} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Postal Code</p>
-                <Input name="postalCode" value={staffData.postalCode} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Province</p>
-                <Input name="province" value={staffData.province} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>SIN</p>
-                <Input name="SIN" value={staffData.SIN} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Rate</p>
-                <Input name="rate" value={staffData.rate} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Beneficiary</p>
-                <Input name="beneficiary" value={staffData.beneficiary} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Licensing College</p>
-                <Input name="licencingCollege" value={staffData.licencingCollege} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Registration Number</p>
-                <Input name="registrationNumber" value={staffData.registrationNumber} onChange={handleInputChange} />
-              </div>
-              <div>
-  <p>Contract Start Date</p>
-  <Input
-    type="date"
-    name="contractStartDate"
-    value={staffData.contractStartDate || ''}
-    onChange={handleInputChange}
-  />
-</div>
-<div>
-  <p>Contract End Date</p>
-  <Input
-    type="date"
-    name="contractEndDate"
-    value={staffData.contractEndDate || ''}
-    onChange={handleInputChange}
-  />
-</div>
-
-              <div>
-                <p>Role</p>
-                <Input name="role" value={staffData.role} onChange={handleInputChange} />
-              </div>
-              <div>
-                <p>Agency</p>
-                <Input name="agency" value={staffData.agency} onChange={handleInputChange} />
-              </div>
-            </div>
-            <div className="mt-4">
-              <Button onClick={handleSaveChanges}>Save Changes</Button>
-              <Button className="ml-4" onClick={handleCancelEdit}>Cancel</Button>
-            </div>
-          </div>
-        ) : (
-          <Tabs defaultValue="personal-info">
-            <TabsList>
-              <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
-              <TabsTrigger value="assigned-patient">Assigned Patients</TabsTrigger>
-              <TabsTrigger value="account-access">Account Access</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="personal-info">
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <div className="text-muted-foreground">First Name</div>
+                <Label>First Name</Label>
+                {isEditing ? (
+                  <Input
+                    name="firstName"
+                    value={editedStaffData.firstName || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.firstName}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Last Name</div>
-                  <div className="text-lg font-bold">{staffData.lastName}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Role</div>
-                  <div className="text-lg font-bold">{staffData.role}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Email</div>
+                )}
+              </div>
+              <div>
+                <Label>Last Name</Label>
+                {isEditing ? (
+                  <Input
+                    name="lastName"
+                    value={editedStaffData.lastNameName || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {staffData.lastNameName}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Email</Label>
+                {isEditing ? (
+                  <Input
+                    name="email"
+                    value={editedStaffData.email || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.email}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Phone Number</div>
-                  <div className="text-lg font-bold">{staffData.phoneNumber}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Address</div>
+                )}
+              </div>
+              <div>
+                <Label>Phone Number</Label>
+                {isEditing ? (
+                  <Input
+                    name="phoneNumber"
+                    value={editedStaffData.phoneNumber || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {staffData.phoneNumber}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Address</Label>
+                {isEditing ? (
+                  <Input
+                    name="address"
+                    value={editedStaffData.address || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.address}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">City</div>
+                )}
+              </div>
+              <div>
+                <Label>City</Label>
+                {isEditing ? (
+                  <Input
+                    name="city"
+                    value={editedStaffData.city || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.city}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Postal Code</div>
-                  <div className="text-lg font-bold">{staffData.postalCode}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Province</div>
+                )}
+              </div>
+              <div>
+                <Label>Postal Code</Label>
+                {isEditing ? (
+                  <Input
+                    name="postalCode"
+                    value={editedStaffData.postalCode || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {staffData.postalCode}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Province</Label>
+                {isEditing ? (
+                  <Input
+                    name="province"
+                    value={editedStaffData.province || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.province}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">SIN</div>
+                )}
+              </div>
+              <div>
+                <Label>SIN</Label>
+                {isEditing ? (
+                  <Input
+                    name="SIN"
+                    value={editedStaffData.SIN || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.SIN}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Rate</div>
+                )}
+              </div>
+              <div>
+                <Label>Rate</Label>
+                {isEditing ? (
+                  <Input
+                    name="Rate"
+                    value={editedStaffData.rate || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
                   <div className="text-lg font-bold">{staffData.rate}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Beneficiary</div>
-                  <div className="text-lg font-bold">{staffData.beneficiary}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Licensing College</div>
-                  <div className="text-lg font-bold">{staffData.licencingCollege}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Registration Number</div>
-                  <div className="text-lg font-bold">{staffData.registrationNumber}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Contract Start Date</div>
-                  <div className="text-lg font-bold">{staffData.contractStartDate}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Contract End Date</div>
-                  <div className="text-lg font-bold">{staffData.contractEndDate}</div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="assigned-patient">
-              <div className="mt-4">
-                {assignedPatients.length === 0 ? (
-                  <p>No patients assigned.</p>
-                ) : (
-                  <ul>
-                    {assignedPatients.map((patient) => (
-                      <li key={patient.id}>
-                        <div className="text-lg font-bold">{`${patient.firstName} ${patient.lastName}`}</div>
-                        <div className="text-muted-foreground">Condition: {patient.condition}</div>
-                      </li>
-                    ))}
-                  </ul>
                 )}
               </div>
-            </TabsContent>
-
-            <TabsContent value="account-access">
-              <div className="mt-4">
-                {accountAccess.length === 0 ? (
-                  <p>No account access details available.</p>
+              <div>
+                <Label>Beneficiary</Label>
+                {isEditing ? (
+                  <Input
+                    name="beneficiary"
+                    value={editedStaffData.beneficiary || ""}
+                    onChange={handleInputChange}
+                  />
                 ) : (
-                  <ul>
-                    {accountAccess.map((access) => (
-                      <li key={access.id}>
-                        <div className="text-lg font-bold">Access Level: {access.level}</div>
-                        <div className="text-muted-foreground">Permissions: {access.permissions.join(', ')}</div>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="text-lg font-bold">
+                    {staffData.beneficiary}
+                  </div>
                 )}
               </div>
-            </TabsContent>
-          </Tabs>
-        )}
+              <div>
+                <Label>Licensing College</Label>
+                {isEditing ? (
+                  <Input
+                    name="licensingCollege"
+                    value={editedStaffData.licensingCollege}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {editedStaffData.licensingCollege}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Registration Number</Label>
+                {isEditing ? (
+                  <Input
+                    name="registrationNumber"
+                    value={editedStaffData.registrationNumber}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {editedStaffData.registrationNumber}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Contract Start Date</Label>
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    name="contractStartDate"
+                    value={editedStaffData.contractStartDate || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {editedStaffData.contractStartDate}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Contract End Date</Label>
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    name="contractEndDate"
+                    value={editedStaffData.contractEndDate || ""}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {editedStaffData.contractEndDate}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Role</Label>
+                {isEditing ? (
+                  <Input
+                    name="role"
+                    value={editedStaffData.role}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {editedStaffData.role}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label>Agency</Label>
+                {isEditing ? (
+                  <Input
+                    name="agency"
+                    value={editedStaffData.agency}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  <div className="text-lg font-bold">
+                    {editedStaffData.agency}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Assigned Clients Tab */}
+          <TabsContent value="assigned-client">
+            <div className="mt-4">
+              {assignedClients.length === 0 ? (
+                <p>No clients assigned.</p>
+              ) : (
+                <ul>
+                  <Label>Client</Label>
+                  {assignedClients.map((client) => (
+                    <li key={client.clientId} className="flex items-center mb-2">
+                      <div className="text-lg font-bold mr-2">
+                        {`${client.firstName} ${client.lastName}`}
+                      </div>
+                      <Link
+                        href={`../Patient/View-Patient-Personal?clientId=${client.clientId}`}
+                      >
+                        <Button style={styles.viewButton}>View</Button>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Account Access Tab */}
+          <TabsContent value="account-access">
+            <div className="mt-4">
+              <div>
+                <Label>Account Type</Label>
+                {isEditing ? (
+                  <select
+                    name="isAdmin"
+                    value={editedStaffData.isAdmin}
+                    onChange={handleInputChange}
+                    className="border rounded p-2 w-full"
+                  >
+                    <option value={0}>Service Provider</option>
+                    <option value={1}>Admin</option>
+                  </select>
+                ) : (
+                  <div className="text-lg font-bold">
+                    {staffData.isAdmin === 1 ? "Admin" : "Service Provider"}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
@@ -388,8 +499,8 @@ function ArrowLeftIcon(props) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="m12 19-7-7 7-7" />
       <path d="M19 12H5" />
+      <polyline points="12 19 5 12 12 5" />
     </svg>
   );
 }
