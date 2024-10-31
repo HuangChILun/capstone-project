@@ -37,7 +37,7 @@ export default function ClientForm({ onSubmit }) {
   const [disableButton, setDisableButton] = useState(true);
 
   // Regular expressions for validation
-  const nameRegex = /^[A-Za-z'-\s]+$/;
+  const nameRegex = /^[A-Za-z'()\-\s]+$/;
   const sinRegex = /^\d{9}$/;
   const phoneRegex = /^\d{10}$/;
   const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
@@ -71,17 +71,17 @@ export default function ClientForm({ onSubmit }) {
       case "school":
       case "city":
         if (!nameRegex.test(value)) {
-          error = "Only letters, hyphens(-), and apostrophes(') are allowed.";
+          error = "Only letters, space and -()' are allowed.";
         }
         break;
       case "SIN":
         if (!sinRegex.test(value)) {
-          error = "SIN must be exactly 9 digits.";
+          error = "SIN must be number only and exactly 9 digits.";
         }
         break;
       case "phoneNumber":
         if (!phoneRegex.test(value)) {
-          error = "Phone number must be exactly 10 digits.";
+          error = "Phone number must be number only and exactly 10 digits";
         }
         break;
       case "postalCode":
@@ -129,7 +129,10 @@ export default function ClientForm({ onSubmit }) {
       "postalCode",
       "serviceStartDate",
     ];
-    return requiredFields.every((field) => clientData[field]) && diagnosisData.length > 0;
+    return (
+      requiredFields.every((field) => clientData[field]) &&
+      diagnosisData.length > 0
+    );
   };
 
   // useEffect to monitor changes in clientData and update button state
@@ -147,7 +150,7 @@ export default function ClientForm({ onSubmit }) {
       return;
     }
     console.log("Form Submitted:", clientData);
-    onSubmit(clientData , diagnosisData);
+    onSubmit(clientData, diagnosisData);
   };
   return (
     <form onSubmit={handleSubmit}>
@@ -274,26 +277,39 @@ export default function ClientForm({ onSubmit }) {
             value={clientData.postalCode}
             onChange={handleInputChange}
           />
+          {validationErrors.postalCode && (
+            <p style={{ color: "red" }}>{validationErrors.postalCode}</p>
+          )}
         </div>
         <div style={styles.fieldContainer}>
           <Label htmlFor="phoneNumber">Phone Number*</Label>
           <Input
+            type="text"
             id="phoneNumber"
             placeholder=""
             className="w-full"
             value={clientData.phoneNumber}
             onChange={handleInputChange}
+            maxLength={10}
+            pattern="\d{10}"
           />
+          {validationErrors.phoneNumber && (
+            <p style={{ color: "red" }}>{validationErrors.phoneNumber}</p>
+          )}
         </div>
         <div style={styles.fieldContainer}>
           <Label htmlFor="email">Email*</Label>
           <Input
+            type="email"
             id="email"
             placeholder=""
             className="w-full"
             value={clientData.email}
             onChange={handleInputChange}
           />
+          {validationErrors.email && (
+            <p style={{ color: "red" }}>{validationErrors.email}</p>
+          )}
         </div>
         <div style={styles.fieldContainer}>
           <Label htmlFor="fscdNum">FSCD Number</Label>
@@ -314,11 +330,15 @@ export default function ClientForm({ onSubmit }) {
             value={clientData.school}
             onChange={handleInputChange}
           />
+          {validationErrors.school && (
+            <p style={{ color: "red" }}>{validationErrors.school}</p>
+          )}
         </div>
         <div style={styles.fieldContainer}>
           <Label htmlFor="grade">Grade</Label>
           <Input
             id="grade"
+            type="number"
             placeholder=""
             className="w-full"
             value={clientData.grade}
@@ -326,7 +346,7 @@ export default function ClientForm({ onSubmit }) {
           />
         </div>
         <div style={styles.fieldContainer}>
-          <Label htmlFor="serviceStartDate">Service Start Date</Label>
+          <Label htmlFor="serviceStartDate">Service Start Date*</Label>
           <Input
             id="serviceStartDate"
             type="date"
@@ -365,7 +385,7 @@ export default function ClientForm({ onSubmit }) {
         </div>
         <div style={styles.buttonContainer}>
           <Button type="submit" className="mt-4" disabled={disableButton}>
-            Next: Primary Guardian
+            Next: Consent, Insurance, Contract
           </Button>
         </div>
       </fieldset>

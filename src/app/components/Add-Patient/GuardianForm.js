@@ -10,7 +10,7 @@ import {
 } from "@/app/components/HomeUi/select";
 import { Button } from "@/app/components/HomeUi/button";
 
-export default function GuardianForm({ onSubmit, clientData, primary }) {
+export default function GuardianForm({ SendGuardian, clientData, primary }) {
   const [guardianData, setGuardianData] = useState({
     custody: null,
     firstName: null,
@@ -34,7 +34,6 @@ export default function GuardianForm({ onSubmit, clientData, primary }) {
 
   // Regular expressions for validation
   const nameRegex = /^[A-Za-z'-\s]+$/;
-  const sinRegex = /^\d{9}$/;
   const phoneRegex = /^\d{10}$/;
   const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -153,8 +152,7 @@ export default function GuardianForm({ onSubmit, clientData, primary }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (noGuardian) {
-      alert("Client Add successfully!");
-      window.location.href = "./View-Patient-Page";
+      SendGuardian(null);
     } else {
       if (!noGuardian) {
         const hasErrors = Object.values(validationErrors).some(
@@ -166,7 +164,7 @@ export default function GuardianForm({ onSubmit, clientData, primary }) {
         }
       }
       console.log("Form Submitted:", guardianData);
-      onSubmit(guardianData);
+      SendGuardian(guardianData);
     }
   };
   return (

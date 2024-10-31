@@ -16,17 +16,7 @@ export default function TestPage(){
  return (
     <div>
       <h1>Test Page</h1>
-      <Diagnosis />
-      <button onClick={toggleOverlay}>Open File Upload</button>
-
-      {showOverlay && (
-        <div >
-          <div >
             <FileUpload />
-            <Button onClick={toggleOverlay} style={style.closeBtn}>Close</Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

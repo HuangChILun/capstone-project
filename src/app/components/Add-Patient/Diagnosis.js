@@ -41,6 +41,7 @@ export default function Diagnosis({ diagnosisData, onAddDiagnosis, onRemoveDiagn
             </tr>
           ))}
         </tbody>
+        <tfoot>
         {/* Input row aligned with headers */}
         <tr>
           <td>
@@ -67,6 +68,7 @@ export default function Diagnosis({ diagnosisData, onAddDiagnosis, onRemoveDiagn
             </Button>
           </td>
         </tr>
+        </tfoot>
       </table>
     </div>
   );
