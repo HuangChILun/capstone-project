@@ -14,6 +14,17 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { Input } from "@/app/components/HomeUi/input";
 import { Label } from "@/app/components/HomeUi/label";
 
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return "N/A";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString(); // Formats to MM/DD/YYYY by default
+}
+
+// Helper function to format dates for input fields (YYYY-MM-DD)
+function formatInputDate(dateStr) {
+  if (!dateStr) return "";
+  return dateStr.split("T")[0]; // Extracts the date part from ISO string
+}
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);
   const [editedStaffData, setEditedStaffData] = useState(null); // For editing
@@ -376,12 +387,12 @@ export default function ViewStaffPersonal() {
                   <Input
                     type="date"
                     name="contractStartDate"
-                    value={editedStaffData.contractStartDate || ""}
+                    value={formatInputDate(editedStaffData.contractStartDate)}
                     onChange={handleInputChange}
                   />
                 ) : (
                   <div className="text-lg font-bold">
-                    {editedStaffData.contractStartDate}
+                    {formatDisplayDate(editedStaffData.contractStartDate)}
                   </div>
                 )}
               </div>
@@ -391,12 +402,12 @@ export default function ViewStaffPersonal() {
                   <Input
                     type="date"
                     name="contractEndDate"
-                    value={editedStaffData.contractEndDate || ""}
+                    value={formatInputDate(editedStaffData.contractEndDate)}
                     onChange={handleInputChange}
                   />
                 ) : (
                   <div className="text-lg font-bold">
-                    {editedStaffData.contractEndDate}
+                    {formatDisplayDate(editedStaffData.contractEndDate)}
                   </div>
                 )}
               </div>
@@ -484,6 +495,8 @@ export default function ViewStaffPersonal() {
     </div>
   );
 }
+
+
 
 function ArrowLeftIcon(props) {
   return (

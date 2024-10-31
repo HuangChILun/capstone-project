@@ -58,6 +58,7 @@ export default function ViewPatientPersonal() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
 
   // Team tab states
   const [searchName, setSearchName] = useState("");
@@ -331,7 +332,7 @@ export default function ViewPatientPersonal() {
 
         // Fetch guardian by guardianId
         const guardianId = data.clientId; // as known as clientId
-        if (guardianId) {
+        try {
           const guardianResponse = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${guardianId}`,
             {
@@ -342,15 +343,19 @@ export default function ViewPatientPersonal() {
           );
 
           if (!guardianResponse.ok) {
-            throw new Error("Failed to fetch guardian data");
+            // If guardian data is not found, set guardian to null
+            setGuardian(null);
+            setEditedGuardian({});
+          } else {
+            const guardianData = await guardianResponse.json();
+            setGuardian(guardianData);
+            setEditedGuardian(guardianData);
           }
-
-          const guardianData = await guardianResponse.json();
-          setGuardian(guardianData);
-          setEditedGuardian(guardianData);
-        } else {
+        } catch (error) {
+          console.error("Error fetching guardian data:", error);
+          // Set guardian to null and initialize editedGuardian
           setGuardian(null);
-          setEditedGuardian(null);
+          setEditedGuardian({});
         }
 
         // Fetch assigned team members
@@ -371,6 +376,32 @@ export default function ViewPatientPersonal() {
       fetchPatientAndGuardian();
     }
   }, [clientId, router]);
+
+  // Fetch all users when the component mounts
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      const token = Cookies.get("token");
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const users = await response.json();
+        setAllUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchAllUsers();
+  }, []);
 
   // Handle Edit mode
   const handleEditClick = () => {
@@ -687,27 +718,32 @@ export default function ViewPatientPersonal() {
     const token = Cookies.get("token");
     try {
       for (const member of editedAssignedTeamMembers) {
+        const formatDate = (dateStr) => {
+          if (!dateStr) return null;
+          return dateStr.split("T")[0];
+        };
+
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/${member.teamMemberId}`,
           {
-            method: "POST",
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              startServiceDate: member.startServiceDate,
-              endServiceDate: member.endServiceDate,
+              startServiceDate: formatDate(member.startServiceDate),
+              endServiceDate: formatDate(member.endServiceDate),
             }),
           }
         );
 
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error updating team member data:", errorData);
+          const errorText = await response.text();
+          console.error("Error updating team member data:", errorText);
           throw new Error(
             `Failed to update team member data: ${
-              errorData.message || errorData.error || "Unknown error"
+              response.statusText || "Unknown error"
             }`
           );
         }
@@ -733,6 +769,9 @@ export default function ViewPatientPersonal() {
         await assignNewTeamMembers();
       }
 
+      // Refresh assigned team members after updates
+      await fetchAssignedTeamMembers();
+
       alert("Changes saved successfully!");
       setIsEditing(false);
     } catch (error) {
@@ -742,36 +781,26 @@ export default function ViewPatientPersonal() {
   };
 
   // Search functionality
-  const handleSearch = async (name, role) => {
-    if (!name && !role) {
-      setSearchResults([]);
-      return;
+  const handleSearch = (name, role) => {
+    let filteredUsers = allUsers;
+
+    if (name) {
+      const nameLower = name.toLowerCase();
+      filteredUsers = filteredUsers.filter(
+        (user) =>
+          user.firstName.toLowerCase().includes(nameLower) ||
+          user.lastName.toLowerCase().includes(nameLower)
+      );
     }
 
-    const token = Cookies.get("token");
-    try {
-      let url = `${process.env.NEXT_PUBLIC_BACKEND_IP}/users`;
-      const params = new URLSearchParams();
-      if (name) params.append("name", name);
-      if (role) params.append("role", role);
-      if (params.toString()) url += `?${params.toString()}`;
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch users");
-      }
-
-      const users = await response.json();
-      setSearchResults(users);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      // Optionally handle errors here
+    if (role) {
+      const roleLower = role.toLowerCase();
+      filteredUsers = filteredUsers.filter((user) =>
+        user.role.toLowerCase().includes(roleLower)
+      );
     }
+
+    setSearchResults(filteredUsers);
   };
 
   // Handler for selecting a user
@@ -1420,75 +1449,83 @@ export default function ViewPatientPersonal() {
                   <h3 className="text-xl font-semibold">
                     Currently Working with This Client
                   </h3>
-                  {currentTeamMembers.map((member) => (
-                    <div
-                      key={member.teamMemberId}
-                      className="flex items-center mb-2"
-                    >
-                      <p>
-                        {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                      </p>
-                      <div className="ml-4">
-                        {isEditing ? (
-                          <div className="flex items-center">
-                            <Label>Service Start Date:</Label>
-                            <Input
-                              type="date"
-                              value={
-                                member.startServiceDate
-                                  ? member.startServiceDate.split("T")[0]
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                handleAssignedDateChange(
-                                  member.teamMemberId,
-                                  "startServiceDate",
-                                  e.target.value
-                                )
-                              }
-                              className="ml-2 mr-4"
-                            />
-                            <Label>Service End Date:</Label>
-                            <Input
-                              type="date"
-                              value={
-                                member.endServiceDate
-                                  ? member.endServiceDate.split("T")[0]
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                handleAssignedDateChange(
-                                  member.teamMemberId,
-                                  "endServiceDate",
-                                  e.target.value
-                                )
-                              }
-                              className="ml-2 mr-4"
-                            />
-                          </div>
-                        ) : (
-                          <>
-                            <p>
-                              Service Start Date:{" "}
-                              {member.startServiceDate
-                                ? new Date(
+                  <table className="w-full table-auto">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-2 text-center">Team Member</th>
+                        <th className="px-4 py-2 text-center">
+                          Service Start Date
+                        </th>
+                        <th className="px-4 py-2 text-center">
+                          Service End Date
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentTeamMembers.map((member) => (
+                        <tr key={member.teamMemberId}>
+                          <td className="border px-4 py-2 text-center">
+                            {`${member.userFirstName} ${member.userLastName} (${member.role})`}
+                          </td>
+                          {isEditing ? (
+                            <>
+                              <td className="border px-4 py-2 text-center">
+                                <Input
+                                  type="date"
+                                  value={
                                     member.startServiceDate
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                            <p>
-                              Service End Date:{" "}
-                              {member.endServiceDate
-                                ? new Date(
+                                      ? member.startServiceDate.split("T")[0]
+                                      : ""
+                                  }
+                                  onChange={(e) =>
+                                    handleAssignedDateChange(
+                                      member.teamMemberId,
+                                      "startServiceDate",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+                              <td className="border px-4 py-2 text-center">
+                                <Input
+                                  type="date"
+                                  value={
                                     member.endServiceDate
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                                      ? member.endServiceDate.split("T")[0]
+                                      : ""
+                                  }
+                                  onChange={(e) =>
+                                    handleAssignedDateChange(
+                                      member.teamMemberId,
+                                      "endServiceDate",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="border px-4 py-2 text-center">
+                                {member.startServiceDate
+                                  ? new Date(
+                                      member.startServiceDate
+                                    ).toLocaleDateString()
+                                  : "N/A"}
+                              </td>
+                              <td className="border px-4 py-2 text-center">
+                                {member.endServiceDate
+                                  ? new Date(
+                                      member.endServiceDate
+                                    ).toLocaleDateString()
+                                  : "N/A"}
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
 
@@ -1498,81 +1535,91 @@ export default function ViewPatientPersonal() {
                   <h3 className="text-xl font-semibold mb-3">
                     Past Working with This Client
                   </h3>
-                  {pastTeamMembers.map((member) => (
-                    <div
-                      key={member.teamMemberId}
-                      className="flex items-center mb-2"
-                    >
-                      <p className="mr-4">
-                        {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                      </p>
-                      <div className="flex items-center">
-                        {isEditing ? (
-                          <div className="flex items-center">
-                            <Label className="mr-2">Service Start Date:</Label>
-                            <Input
-                              type="date"
-                              value={
-                                member.startServiceDate
-                                  ? member.startServiceDate.split("T")[0]
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                handleAssignedDateChange(
-                                  member.teamMemberId,
-                                  "startServiceDate",
-                                  e.target.value
-                                )
-                              }
-                              className="mr-4"
-                            />
-                            <Label className="mr-2">Service End Date:</Label>
-                            <Input
-                              type="date"
-                              value={
-                                member.endServiceDate
-                                  ? member.endServiceDate.split("T")[0]
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                handleAssignedDateChange(
-                                  member.teamMemberId,
-                                  "endServiceDate",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex">
-                            <p className="mr-4">
-                              Service Start Date:{" "}
-                              {member.startServiceDate
-                                ? new Date(
+                  <table className="w-full table-auto">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-2 text-center">Team Member</th>
+                        <th className="px-4 py-2 text-center">
+                          Service Start Date
+                        </th>
+                        <th className="px-4 py-2 text-center">
+                          Service End Date
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pastTeamMembers.map((member) => (
+                        <tr key={member.teamMemberId}>
+                          <td className="border px-4 py-2 text-center">
+                            {`${member.userFirstName} ${member.userLastName} (${member.role})`}
+                          </td>
+                          {isEditing ? (
+                            <>
+                              <td className="border px-4 py-2 text-center">
+                                <Input
+                                  type="date"
+                                  value={
                                     member.startServiceDate
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                            <p>
-                              Service End Date:{" "}
-                              {member.endServiceDate
-                                ? new Date(
+                                      ? member.startServiceDate.split("T")[0]
+                                      : ""
+                                  }
+                                  onChange={(e) =>
+                                    handleAssignedDateChange(
+                                      member.teamMemberId,
+                                      "startServiceDate",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+                              <td className="border px-4 py-2 text-center">
+                                <Input
+                                  type="date"
+                                  value={
                                     member.endServiceDate
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                                      ? member.endServiceDate.split("T")[0]
+                                      : ""
+                                  }
+                                  onChange={(e) =>
+                                    handleAssignedDateChange(
+                                      member.teamMemberId,
+                                      "endServiceDate",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="border px-4 py-2 text-center">
+                                {member.startServiceDate
+                                  ? new Date(
+                                      member.startServiceDate
+                                    ).toLocaleDateString()
+                                  : "N/A"}
+                              </td>
+                              <td className="border px-4 py-2 text-center">
+                                {member.endServiceDate
+                                  ? new Date(
+                                      member.endServiceDate
+                                    ).toLocaleDateString()
+                                  : "N/A"}
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
 
               {/* Editing Mode */}
               {isEditing && (
                 <div>
-                  {/* Live Search Inputs */}
+                   <h3 className="text-xl font-semibold mb-4">Assign New Team Member</h3>
+                  {/* Search Inputs */}
                   <div className="flex items-center mb-4">
                     <Input
                       placeholder="Search by name"
@@ -1598,69 +1645,108 @@ export default function ViewPatientPersonal() {
                   {searchResults.length > 0 && (
                     <div className="mb-4">
                       <h3 className="text-xl font-semibold">Search Results</h3>
-                      {searchResults.map((user) => (
-                        <div
-                          key={user.userId}
-                          className="flex items-center mb-2"
-                        >
-                          <p>{`${user.firstName} ${user.lastName} (${user.role})`}</p>
-                          <Button
-                            className="ml-2"
-                            onClick={() => handleSelectUser(user)}
-                          >
-                            Select
-                          </Button>
-                        </div>
-                      ))}
+                      <table className="w-full table-auto">
+                        <thead>
+                          <tr>
+                            <th className="px-4 py-2 text-left">Name</th>
+                            <th className="px-4 py-2 text-left">Role</th>
+                            <th className="px-4 py-2 text-center">
+                              Action
+                            </th>{" "}
+                            {/* Center align header */}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {searchResults.map((user) => (
+                            <tr key={user.userId}>
+                              <td className="border px-4 py-2">
+                                {`${user.firstName} ${user.lastName}`}
+                              </td>
+                              <td className="border px-4 py-2">{user.role}</td>
+                              <td className="border px-4 py-2 text-center">
+                                {" "}
+                                {/* Center align cell */}
+                                <Button onClick={() => handleSelectUser(user)}>
+                                  Select
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
 
-                  {/* Selected Users for Assignment */}
+                  {/* Selected Team Members */}
                   {selectedUsers.length > 0 && (
                     <div className="mb-4">
                       <h3 className="text-xl font-semibold">
                         Selected Team Members
                       </h3>
-                      {selectedUsers.map((user, index) => (
-                        <div key={user.userId} className="mb-2">
-                          <p>{`${user.firstName} ${user.lastName} (${user.role})`}</p>
-                          <div className="flex items-center">
-                            <Label>Service Start Date:</Label>
-                            <Input
-                              type="date"
-                              value={user.startServiceDate}
-                              onChange={(e) =>
-                                handleDateChange(
-                                  index,
-                                  "startServiceDate",
-                                  e.target.value
-                                )
-                              }
-                              className="ml-2 mr-4"
-                            />
-                            <Label>Service End Date:</Label>
-                            <Input
-                              type="date"
-                              value={user.endServiceDate}
-                              onChange={(e) =>
-                                handleDateChange(
-                                  index,
-                                  "endServiceDate",
-                                  e.target.value
-                                )
-                              }
-                              className="ml-2 mr-4"
-                            />
-                            <Button
-                              className="ml-2"
-                              onClick={() => handleRemoveSelectedUser(index)}
-                              variant="destructive"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                      <table className="w-full table-auto">
+                        <thead>
+                          <tr>
+                            <th className="px-4 py-2 text-left">Name</th>
+                            <th className="px-4 py-2 text-left">Role</th>
+                            <th className="px-4 py-2 text-left">
+                              Service Start Date
+                            </th>
+                            <th className="px-4 py-2 text-left">
+                              Service End Date
+                            </th>
+                            <th className="px-4 py-2 text-center">Action</th>{" "}
+                            {/* Center align header */}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedUsers.map((user, index) => (
+                            <tr key={user.userId}>
+                              <td className="border px-4 py-2">
+                                {`${user.firstName} ${user.lastName}`}
+                              </td>
+                              <td className="border px-4 py-2">{user.role}</td>
+                              <td className="border px-4 py-2">
+                                <Input
+                                  type="date"
+                                  value={user.startServiceDate}
+                                  onChange={(e) =>
+                                    handleDateChange(
+                                      index,
+                                      "startServiceDate",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+                              <td className="border px-4 py-2">
+                                <Input
+                                  type="date"
+                                  value={user.endServiceDate}
+                                  onChange={(e) =>
+                                    handleDateChange(
+                                      index,
+                                      "endServiceDate",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+                              <td className="border px-4 py-2 text-center">
+                                {" "}
+                                {/* Center align cell */}
+                                <Button
+                                  onClick={() =>
+                                    handleRemoveSelectedUser(index)
+                                  }
+                                  variant="destructive"
+                                >
+                                  Remove
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
