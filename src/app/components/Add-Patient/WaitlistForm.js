@@ -30,12 +30,15 @@ export default function WaitlistForm({ onSubmit }) {
     fscdIdNum: null,
     caseWorkerName: null,
     serviceType: null,
-    serviceProvidersNeeded: [],
+    serviceProvidersNeeded: "OT",
     datePlaced: null,
-    dateContacted: null,
+    dateContact: null,
     dateConsultationBooked: null,
-    dateServicesOffered: null,
-    dateStartedServices: null,
+    diagnosis: null,
+    school:null,
+    age:null,
+    dateServiceOffered: null,
+    dateStartedService: null,
     nextMeetingDate: null,
     paperworkDeadline: null,
     fundingSource: null,
@@ -47,7 +50,7 @@ export default function WaitlistForm({ onSubmit }) {
     previousService: null,
     concerns: null,
     consultationHistory: null,
-    isArchived: false,
+    isArchived: 0,
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -55,7 +58,7 @@ export default function WaitlistForm({ onSubmit }) {
   const [disableS2Button, setDisableS2Button] = useState(true);
 
   // Regular expressions for validation
-  const nameRegex = /^[A-Za-z'-\s]+$/;
+  const nameRegex = /^[A-Za-z'()\-\s]+$/;
   const sinRegex = /^\d{9}$/;
   const phoneRegex = /^\d{10}$/;
   const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
@@ -80,9 +83,10 @@ export default function WaitlistForm({ onSubmit }) {
     switch (id) {
       case "firstName":
       case "lastName":
-      case "role":
-      case "licencingCollege":
+      case "parentName":
+      case "community":
       case "city":
+      case "caseWorkerName":
         if (!nameRegex.test(value)) {
           error = "Only letters, hyphens(-), and apostrophes(') are allowed.";
         }
@@ -314,7 +318,10 @@ export default function WaitlistForm({ onSubmit }) {
                 className="w-full"
                 value={formData.parentName}
                 onChange={handleChange}
-              />
+              />{" "}
+              {validationErrors.parentName && (
+                <p style={{ color: "red" }}>{validationErrors.parentName}</p>
+              )}
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="phoneNumber">Phone Number*</Label>
@@ -325,6 +332,9 @@ export default function WaitlistForm({ onSubmit }) {
                 value={formData.phoneNumber}
                 onChange={handleChange}
               />
+              {validationErrors.phoneNumber && (
+                <p style={{ color: "red" }}>{validationErrors.phoneNumber}</p>
+              )}
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="email">Email*</Label>
@@ -335,6 +345,9 @@ export default function WaitlistForm({ onSubmit }) {
                 value={formData.email}
                 onChange={handleChange}
               />
+              {validationErrors.email && (
+                <p style={{ color: "red" }}>{validationErrors.email}</p>
+              )}
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="community">Community</Label>
@@ -345,6 +358,9 @@ export default function WaitlistForm({ onSubmit }) {
                 value={formData.community}
                 onChange={handleChange}
               />
+              {validationErrors.community && (
+                <p style={{ color: "red" }}>{validationErrors.community}</p>
+              )}
             </div>
 
             <div style={styles.fullWidth}>
@@ -369,7 +385,7 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* First row: FSCD Number, Caseworker Name, Service Type, Service Providers Needed */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="fscdIdNum">FSCD Number</Label>
+              <Label htmlFor="fscdIdNum">FSCD Number*</Label>
               <Input
                 id="fscdIdNum"
                 placeholder=""
@@ -379,7 +395,7 @@ export default function WaitlistForm({ onSubmit }) {
               />
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="caseWorkerName">Caseworker Name</Label>
+              <Label htmlFor="caseWorkerName">Caseworker Name*</Label>
               <Input
                 id="caseWorkerName"
                 placeholder=""
@@ -387,9 +403,14 @@ export default function WaitlistForm({ onSubmit }) {
                 value={formData.caseWorkerName}
                 onChange={handleChange}
               />
+              {validationErrors.caseWorkerName && (
+                <p style={{ color: "red" }}>
+                  {validationErrors.caseWorkerName}
+                </p>
+              )}
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="serviceType">Service Type</Label>
+              <Label htmlFor="serviceType">Service Type*</Label>
               <Input
                 id="serviceType"
                 placeholder=""
@@ -424,7 +445,7 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* Second row: Date Placed on Waitlist, Date Contacted, Date Consultation Booked, Date Services Offered */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="datePlaced">Date Placed on Waitlist</Label>
+              <Label htmlFor="datePlaced">Date Placed on Waitlist*</Label>
               <Input
                 id="datePlaced"
                 type="date"
@@ -434,9 +455,9 @@ export default function WaitlistForm({ onSubmit }) {
               />
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="dateContacted">Date Contacted</Label>
+              <Label htmlFor="dateContact">Date Contacted*</Label>
               <Input
-                id="dateContacted"
+                id="dateContact"
                 type="date"
                 className="w-full"
                 value={formData.dateContacted}
@@ -456,9 +477,9 @@ export default function WaitlistForm({ onSubmit }) {
               />
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="dateServicesOffered">Date Services Offered</Label>
+              <Label htmlFor="dateServiceOffered">Date Services Offered</Label>
               <Input
-                id="dateServicesOffered"
+                id="dateServiceOffered"
                 type="date"
                 className="w-full"
                 value={formData.dateServicesOffered}
@@ -468,9 +489,9 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* Third row: Date Started Services, Next Meeting Date, Paperwork Deadline (4-column grid, last column empty) */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="dateStartedServices">Date Started Services</Label>
+              <Label htmlFor="dateStartedService">Date Started Services</Label>
               <Input
-                id="dateStartedServices"
+                id="dateStartedService"
                 type="date"
                 className="w-full"
                 value={formData.dateStartedServices}
@@ -502,7 +523,7 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* Fourth row: Funding Source, Fees Discussed, Referral From, Follow Up */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="fundingSource">Funding Source</Label>
+              <Label htmlFor="fundingSource">Funding Source*</Label>
               <Select
                 onValueChange={(value) =>
                   handleSelectChange("fundingSource", value)
@@ -552,7 +573,7 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* Fifth row: Availability, Location of Service, Previous Service, Archived */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="availability">Availability</Label>
+              <Label htmlFor="availability">Availability*</Label>
               <Input
                 id="availability"
                 placeholder=""
@@ -562,7 +583,7 @@ export default function WaitlistForm({ onSubmit }) {
               />
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="locationOfService">Location of Service</Label>
+              <Label htmlFor="locationOfService">Location of Service*</Label>
               <Input
                 id="locationOfService"
                 placeholder=""
@@ -581,22 +602,22 @@ export default function WaitlistForm({ onSubmit }) {
                 onChange={handleChange}
               />
             </div>
-            <div style={styles.fieldContainer}>
+            {/* <div style={styles.fieldContainer}>
               <Label htmlFor="isArchived">Archived</Label>
               <Select
                 onValueChange={(value) =>
-                  handleSelectChange("isArchived", value)
+                  handleSelectChange("isArchived", value ===0 ?("No"):("Yes"))
                 }
               >
                 <SelectTrigger id="isArchived" className="w-full">
                   <SelectValue placeholder="Select Archived Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Yes</SelectItem>
-                  <SelectItem value="false">No</SelectItem>
+                  <SelectItem value={1}>Yes</SelectItem>
+                  <SelectItem value={0}>No</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
             {/* Sixth row: Concerns, Consultation History (Grid 2 for both) */}
             <div style={styles.halfWidth}>

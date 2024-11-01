@@ -38,7 +38,6 @@ export default function ClientForm({ onSubmit }) {
 
   // Regular expressions for validation
   const nameRegex = /^[A-Za-z'()\-\s]+$/;
-  const sinRegex = /^\d{9}$/;
   const phoneRegex = /^\d{10}$/;
   const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -314,9 +313,9 @@ export default function ClientForm({ onSubmit }) {
           )}
         </div>
         <div style={styles.fieldContainer}>
-          <Label htmlFor="fscdNum">FSCD Number</Label>
+          <Label htmlFor="fscdIdNum">FSCD Number</Label>
           <Input
-            id="fscdNum"
+            id="fscdIdNum"
             placeholder=""
             className="w-full"
             value={clientData.fscdNum}

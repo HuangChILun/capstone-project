@@ -78,7 +78,7 @@ export default function AddNewPatient() {
   const handleWaitlistSubmit = async (formData) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlistClient/createWaitlistClient`,
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/createWaitlistClient`,
         {
           method: "POST",
           headers: {
@@ -93,7 +93,7 @@ export default function AddNewPatient() {
         const result = await response.json();
         console.log("Waitlist patient created:", result);
         alert("Waitlist patient added successfully!");
-        router.push("/View-Patient-Page"); // Redirect after successful submission
+        window.location.href="./View-Patient-Page";
       } else {
         const errorData = await response.json();
         console.error("Error:", errorData);
