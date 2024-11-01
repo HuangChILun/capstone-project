@@ -230,12 +230,12 @@ export default function ViewStaffPersonal() {
                 {isEditing ? (
                   <Input
                     name="lastName"
-                    value={editedStaffData.lastNameName || ""}
+                    value={editedStaffData.lastName || ""}
                     onChange={handleInputChange}
                   />
                 ) : (
                   <div className="text-lg font-bold">
-                    {staffData.lastNameName}
+                    {staffData.lastName}
                   </div>
                 )}
               </div>
@@ -331,7 +331,7 @@ export default function ViewStaffPersonal() {
                 <Label>Rate</Label>
                 {isEditing ? (
                   <Input
-                    name="Rate"
+                    name="rate"
                     value={editedStaffData.rate || ""}
                     onChange={handleInputChange}
                   />
@@ -357,13 +357,13 @@ export default function ViewStaffPersonal() {
                 <Label>Licensing College</Label>
                 {isEditing ? (
                   <Input
-                    name="licensingCollege"
-                    value={editedStaffData.licensingCollege}
+                    name="licencingCollege"
+                    value={editedStaffData.licencingCollege}
                     onChange={handleInputChange}
                   />
                 ) : (
                   <div className="text-lg font-bold">
-                    {editedStaffData.licensingCollege}
+                    {editedStaffData.licencingCollege}
                   </div>
                 )}
               </div>
