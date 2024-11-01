@@ -12,16 +12,16 @@ import { Button } from "@/app/components/HomeUi/button";
 
 export default function GuardianForm({ SendGuardian, clientData, primary }) {
   const [guardianData, setGuardianData] = useState({
-    custody: null,
-    firstName: null,
-    lastName: null,
-    relationship: null,
-    phoneNumber: null,
-    email: null,
-    address: null,
+    custody: "",
+    firstName: "",
+    lastName: "",
+    relationship: "",
+    phoneNumber: "",
+    email: "",
+    address: "",
     city: "Calgary",
     province: "AB",
-    postalCode: null,
+    postalCode: "",
   });
   const [noGuardian, setNoGuardian] = useState(false);
   const [sameAsClient, setSameAsClient] = useState({
@@ -134,17 +134,35 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
         province: clientData.province || "AB",
         postalCode: clientData.postalCode || "",
       }));
+      // Clear validation errors for autofilled fields
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        address: "",
+        city: "",
+        province: "",
+        postalCode: "",
+      }));
     }
     if (sameAsClient.phoneNumber) {
       setGuardianData((prevData) => ({
         ...prevData,
         phoneNumber: clientData.phoneNumber || "",
       }));
+      //Clear validation errors when autofilled
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        phoneNumber: "",
+      }));
     }
     if (sameAsClient.email) {
       setGuardianData((prevData) => ({
         ...prevData,
         email: clientData.email || "",
+      }));
+      //clear validation erros when autofilled
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        email: "",
       }));
     }
   }, [sameAsClient, clientData]);
@@ -230,7 +248,7 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
               )}
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="custody">Custody</Label>
+              <Label htmlFor="custody">Custody*</Label>
               <Select
                 onValueChange={(value) => handleSelectChange("custody", value)}
               >
@@ -337,6 +355,9 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
                 onChange={handleInputChange}
                 disabled={sameAsClient.address}
               />
+              {validationErrors.postalCode && (
+                <p style={{ color: "red" }}>{validationErrors.postalCode}</p>
+              )}
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="phoneNumber">Phone Number*</Label>
@@ -346,8 +367,12 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
                 className="w-full"
                 value={guardianData.phoneNumber}
                 onChange={handleInputChange}
+                maxLength={10}
                 disabled={sameAsClient.phoneNumber} // Disable if autofilled
-              />
+              />{" "}
+              {validationErrors.phoneNumber && (
+                <p style={{ color: "red" }}>{validationErrors.phoneNumber}</p>
+              )}
               <label>
                 <input
                   type="checkbox"
@@ -367,6 +392,9 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
                 onChange={handleInputChange}
                 disabled={sameAsClient.email} // Disable if autofilled
               />
+              {validationErrors.email && (
+                <p style={{ color: "red" }}>{validationErrors.email}</p>
+              )}
               <label>
                 <input
                   type="checkbox"
@@ -379,14 +407,14 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
           </>
         )}
         <div style={styles.buttonContainer}>
-  <Button type="submit" className="mt-4" disabled={disableButton}>
-    {noGuardian
-      ? "Complete"
-      : primary
-      ? "Next: Secondary Guardian"
-      : "Submit"}
-  </Button>
-</div>
+          <Button type="submit" className="mt-4" disabled={disableButton}>
+            {noGuardian
+              ? "Complete"
+              : primary
+              ? "Next: Secondary Guardian"
+              : "Submit"}
+          </Button>
+        </div>
       </fieldset>
     </form>
   );

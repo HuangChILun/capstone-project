@@ -34,7 +34,7 @@ export default function Diagnosis({ diagnosisData, onAddDiagnosis, onRemoveDiagn
                 <input type="checkbox" checked={item.aType} disabled />
               </td>
               <td style={styles.cell}>
-                <Button type="button" onClick={() => onRemoveDiagnosis(index)}>
+                <Button type="button" onClick={() => onRemoveDiagnosis(index)} style={styles.removeButton}>
                   Remove
                 </Button>
               </td>
@@ -107,5 +107,11 @@ const styles = {
     width: "100%",
     fontSize: "14px",
     padding: "8px",
+  },
+  removeButton: {
+    width: "100%",
+    fontSize: "14px",
+    padding: "8px",
+    backgroundColor: "red",
   },
 };

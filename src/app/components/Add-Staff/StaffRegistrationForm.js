@@ -42,7 +42,7 @@ export default function StaffRegistrationForm() {
   const [disableButton, setDisableButton] = useState(true);
 
   // Regular expressions for validation
-  const nameRegex = /^[A-Za-z'-\s]+$/;
+  const nameRegex = /^[A-Za-z'()\-\s]+$/;
   const sinRegex = /^\d{9}$/;
   const phoneRegex = /^\d{10}$/;
   const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
@@ -68,17 +68,17 @@ export default function StaffRegistrationForm() {
       case "licencingCollege":
       case "city":
         if (!nameRegex.test(value)) {
-          error = "Only letters, hyphens(-), and apostrophes(') are allowed.";
+          error = "Only letters, space and -()' are allowed.";
         }
         break;
       case "SIN":
         if (!sinRegex.test(value)) {
-          error = "SIN must be exactly 9 digits.";
+          error = "SIN must be numbers only and exactly 9 digits.";
         }
         break;
       case "phoneNumber":
         if (!phoneRegex.test(value)) {
-          error = "Phone number must be exactly 10 digits.";
+          error = "Phone number must be numbers only and exactly 10 digits.";
         }
         break;
       case "postalCode":
@@ -175,6 +175,7 @@ export default function StaffRegistrationForm() {
 
       console.log(response.data);
       alert("Successfully registered the staff");
+      window.location.href="./View-Staff";
     } catch (error) {
       console.error("Error submitting form:", error);
       if (error.response) {
@@ -248,6 +249,7 @@ export default function StaffRegistrationForm() {
               className="w-full"
               value={formData.SIN}
               onChange={handleInputChange}
+              maxLength={9}
             />
             {validationErrors.SIN && (
               <p style={{ color: "red" }}>{validationErrors.SIN}</p>
@@ -300,6 +302,8 @@ export default function StaffRegistrationForm() {
             <Label htmlFor="rate">Rate*</Label>
             <Input
               id="rate"
+              type="number"
+              min={0}
               placeholder="Input"
               className="w-full"
               value={formData.rate}
@@ -385,6 +389,7 @@ export default function StaffRegistrationForm() {
               placeholder="Input"
               className="w-full"
               value={formData.phoneNumber}
+              maxLength={10}
               onChange={handleInputChange}
             />
             {validationErrors.phoneNumber && (

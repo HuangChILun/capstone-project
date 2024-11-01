@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "../HomeUi/label";
 import { Input } from "../HomeUi/input";
 import { Button } from "../HomeUi/button";
@@ -12,18 +12,20 @@ export default function OtherForm({
   const [noConsent, setNoConsent] = useState(false);
   const [noInsurance, setNoInsurance] = useState(false);
   const [noContract, setNoContract] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [disableButton, setDisableButton] = useState(true);
 
   const [consentData, setConsentData] = useState({
     clientId: null,
-    permissionNote: null,
+    permissionNote: "",
     receivedDate: null,
   });
   const [insuranceData, setInsuranceData] = useState({
     clientId: null,
-    insuranceProvider: null,
+    insuranceProvider: "",
     primaryPlanName: `${clientData.firstName} ${clientData.lastName}`,
-    certificateId: null,
-    coverateDetail: null,
+    certificateId: "",
+    coverateDetail: "",
     startDate: null,
     endDate: null,
   });
@@ -32,14 +34,14 @@ export default function OtherForm({
     clientId: null,
     startDate: null,
     endDate: null,
-    COOhours: null,
-    PBChours: null,
-    SLPhours: null,
-    OThours: null,
-    PThours: null,
-    AIDEhours: null,
-    COUShours: null,
-    CARhours: null,
+    COOhours: 0,
+    PBChours: 0,
+    SLPhours: 0,
+    OThours: 0,
+    PThours: 0,
+    AIDEhours: 0,
+    COUShours: 0,
+    CARhours: 0,
   });
   const serviceProviderOptions = [
     { label: "Coordinator", value: "COOhours" },
@@ -100,10 +102,6 @@ export default function OtherForm({
 
   // Regular expressions for validation
   const nameRegex = /^[A-Za-z'()\-\s]+$/;
-  const sinRegex = /^\d{9}$/;
-  const phoneRegex = /^\d{10}$/;
-  const postalCodeRegex = /^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateField = (id, value) => {
     let error = "";
@@ -123,9 +121,72 @@ export default function OtherForm({
       [id]: error,
     }));
   };
+
+  // Function to check if required fields are filled
+  const areRequiredFieldsFilled = () => {
+    const consentRequiredFields = ["permissionNote", "receivedDate"];
+    const insuranceRequiredFields = [
+      "insuranceProvider",
+      "primaryPlanName",
+      "certificateId",
+      "startDate",
+      "endDate",
+    ];
+    const contractRequiredFields = ["startDate", "endDate"];
+
+    // Check if all consent fields are filled or skipConsent is checked
+    const isConsentFilled =
+      noConsent || consentRequiredFields.every((field) => consentData[field]);
+
+    // Check if all insurance fields are filled or skipInsurance is checked
+    const isInsuranceFilled =
+      noInsurance ||
+      insuranceRequiredFields.every((field) => insuranceData[field]);
+
+    //Check if the contract dates are selected
+    const isContractDateFilled = contractRequiredFields.every(
+      (field) => contractData[field]
+    );
+    // Check if contract data has at least one non-zero, non-null hour field
+    const isContractHoursValid = hourFields.some(
+      (field) => contractData[field] && contractData[field] !== 0
+    );
+
+    // Check if a file is selected
+    const isFileSelected = selectedFile !== null;
+    // Check if all contract fields (excluding hours) are filled or skipContract is checked
+    const isContractFilled =
+      noContract ||
+      (isContractDateFilled && isFileSelected && isContractHoursValid); // Ensures at least one hour field is filled
+
+    // Return true if all required sections are filled or skipped
+    return isConsentFilled && isInsuranceFilled && isContractFilled;
+  };
+
+  useEffect(() => {
+    setDisableButton(!areRequiredFieldsFilled());
+  }, [
+    consentData,
+    insuranceData,
+    contractData,
+    selectedFile,
+    noConsent,
+    noInsurance,
+    noContract,
+  ]);
+
+  // Function to check if Add button should be disabled
+  const isAddButtonDisabled = () => {
+    return !selectedProvider || !hours || Number(hours) <= 0;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    // Check for validation errors
+    const hasErrors = Object.values(validationErrors).some((error) => error);
+    if (hasErrors) {
+      alert("Please check all fields before submitting.");
+      return;
+    }
     if (!noConsent) {
       SendConsent(consentData);
     }
@@ -134,6 +195,8 @@ export default function OtherForm({
     }
     if (!noContract) {
       SendContract(selectedFile, contractData);
+    } else {
+      SendContract(null, null);
     }
   };
   return (
@@ -289,8 +352,8 @@ export default function OtherForm({
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th style={styles.header}>Service Provider</th>
-                      <th style={styles.header}>Hours</th>
+                      <th style={styles.header}>Service Provider*</th>
+                      <th style={styles.header}>Hours*</th>
                       <th style={styles.header}>Actions</th>
                     </tr>
                   </thead>
@@ -323,6 +386,7 @@ export default function OtherForm({
                         <select
                           value={selectedProvider}
                           onChange={(e) => setSelectedProvider(e.target.value)}
+                          style={styles.input}
                         >
                           <option value="">Select Service Provider</option>
                           {serviceProviderOptions.map((option) => (
@@ -347,6 +411,7 @@ export default function OtherForm({
                           type="button"
                           onClick={handleAddHours}
                           style={styles.addButton}
+                          disabled={isAddButtonDisabled()}
                         >
                           Add
                         </Button>
@@ -389,7 +454,7 @@ export default function OtherForm({
           )}
         </div>
         <div style={styles.buttonContainer}>
-          <Button type="submit" className="mt-4">
+          <Button type="submit" className="mt-4" disabled={disableButton}>
             Next: Primary Guardian
           </Button>
         </div>
@@ -442,7 +507,7 @@ const styles = {
     padding: "8px",
   },
   input: {
-    width: "75%",
+    width: "100%",
     padding: "8px",
     fontSize: "16px",
     border: "1px solid #ddd",

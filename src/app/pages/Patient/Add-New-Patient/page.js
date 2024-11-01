@@ -34,8 +34,8 @@ export default function AddNewPatient() {
 
   useEffect(() => {
     if (!token) {
-      console.log("Need login");
-      router.push("/");
+      alert("Need login");
+      window.location.href = "/"; 
     } else {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
@@ -43,7 +43,7 @@ export default function AddNewPatient() {
       }
       setLoading(false); // Data is loaded; ready to render
     }
-  }, [token, router]);
+  }, [token]);
 
   if (!token || loading) {
     // Only render after data has been loaded

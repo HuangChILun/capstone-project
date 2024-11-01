@@ -13,22 +13,22 @@ import Diagnosis from "./Diagnosis";
 
 export default function ClientForm({ onSubmit }) {
   const [clientData, setClientData] = useState({
-    psNote: null,
-    firstName: null,
-    lastName: null,
-    gender: null,
+    psNote: "",
+    firstName: "",
+    lastName: "",
+    gender: "",
     birthDate: null,
-    address: null,
+    address: "",
     city: "Calgary",
     province: "AB",
-    postalCode: null,
-    phoneNumber: null,
-    email: null,
-    school: null,
+    postalCode: "",
+    phoneNumber: "",
+    email: "",
+    school: "",
     age: 0,
     currentStatus: true,
-    fscdIdNum: null,
-    grade: null,
+    fscdIdNum: "",
+    grade: undefined,
     serviceStartDate: null,
     serviceEndDate: null,
   });
@@ -74,9 +74,11 @@ export default function ClientForm({ onSubmit }) {
           error = "Only letters, space and -()' are allowed.";
         }
         break;
-      case "SIN":
-        if (!sinRegex.test(value)) {
-          error = "SIN must be number only and exactly 9 digits.";
+      case "grade":
+        if (value === "") {
+          error = "";
+        } else if (value > 12 || value < 1) {
+          error = "Grade must be between 1 to 12";
         }
         break;
       case "phoneNumber":
@@ -342,8 +344,13 @@ export default function ClientForm({ onSubmit }) {
             placeholder=""
             className="w-full"
             value={clientData.grade}
+            min={1}
+            max={12}
             onChange={handleInputChange}
           />
+          {validationErrors.grade && (
+            <p style={{ color: "red" }}>{validationErrors.grade}</p>
+          )}
         </div>
         <div style={styles.fieldContainer}>
           <Label htmlFor="serviceStartDate">Service Start Date*</Label>
