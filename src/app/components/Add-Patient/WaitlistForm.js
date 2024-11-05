@@ -36,6 +36,7 @@ export default function WaitlistForm({ onSubmit }) {
       caseWorkerName: null,
       serviceType: null, //dropdown menu with counselling, SS, DBS, private
       serviceProvidersNeeded: "OT", //check all that apply with psychologist, BC, SLP, OT, PT, aide
+      fscdIdNum: null, // extra filed 
       datePlaced: null,
       dateContact: null,
       dateConsultationBooked: null,

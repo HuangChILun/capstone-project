@@ -873,9 +873,9 @@ export default function ViewPatientPersonal() {
   return (
     <div>
       <HoriNav user={user} />
-      <div className="p-6">
+      <div className="p-4 ml-8 mt-1 pt-20">
         <div className="flex items-center mb-4">
-          <Link href="/View-Patient-Page">
+          <Link href="./View-Patient-Page">
             <div className="flex items-center mb-4 cursor-pointer">
               <ArrowLeftIcon className="h-6 w-6 mr-2" />
               <span>Back to Client List</span>
@@ -1444,19 +1444,22 @@ export default function ViewPatientPersonal() {
               <h2 className="text-2xl font-semibold mb-4">Team Members</h2>
 
               {/* Currently Working with This Client */}
+              {/* Currently Working with This Client */}
               {currentTeamMembers.length > 0 && (
                 <div className="mb-4">
                   <h3 className="text-xl font-semibold">
                     Currently Working with This Client
                   </h3>
-                  <table className="w-full table-auto">
+                  <table className="w-full table-fixed">
                     <thead>
                       <tr>
-                        <th className="px-4 py-2 text-center">Team Member</th>
-                        <th className="px-4 py-2 text-center">
+                        <th className="px-4 py-2 text-center w-1/3">
+                          Team Member
+                        </th>
+                        <th className="px-4 py-2 text-center w-1/3">
                           Service Start Date
                         </th>
-                        <th className="px-4 py-2 text-center">
+                        <th className="px-4 py-2 text-center w-1/3">
                           Service End Date
                         </th>
                       </tr>
@@ -1532,17 +1535,19 @@ export default function ViewPatientPersonal() {
               {/* Past Working with This Client */}
               {pastTeamMembers.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="text-xl font-semibold mb-3">
+                  <h3 className="text-xl font-semibold">
                     Past Working with This Client
                   </h3>
-                  <table className="w-full table-auto">
+                  <table className="w-full table-fixed">
                     <thead>
                       <tr>
-                        <th className="px-4 py-2 text-center">Team Member</th>
-                        <th className="px-4 py-2 text-center">
+                        <th className="px-4 py-2 text-center w-1/3">
+                          Team Member
+                        </th>
+                        <th className="px-4 py-2 text-center w-1/3">
                           Service Start Date
                         </th>
-                        <th className="px-4 py-2 text-center">
+                        <th className="px-4 py-2 text-center w-1/3">
                           Service End Date
                         </th>
                       </tr>
@@ -1618,7 +1623,9 @@ export default function ViewPatientPersonal() {
               {/* Editing Mode */}
               {isEditing && (
                 <div>
-                   <h3 className="text-xl font-semibold mb-4">Assign New Team Member</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Assign New Team Member
+                  </h3>
                   {/* Search Inputs */}
                   <div className="flex items-center mb-4">
                     <Input

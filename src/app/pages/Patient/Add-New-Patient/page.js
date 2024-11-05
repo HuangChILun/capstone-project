@@ -93,7 +93,7 @@ export default function AddNewPatient() {
         const result = await response.json();
         console.log("Waitlist patient created:", result);
         alert("Waitlist patient added successfully!");
-        window.location.href="./View-Patient-Page";
+        router.push("/View-Patient-Page"); // Redirect after successful submission
       } else {
         const errorData = await response.json();
         console.error("Error:", errorData);

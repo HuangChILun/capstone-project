@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -29,54 +29,88 @@ export default function ViewPatient() {
   const [error, setError] = useState(null);
 
   const router = useRouter();
-  const user = JSON.parse(localStorage.getItem("user"));
   const token = Cookies.get("token");
+  // Memoize the user object
+  const user = useMemo(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  }, []);
+
+  // If user is not found, redirect to login
+  useEffect(() => {
+    if (!user) {
+      router.push("/");
+    }
+  }, [user, router]);
+
+  const isAdmin = user?.isAdmin === 1;
 
   useEffect(() => {
-    const fetchWaitlist = async () => {
-      if (!token) {
+    const fetchData = async () => {
+      if (!token || !user) {
         router.push("/");
         console.log("need login");
         return;
       }
+
       try {
-        const waitlistResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/getAllWaitlistClient`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        if (isAdmin) {
+          // Admin user, fetch all patients and waitlist
+          const [patientResponse, waitlistResponse] = await Promise.all([
+            fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/clients`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }),
+            fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/getAllWaitlistClient`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            ),
+          ]);
+
+          if (!patientResponse.ok) {
+            throw new Error("Failed to fetch clients");
           }
-        );
-
-        if (!waitlistResponse.ok) {
-          throw new Error("Failed to fetch waitlist clients");
-        }
-        const waitlistData = await waitlistResponse.json();
-        setWaitlistClients(waitlistData);
-      } catch (error) {
-        console.error("Error fetching waitlist data:", error);
-        setError(error.message);
-      }
-    };
-
-    const fetchPatients = async () => {
-      try {
-        const patientResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+          if (!waitlistResponse.ok) {
+            throw new Error("Failed to fetch waitlist clients");
           }
-        );
 
-        if (!patientResponse.ok) {
-          throw new Error("Failed to fetch clients");
+          const [patientData, waitlistData] = await Promise.all([
+            patientResponse.json(),
+            waitlistResponse.json(),
+          ]);
+
+          setPatients(patientData);
+          setWaitlistClients(waitlistData);
+        } else {
+          // Non-admin user, fetch assigned clients
+          const assignedClientResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/user/${user.userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!assignedClientResponse.ok) {
+            throw new Error("Failed to fetch assigned clients");
+          }
+          const assignedClientData = await assignedClientResponse.json();
+
+          // Log the assignedClientData to see its structure
+          console.log("Assigned Client Data:", assignedClientData);
+
+          // Ensure that patients is set to an array
+          if (Array.isArray(assignedClientData.data)) {
+            setPatients(assignedClientData.data);
+          } else {
+            throw new Error("Assigned clients data is not an array");
+          }
         }
-
-        const patientData = await patientResponse.json();
-        setPatients(patientData);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(error.message);
@@ -85,9 +119,8 @@ export default function ViewPatient() {
       }
     };
 
-    fetchWaitlist();
-    fetchPatients();
-  }, [router, token]);
+    fetchData();
+  }, [router, token, user?.userId, isAdmin]);
 
   // Filter active and archived patients based on currentStatus
   const activePatients = patients.filter(
@@ -138,21 +171,21 @@ export default function ViewPatient() {
               onChange={(e) => setSearchInput(e.target.value)}
             />
           </div>
-          <div style={styles.rightHeaderSection}>
-            <Button style={styles.searchButton} onClick={handleAddPatient}>
-              Add New Client
-            </Button>
-          </div>
+          {isAdmin && (
+            <div style={styles.rightHeaderSection}>
+              <Button style={styles.searchButton} onClick={handleAddPatient}>
+                Add New Client
+              </Button>
+            </div>
+          )}
         </header>
 
         <Tabs defaultValue="active" style={styles.tabs}>
           <TabsList>
             <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
-            <TabsTrigger value="active-archived">Active Archived</TabsTrigger>
-            <TabsTrigger value="waitlist-archived">
-              Waitlist Archived
-            </TabsTrigger>
+            {isAdmin && <TabsTrigger value="waitlist">Waitlist</TabsTrigger>}
+            {isAdmin && <TabsTrigger value="active-archived">Active Archived</TabsTrigger>}
+            {isAdmin && <TabsTrigger value="waitlist-archived"> Waitlist Archived</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="active">
