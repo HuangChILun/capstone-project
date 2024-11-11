@@ -111,14 +111,14 @@ export default function ViewWaitList() {
       };
   
       // Validate required fields
-      for (const [key, value] of Object.entries(updatedData)) {
-        if (
-          (value === "" || value === null || value === undefined) &&
-          key !== "password"
-        ) {
-          throw new Error(`Field ${key} is required and cannot be empty.`);
-        }
-      }
+      // for (const [key, value] of Object.entries(updatedData)) {
+      //   if (
+      //     (value === "" || value === null || value === undefined) &&
+      //     key !== "password"
+      //   ) {
+      //     throw new Error(`Field ${key} is required and cannot be empty.`);
+      //   }
+      // }
   
       // Format date fields to 'YYYY-MM-DD'
       const dateFields = [

@@ -44,11 +44,11 @@ export default function ViewPatientPersonal() {
   const searchParams = useSearchParams();
   const clientId = searchParams.get("clientId");
   const [patient, setPatient] = useState(null);
-  const [guardian, setGuardian] = useState(null);
+  const [guardian, setGuardian] = useState([]);
   const [editedPatient, setEditedPatient] = useState(null);
-  const [editedGuardian, setEditedGuardian] = useState(null);
-  const [diagnosis, setDiagnosis] = useState(null);
-  const [editedDiagnosis, setEditedDiagnosis] = useState(null);
+  const [editedGuardian, setEditedGuardian] = useState([]);
+  const [diagnosis, setDiagnosis] = useState([]);
+  const [editedDiagnosis, setEditedDiagnosis] = useState([]);
   const [insurance, setInsurance] = useState(null);
   const [editedInsurance, setEditedInsurance] = useState(null);
   const [consent, setConsent] = useState(null);
@@ -169,32 +169,24 @@ export default function ViewPatientPersonal() {
       }
       const diagnosisData = await diagnosisResponse.json();
 
-      // Check if diagnosisData is an array
-      let diagnosisItem;
-      if (Array.isArray(diagnosisData)) {
-        if (diagnosisData.length > 0) {
-          diagnosisItem = diagnosisData[0]; // Use the first item
-        } else {
-          diagnosisItem = null; // No diagnosis data available
-        }
-      } else {
-        diagnosisItem = diagnosisData;
-      }
+      // Ensure diagnosisData is an array
+      const diagnosesArray = Array.isArray(diagnosisData)
+        ? diagnosisData
+        : [diagnosisData];
 
       // Map aType to "typical" or "atypical" for display
-      if (diagnosisItem) {
-        diagnosisItem.aType =
-          diagnosisItem.aType === 1 ? "typical" : "atypical";
-      }
+      const formattedDiagnoses = diagnosesArray.map((item) => ({
+        ...item,
+        aType: item.aType === 1 ? "typical" : "atypical",
+      }));
 
-      setDiagnosis(diagnosisItem);
-      setEditedDiagnosis(diagnosisItem);
+      setDiagnosis(formattedDiagnoses);
+      setEditedDiagnosis(formattedDiagnoses);
     } catch (error) {
       console.error("Error fetching assigned diagnosis:", error);
     }
   };
 
-  // fetch insurance table
   // Fetch Insurance
   const fetchInsurance = async () => {
     const token = Cookies.get("token");
@@ -331,10 +323,9 @@ export default function ViewPatientPersonal() {
         setEditedPatient(data);
 
         // Fetch guardian by guardianId
-        const guardianId = data.clientId; // as known as clientId
         try {
           const guardianResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${guardianId}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${clientId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -343,19 +334,24 @@ export default function ViewPatientPersonal() {
           );
 
           if (!guardianResponse.ok) {
-            // If guardian data is not found, set guardian to null
-            setGuardian(null);
-            setEditedGuardian({});
+            // If guardian data is not found, set guardian to an empty array
+            setGuardian([]);
+            setEditedGuardian([]);
           } else {
             const guardianData = await guardianResponse.json();
-            setGuardian(guardianData);
-            setEditedGuardian(guardianData);
+
+            const guardiansArray = Array.isArray(guardianData)
+              ? guardianData
+              : [guardianData];
+
+            setGuardian(guardiansArray);
+            setEditedGuardian(guardiansArray);
           }
         } catch (error) {
           console.error("Error fetching guardian data:", error);
-          // Set guardian to null and initialize editedGuardian
-          setGuardian(null);
-          setEditedGuardian({});
+          // Set guardian to an empty array
+          setGuardian([]);
+          setEditedGuardian([]);
         }
 
         // Fetch assigned team members
@@ -428,14 +424,24 @@ export default function ViewPatientPersonal() {
     setEditedPatient({ ...editedPatient, [name]: value });
   };
 
-  const handleGuardianInputChange = (e) => {
+  const handleGuardianInputChange = (e, index) => {
     const { name, value } = e.target;
-    setEditedGuardian({ ...editedGuardian, [name]: value });
+    const updatedGuardians = [...editedGuardian];
+    updatedGuardians[index] = {
+      ...updatedGuardians[index],
+      [name]: value,
+    };
+    setEditedGuardian(updatedGuardians);
   };
 
-  const handleDiagnosisInputChange = (e) => {
+  const handleDiagnosisInputChange = (e, index) => {
     const { name, value } = e.target;
-    setEditedDiagnosis({ ...editedDiagnosis, [name]: value });
+    const updatedDiagnoses = [...editedDiagnosis];
+    updatedDiagnoses[index] = {
+      ...updatedDiagnoses[index],
+      [name]: value,
+    };
+    setEditedDiagnosis(updatedDiagnoses);
   };
 
   const handleInsuranceInputChange = (e) => {
@@ -514,36 +520,35 @@ export default function ViewPatientPersonal() {
 
   const updateGuardianInfo = async () => {
     const token = Cookies.get("token");
-    if (editedGuardian && editedGuardian.guardianId) {
+    if (editedGuardian && editedGuardian.length > 0) {
       try {
-        const formattedGuardianData = {
-          ...editedGuardian,
-        };
+        for (const guardianItem of editedGuardian) {
+          if (guardianItem.guardianId) {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${guardianItem.guardianId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(guardianItem),
+              }
+            );
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${editedGuardian.guardianId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(formattedGuardianData),
+            if (!response.ok) {
+              const errorData = await response.json();
+              console.error("Error updating guardian data:", errorData);
+              throw new Error(
+                `Failed to update guardian data: ${
+                  errorData.message || errorData.error || "Unknown error"
+                }`
+              );
+            }
           }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error updating guardian data:", errorData);
-          throw new Error(
-            `Failed to update guardian data: ${
-              errorData.message || errorData.error || "Unknown error"
-            }`
-          );
         }
-
         // Update the state with the latest guardian data
-        setGuardian(formattedGuardianData);
+        setGuardian(editedGuardian);
       } catch (error) {
         console.error("Error updating guardian data:", error);
         throw error;
@@ -553,43 +558,43 @@ export default function ViewPatientPersonal() {
 
   const updateDiagnosisInfo = async () => {
     const token = Cookies.get("token");
-    if (editedDiagnosis && editedDiagnosis.diagnosisId) {
+    if (editedDiagnosis && editedDiagnosis.length > 0) {
       try {
-        // Map "typical"/"atypical" back to 1/0
-        const aTypeValue = editedDiagnosis.aType === "typical" ? 1 : 0;
+        for (const diagnosisItem of editedDiagnosis) {
+          if (diagnosisItem.diagnosisId) {
+            // Map "typical"/"atypical" back to 1/0
+            const aTypeValue = diagnosisItem.aType === "typical" ? 1 : 0;
 
-        const updatedDiagnosis = {
-          ...editedDiagnosis,
-          aType: aTypeValue,
-        };
+            const updatedDiagnosis = {
+              ...diagnosisItem,
+              aType: aTypeValue,
+            };
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/diagnosis/${editedDiagnosis.diagnosisId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(updatedDiagnosis),
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_IP}/diagnosis/${diagnosisItem.diagnosisId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(updatedDiagnosis),
+              }
+            );
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              console.error("Error updating diagnosis data:", errorData);
+              throw new Error(
+                `Failed to update diagnosis data: ${
+                  errorData.message || errorData.error || "Unknown error"
+                }`
+              );
+            }
           }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error updating diagnosis data:", errorData);
-          throw new Error(
-            `Failed to update diagnosis data: ${
-              errorData.message || errorData.error || "Unknown error"
-            }`
-          );
         }
-
         // Update the state with the latest diagnosis data
-        setDiagnosis({
-          ...editedDiagnosis,
-          aType: editedDiagnosis.aType,
-        });
+        setDiagnosis(editedDiagnosis);
       } catch (error) {
         console.error("Error updating diagnosis data:", error);
         throw error;
@@ -869,6 +874,7 @@ export default function ViewPatientPersonal() {
       : null;
     return endDate && endDate < today;
   });
+  console.log(guardian);
 
   return (
     <div>
@@ -1095,159 +1101,198 @@ export default function ViewPatientPersonal() {
               <h2 className="text-2xl font-semibold mb-4">
                 Guardian Information
               </h2>
-              {guardian ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* First Name */}
-                  <div>
-                    <Label className="text-muted-foreground">First Name</Label>
-                    {isEditing ? (
-                      <Input
-                        name="firstName"
-                        value={editedGuardian.firstName || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.firstName}
-                      </p>
-                    )}
+              {guardian.length > 0 ? (
+                guardian.map((guardianItem, index) => (
+                  <div key={guardianItem.guardianId || index} className="mb-4">
+                    <h3 className="text-xl font-semibold">
+                      {index === 0 ? "Primary Guardian" : "Secondary Guardian"}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* First Name */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          First Name
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="firstName"
+                            value={editedGuardian[index].firstName || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.firstName}
+                          </p>
+                        )}
+                      </div>
+                      {/* Last Name */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Last Name
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="lastName"
+                            value={editedGuardian[index].lastName || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.lastName}
+                          </p>
+                        )}
+                      </div>
+                      {/* Address */}
+                      <div>
+                        <Label className="text-muted-foreground">Address</Label>
+                        {isEditing ? (
+                          <Input
+                            name="address"
+                            value={editedGuardian[index].address || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.address}
+                          </p>
+                        )}
+                      </div>
+                      {/* City */}
+                      <div>
+                        <Label className="text-muted-foreground">City</Label>
+                        {isEditing ? (
+                          <Input
+                            name="city"
+                            value={editedGuardian[index].city || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.city}
+                          </p>
+                        )}
+                      </div>
+                      {/* Province */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Province
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="province"
+                            value={editedGuardian[index].province || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.province}
+                          </p>
+                        )}
+                      </div>
+                      {/* Postal Code */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Postal Code
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="postalCode"
+                            value={editedGuardian[index].postalCode || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.postalCode}
+                          </p>
+                        )}
+                      </div>
+                      {/* Relation to Patient */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Relation to Patient
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="relationship"
+                            value={editedGuardian[index].relationship || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.relationship}
+                          </p>
+                        )}
+                      </div>
+                      {/* Custody */}
+                      <div>
+                        <Label className="text-muted-foreground">Custody</Label>
+                        {isEditing ? (
+                          <Input
+                            name="custody"
+                            value={editedGuardian[index].custody || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.custody}
+                          </p>
+                        )}
+                      </div>
+                      {/* Email */}
+                      <div>
+                        <Label className="text-muted-foreground">Email</Label>
+                        {isEditing ? (
+                          <Input
+                            name="email"
+                            value={editedGuardian[index].email || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.email}
+                          </p>
+                        )}
+                      </div>
+                      {/* Phone Number */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Phone Number
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="phoneNumber"
+                            value={editedGuardian[index].phoneNumber || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.phoneNumber}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  {/* Last Name */}
-                  <div>
-                    <Label className="text-muted-foreground">Last Name</Label>
-                    {isEditing ? (
-                      <Input
-                        name="lastName"
-                        value={editedGuardian.lastName || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.lastName}
-                      </p>
-                    )}
-                  </div>
-                  {/* Address */}
-                  <div>
-                    <Label className="text-muted-foreground">Address</Label>
-                    {isEditing ? (
-                      <Input
-                        name="address"
-                        value={editedGuardian.address || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.address}
-                      </p>
-                    )}
-                  </div>
-                  {/* City */}
-                  <div>
-                    <Label className="text-muted-foreground">City</Label>
-                    {isEditing ? (
-                      <Input
-                        name="city"
-                        value={editedGuardian.city || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">{guardian.city}</p>
-                    )}
-                  </div>
-                  {/* Province */}
-                  <div>
-                    <Label className="text-muted-foreground">Province</Label>
-                    {isEditing ? (
-                      <Input
-                        name="province"
-                        value={editedGuardian.province || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.province}
-                      </p>
-                    )}
-                  </div>
-                  {/* Postal Code */}
-                  <div>
-                    <Label className="text-muted-foreground">Postal Code</Label>
-                    {isEditing ? (
-                      <Input
-                        name="postalCode"
-                        value={editedGuardian.postalCode || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.postalCode}
-                      </p>
-                    )}
-                  </div>
-                  {/* Relation to Patient */}
-                  <div>
-                    <Label className="text-muted-foreground">
-                      Relation to Patient
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        name="relationship"
-                        value={editedGuardian.relationship || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.relationship}
-                      </p>
-                    )}
-                  </div>
-                  {/* Custody */}
-                  <div>
-                    <Label className="text-muted-foreground">Custody</Label>
-                    {isEditing ? (
-                      <Input
-                        name="custody"
-                        value={editedGuardian.custody || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.custody}
-                      </p>
-                    )}
-                  </div>
-                  {/* Email */}
-                  <div>
-                    <Label className="text-muted-foreground">Email</Label>
-                    {isEditing ? (
-                      <Input
-                        name="email"
-                        value={editedGuardian.email || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">{guardian.email}</p>
-                    )}
-                  </div>
-                  {/* Phone Number */}
-                  <div>
-                    <Label className="text-muted-foreground">
-                      Phone Number
-                    </Label>
-                    {isEditing ? (
-                      <Input
-                        name="phoneNumber"
-                        value={editedGuardian.phoneNumber || ""}
-                        onChange={handleGuardianInputChange}
-                      />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {guardian.phoneNumber}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                ))
               ) : (
                 <p>No guardian found for this patient.</p>
               )}
@@ -1262,55 +1307,65 @@ export default function ViewPatientPersonal() {
               </h2>
               {/* Diagnosis Information */}
               <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2">Diagnosis</h3>
-                {diagnosis ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Diagnosis */}
-                    <div>
-                      <Label className="text-muted-foreground">Diagnosis</Label>
-                      {isEditing ? (
-                        <Input
-                          name="diagnosis"
-                          value={editedDiagnosis.diagnosis || ""}
-                          onChange={handleDiagnosisInputChange}
-                        />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {diagnosis.diagnosis}
-                        </p>
-                      )}
-                    </div>
-                    {/* aType */}
-                    <div>
-                      <Label className="text-muted-foreground">Type</Label>
-                      {isEditing ? (
+                <h3 className="text-xl font-semibold mb-2">Diagnoses</h3>
+                {diagnosis.length > 0 ? (
+                  diagnosis.map((diagnosisItem, index) => (
+                    <div
+                      key={diagnosisItem.diagnosisId || index}
+                      className="mb-4"
+                    >
+                      <h4 className="text-lg font-semibold">
+                        Diagnosis {index + 1}
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Diagnosis */}
                         <div>
-                          <select
-                            name="aType"
-                            value={editedDiagnosis.aType || "typical"}
-                            onChange={(e) =>
-                              setEditedDiagnosis({
-                                ...editedDiagnosis,
-                                aType: e.target.value,
-                              })
-                            }
-                            className="border rounded p-2 w-full"
-                          >
-                            <option value="typical">Typical</option>
-                            <option value="atypical">Atypical</option>
-                          </select>
+                          <Label className="text-muted-foreground">
+                            Diagnosis
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="diagnosis"
+                              value={editedDiagnosis[index].diagnosis || ""}
+                              onChange={(e) =>
+                                handleDiagnosisInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {diagnosisItem.diagnosis}
+                            </p>
+                          )}
                         </div>
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {diagnosis.aType}
-                        </p>
-                      )}
+                        {/* aType */}
+                        <div>
+                          <Label className="text-muted-foreground">Type</Label>
+                          {isEditing ? (
+                            <select
+                              name="aType"
+                              value={editedDiagnosis[index].aType || "typical"}
+                              onChange={(e) =>
+                                handleDiagnosisInputChange(e, index)
+                              }
+                              className="border rounded p-2 w-full"
+                            >
+                              <option value="typical">Typical</option>
+                              <option value="atypical">Atypical</option>
+                            </select>
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {diagnosisItem.aType}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))
                 ) : (
                   <p>No diagnosis data available.</p>
                 )}
               </div>
+
               {/* Insurance Information */}
               <div className="mb-4">
                 <h2 className="text-2xl font-semibold mb-4">Insurance</h2>
@@ -1443,7 +1498,6 @@ export default function ViewPatientPersonal() {
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-4">Team Members</h2>
 
-              {/* Currently Working with This Client */}
               {/* Currently Working with This Client */}
               {currentTeamMembers.length > 0 && (
                 <div className="mb-4">
@@ -1925,6 +1979,27 @@ export default function ViewPatientPersonal() {
                   />
                 ) : (
                   <p>{patient.psNote}</p>
+                )}
+              </div>
+
+              <div className="mt-6">
+                <Label className="text-muted-foreground">
+                  Move to Archived
+                </Label>
+                {isEditing ? (
+                  <select
+                    name="currentStatus"
+                    value={editedPatient.currentStatus || ""}
+                    onChange={handlePatientInputChange}
+                    className="border rounded p-2 w-full"
+                  >
+                    <option value={0}>Archived</option>
+                    <option value={1}>Active</option>
+                  </select>
+                ) : (
+                  <div className="text-lg font-bold">
+                    {patient.currentStatus === 1 ? "Active" : "Archived"}
+                  </div>
                 )}
               </div>
             </div>
