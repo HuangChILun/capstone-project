@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Button } from "../HomeUi/button";
 
-export default function Diagnosis({ diagnosisData, onAddDiagnosis, onRemoveDiagnosis }) {
+export default function Diagnosis({ diagnosisData, onAddDiagnosis, onRemoveDiagnosis , convertDiagnosis = null}) {
   const [diagnosis, setDiagnosis] = useState("");
   const [aType, setAType] = useState(false);
-
+  if (convertDiagnosis){
+    setDiagnosis(convertDiagnosis)
+  }
   const addDiagnosis = () => {
     if (diagnosis) {
       onAddDiagnosis({ diagnosis, aType });

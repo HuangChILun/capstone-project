@@ -49,8 +49,7 @@ export default function PasswordChange() {
     e.preventDefault();
 
     if (!currentPassword) {
-      setMessage("Current password is required.");
-      setModalVisible(true);
+      alert("Current password is required.");
       return;
     }
 
@@ -61,17 +60,18 @@ export default function PasswordChange() {
       !validations.specialChar ||
       !validations.minLength
     ) {
-      setMessage("New password does not meet the required criteria.");
-      setModalVisible(true);
+      alert("New password does not meet the required criteria.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setMessage("New password and confirm password do not match.");
-      setModalVisible(true);
+      alert("New password and confirm password do not match.");
       return;
     }
-
+    if (currentPassword === newPassword){
+      alert("New password cannot be same as current password");
+      return;
+    }
     
 
     try {
@@ -91,16 +91,16 @@ export default function PasswordChange() {
       );
 
       if (response.ok) {
-        setMessage("Password has been changed successfully.");
+        alert("Password has been changed successfully.");
+        window.location.href = "./View-Profile";
       } else {
         const data = await response.json();
-        setMessage(data.error || "Password change failed,\n Check new password is not same as current password.");
+        alert(data.error || "Password change failed");
       }
     } catch (error) {
       console.error(error);
-      setMessage("An error occurred. Please try again later.");
+      alert("An error occurred. Please try again later.");
     }
-    setModalVisible(true);
 
     setConfirmPassword("");
     setCurrentPassword("");

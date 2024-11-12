@@ -14,47 +14,47 @@ export default function WaitlistForm({ onSubmit }) {
   const [step, setStep] = useState(1); // Track the current step
   const [formData, setFormData] = useState({
     // Initial state for form data
-      firstName: null,
-      lastName: null,
-      gender: null,
-      birthDate: null,
-      address: null,
-      city: "Calgary",
-      province: "AB",
-      postalCode: null,
-      phoneNumber: null,
-      email: null,
-      parentName: null,
-      community: null,
-      diagnosis: null,
-      school:null,
-      language:null,
-      siblings: null,
-      pets:null,
+    firstName: null,
+    lastName: null,
+    gender: null,
+    birthDate: null,
+    address: null,
+    city: "Calgary",
+    province: "AB",
+    postalCode: null,
+    phoneNumber: null,
+    email: null,
+    parentName: null,
+    community: null,
+    diagnosis: null,
+    school: null,
+    language: null,
+    siblings: null,
+    pets: null,
 
     // Step 2 data
-      caseWorkerName: null,
-      serviceType: null, //dropdown menu with counselling, SS, DBS, private
-      serviceProvidersNeeded: "OT", //check all that apply with psychologist, BC, SLP, OT, PT, aide
-      fscdIdNum: null, // extra filed 
-      datePlaced: null,
-      dateContact: null,
-      dateConsultationBooked: null,
-      dateServiceOffered: null,
-      dateStartedService: null,
-      nextMeetingDate: null,
-      paperworkDeadline: null,
-      fundingSources: null,
-      feeDiscussed: null, //(check box)
-      followUp: null,
-      referralFrom: null,  //dropdown menu with FSCD, Children's Link, SCOPE, Autism Calgary, friend, other (able to enter additional options)
-      availability: null,
-      locationOfService: null, //dropdown menu with home, clinic, online
-      previousService: null,
-      concerns: null,
-      consultationHistory: null,
-      isArchived: 0,
-      hasConverted: null, //this shows status of being transfer to active or not.
+    caseWorkerName: null,
+    serviceType: null, //dropdown menu with counselling, SS, DBS, private
+    serviceProvidersNeeded: [], //check all that apply with psychologist, BC, SLP, OT, PT, aide
+    fscdIdNum: null, // extra field
+    datePlaced: null,
+    dateContact: null,
+    dateConsultationBooked: null,
+    dateServiceOffered: null,
+    dateStartedService: null,
+    nextMeetingDate: null,
+    paperworkDeadline: null,
+    fundingSources: null,
+    feeDiscussed: false, //(check box)
+    followUp: null,
+    referralFrom: null, //dropdown menu with FSCD, Children's Link, SCOPE, Autism Calgary, friend, other (able to enter additional options)
+    availability: null,
+    locationOfService: null, //dropdown menu with home, clinic, online
+    previousService: null,
+    concerns: null,
+    consultationHistory: null,
+    isArchived: 0,
+    hasConverted: false, //this shows status of being transfer to active or not.
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -146,11 +146,7 @@ export default function WaitlistForm({ onSubmit }) {
   // Function to check if required fields are filled for step 2
   const secondStepRequiredFieldsFilled = () => {
     const requiredFieldsStep2 = [
-      "fscdIdNum",
-      "caseWorkerName",
       "serviceType",
-      "serviceProvidersNeeded",
-      "availability",
       "fundingSource",
       "datePlaced",
       // add other fields required in step 2 here
@@ -172,6 +168,27 @@ export default function WaitlistForm({ onSubmit }) {
       [field]: value,
     }));
   };
+
+  const handleCheckboxChange = (value, isChecked) => {
+    setFormData((prevFormData) => {
+      const currentServiceProviderNeeded = Array.isArray(
+        prevFormData.serviceProvidersNeeded
+      )
+        ? prevFormData.serviceProvidersNeeded
+        : [];
+
+      const updatedServiceProviderNeeded = isChecked
+        ? [...currentServiceProviderNeeded, value] // Add value if checked
+        : currentServiceProviderNeeded.filter((item) => item !== value); // Remove value if unchecked
+
+      return {
+        ...prevFormData,
+        serviceProvidersNeeded: updatedServiceProviderNeeded,
+      };
+    });
+    console.log(formData.serviceProvidersNeeded);
+  };
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -245,7 +262,6 @@ export default function WaitlistForm({ onSubmit }) {
                 onChange={handleChange}
               />
             </div>
-
             {/* Second row: Address, City, Province, Postal Code */}
             <div style={styles.fieldContainer}>
               <Label htmlFor="address">Address*</Label>
@@ -311,6 +327,9 @@ export default function WaitlistForm({ onSubmit }) {
                 value={formData.postalCode}
                 onChange={handleChange}
               />
+              {validationErrors.postalCode && (
+                <p style={{ color: "red" }}>{validationErrors.postalCode}</p>
+              )}
             </div>
 
             {/* Third row: Parent Name, Phone Number, Email, Community */}
@@ -366,6 +385,59 @@ export default function WaitlistForm({ onSubmit }) {
                 <p style={{ color: "red" }}>{validationErrors.community}</p>
               )}
             </div>
+            {/* Fourth row: Language, Pets, Siblings, School */}
+            <div style={styles.fieldContainer}>
+              <Label htmlFor="language">Language</Label>
+              <Input
+                id="language"
+                placeholder=""
+                className="w-full"
+                value={formData.language}
+                onChange={handleChange}
+              />
+              {validationErrors.language && (
+                <p style={{ color: "red" }}>{validationErrors.language}</p>
+              )}
+            </div>
+            <div style={styles.fieldContainer}>
+              <Label htmlFor="pets">Pets</Label>
+              <Input
+                id="pets"
+                placeholder=""
+                className="w-full"
+                value={formData.pets}
+                onChange={handleChange}
+              />
+              {validationErrors.pets && (
+                <p style={{ color: "red" }}>{validationErrors.pets}</p>
+              )}
+            </div>
+            <div style={styles.fieldContainer}>
+              <Label htmlFor="siblings">Siblings</Label>
+              <Input
+                id="siblings"
+                placeholder=""
+                className="w-full"
+                value={formData.siblings}
+                onChange={handleChange}
+              />
+              {validationErrors.siblings && (
+                <p style={{ color: "red" }}>{validationErrors.siblings}</p>
+              )}
+            </div>
+            <div style={styles.fieldContainer}>
+              <Label htmlFor="school">School</Label>
+              <Input
+                id="school"
+                placeholder=""
+                className="w-full"
+                value={formData.school}
+                onChange={handleChange}
+              />
+              {validationErrors.school && (
+                <p style={{ color: "red" }}>{validationErrors.school}</p>
+              )}
+            </div>
 
             <div style={styles.fullWidth}>
               <Button
@@ -389,7 +461,7 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* First row: FSCD Number, Caseworker Name, Service Type, Service Providers Needed */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="fscdIdNum">FSCD Number*</Label>
+              <Label htmlFor="fscdIdNum">FSCD Number</Label>
               <Input
                 id="fscdIdNum"
                 placeholder=""
@@ -399,7 +471,7 @@ export default function WaitlistForm({ onSubmit }) {
               />
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="caseWorkerName">Caseworker Name*</Label>
+              <Label htmlFor="caseWorkerName">Caseworker Name</Label>
               <Input
                 id="caseWorkerName"
                 placeholder=""
@@ -415,36 +487,53 @@ export default function WaitlistForm({ onSubmit }) {
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="serviceType">Service Type*</Label>
-              <Input
-                id="serviceType"
-                placeholder=""
-                className="w-full"
-                value={formData.serviceType}
-                onChange={handleChange}
-              />
+              <Select
+                onValueChange={(value) =>
+                  handleSelectChange("serviceType", value)
+                }
+              >
+                <SelectTrigger id="serviceType" className="w-full">
+                  <SelectValue placeholder="Select Service Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Counselling">Counselling</SelectItem>
+                  <SelectItem value="SS">SS</SelectItem>
+                  <SelectItem value="DBS">DBS</SelectItem>
+                  <SelectItem value="Private">Private</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="serviceProvidersNeeded">
                 Service Providers Needed
               </Label>
-              <Select
-                onValueChange={(value) =>
-                  handleSelectChange("serviceProviderNeeded", value)
-                }
-              >
-                <SelectTrigger id="serviceProviderNeeded" className="w-full">
-                  <SelectValue placeholder="Select Service Provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Psychologist">Psychologist</SelectItem>
-                  <SelectItem value="BC">BC</SelectItem>
-                  <SelectItem value="SLP">SLP</SelectItem>
-                  <SelectItem value="OT">OT</SelectItem>
-                  <SelectItem value="PT">PT</SelectItem>
-                  <SelectItem value="Aide">Aide</SelectItem>
-                  <SelectItem value="Counsellor">Counsellor</SelectItem>
-                </SelectContent>
-              </Select>
+              <div id="serviceProvidersNeeded" className="w-full">
+                {[
+                  { label: "Psychologist", value: "Psychologist" },
+                  { label: "BC", value: "BC" },
+                  { label: "SLP", value: "SLP" },
+                  { label: "OT", value: "OT" },
+                  { label: "PT", value: "PT" },
+                  { label: "Aide", value: "Aide" },
+                ].map((item) => (
+                  <div key={item.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={item.value}
+                      value={item.value}
+                      checked={
+                        Array.isArray(formData.serviceProvidersNeeded) &&
+                        formData.serviceProvidersNeeded.includes(item.value)
+                      }
+                      onChange={(e) =>
+                        handleCheckboxChange(item.value, e.target.checked)
+                      }
+                      className="form-checkbox"
+                    />
+                    <Label htmlFor={item.value}>{item.label}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Second row: Date Placed on Waitlist, Date Contacted, Date Consultation Booked, Date Services Offered */}
@@ -546,12 +635,12 @@ export default function WaitlistForm({ onSubmit }) {
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="feeDiscussed">Fees Discussed</Label>
-              <Input
+              <input
+                type="checkbox"
                 id="feeDiscussed"
-                placeholder=""
                 className="w-full"
-                value={formData.feeDiscussed}
-                onChange={handleChange}
+                checked={formData.feeDiscussed}
+                onChange={(e) => setFormData({ ...formData, feeDiscussed: e.target.checked })}
               />
             </div>
             <div style={styles.fieldContainer}>
@@ -587,14 +676,21 @@ export default function WaitlistForm({ onSubmit }) {
               />
             </div>
             <div style={styles.fieldContainer}>
-              <Label htmlFor="locationOfService">Location of Service*</Label>
-              <Input
-                id="locationOfService"
-                placeholder=""
-                className="w-full"
-                value={formData.locationOfService}
-                onChange={handleChange}
-              />
+              <Label htmlFor="locationOfService">Location of Service</Label>
+              <Select
+                onValueChange={(value) =>
+                  handleSelectChange("locationOfService", value)
+                }
+              >
+                <SelectTrigger id="locationOfService" className="w-full">
+                  <SelectValue placeholder="Select Service Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Home">Home</SelectItem>
+                  <SelectItem value="Clinic">Clinic</SelectItem>
+                  <SelectItem value="Online">Online</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div style={styles.fieldContainer}>
               <Label htmlFor="previousService">Previous Service</Label>

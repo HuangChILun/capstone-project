@@ -247,6 +247,11 @@ export default function ViewPatient() {
                       >
                         <Button style={styles.viewButton}>View</Button>
                       </Link>
+                      <Link
+                        href={`./Convert-Waitlist?waitlistClientId=${client.waitlistClientId}`}
+                      >
+                        <Button style={styles.viewButton}>Convert</Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

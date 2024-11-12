@@ -11,30 +11,66 @@ import {
 import { Button } from "@/app/components/HomeUi/button";
 import Diagnosis from "./Diagnosis";
 
-export default function ClientForm({ onSubmit }) {
-  const [clientData, setClientData] = useState({
-    psNote: "",
-    firstName: "",
-    lastName: "",
-    gender: "",
-    birthDate: null,
-    address: "",
-    city: "Calgary",
-    province: "AB",
-    postalCode: "",
-    phoneNumber: "",
-    email: "",
-    school: "",
-    age: 0,
-    currentStatus: true,
-    fscdIdNum: "",
-    grade: undefined,
-    serviceStartDate: null,
-    serviceEndDate: null,
-  });
+export default function ClientForm({
+  onSubmit,
+  isConversion = false,
+  waitlistClientData = null,
+  note = null,
+}) {
+  const [clientData, setClientData] = useState(
+    isConversion && waitlistClientData
+      ? {
+          firstName: waitlistClientData.firstName || "",
+          lastName: waitlistClientData.lastName || "",
+          gender: waitlistClientData.gender || "",
+          birthDate: new Date(waitlistClientData.birthDate).toISOString().split("T")[0] || null,
+          address: waitlistClientData.address || "",
+          city: waitlistClientData.city || "Calgary",
+          province: waitlistClientData.province || "AB",
+          postalCode: waitlistClientData.postalCode || "",
+          phoneNumber: waitlistClientData.phoneNumber || "",
+          email: waitlistClientData.email || "",
+          school: waitlistClientData.school || "",
+          age: waitlistClientData.age || 0,
+          currentStatus: true,
+          fscdIdNum: waitlistClientData.fscdIdNum || "",
+          grade: waitlistClientData.grade || undefined,
+          serviceStartDate: waitlistClientData.serviceStartDate || null,
+          serviceEndDate: waitlistClientData.serviceEndDate || null,
+          psNote: note || null,
+        }
+      : {
+          psNote: "",
+          firstName: "",
+          lastName: "",
+          gender: "",
+          birthDate: null,
+          address: "",
+          city: "Calgary",
+          province: "AB",
+          postalCode: "",
+          phoneNumber: "",
+          email: "",
+          school: "",
+          age: 0,
+          currentStatus: true,
+          fscdIdNum: "",
+          grade: undefined,
+          serviceStartDate: null,
+          serviceEndDate: null,
+        }
+  );
+
+  const [diagnosisName, setDiagnosisName] = useState(null);
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
   const [disableButton, setDisableButton] = useState(true);
+
+  useEffect(() => {
+    if (waitlistClientData != null) {
+      setDiagnosisName(waitlistClientData.diagnosis);
+    }
+  }, [waitlistClientData]);
 
   // Regular expressions for validation
   const nameRegex = /^[A-Za-z'()\-\s]+$/;
@@ -387,6 +423,7 @@ export default function ClientForm({ onSubmit }) {
             diagnosisData={diagnosisData}
             onAddDiagnosis={handleAddDiagnosis}
             onRemoveDiagnosis={handleRemoveDiagnosis}
+            convertDiagnosis={diagnosisName}
           />
         </div>
         <div style={styles.buttonContainer}>
