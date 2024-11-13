@@ -59,6 +59,17 @@ export default function ViewPatientPersonal() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [allUsers, setAllUsers] = useState([]);
+  // the function for future use
+  const [newOutsideProvider, setNewOutsideProvider] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    agency: "",
+    startServiceDate: "",
+    endServiceDate: "",
+  });
+  // end the function
 
   // Team tab states
   const [searchName, setSearchName] = useState("");
@@ -103,7 +114,7 @@ export default function ViewPatientPersonal() {
     } catch (error) {
       console.error("Error fetching assigned team members:", error);
     }
-  };
+  };  
 
   // assign new team members
   const assignNewTeamMembers = async () => {
@@ -286,6 +297,99 @@ export default function ViewPatientPersonal() {
       console.error("Error fetching contract information:", error);
     }
   };
+  // the function for future use
+  const handleNewOutsideProviderChange = (e) => {
+    const { name, value } = e.target;
+    setNewOutsideProvider({
+      ...newOutsideProvider,
+      [name]: value,
+    });
+  };
+
+  const handleAddOutsideProvider = async () => {
+    const token = Cookies.get("token");
+    try {
+      // Create the outside provider
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/outside-provider`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            firstName: newOutsideProvider.firstName,
+            lastName: newOutsideProvider.lastName,
+            email: newOutsideProvider.email,
+            phoneNumber: newOutsideProvider.phoneNumber,
+            agency: newOutsideProvider.agency,
+          }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error adding outside provider:", errorData);
+        throw new Error(
+          `Failed to add outside provider: ${
+            errorData.message || errorData.error || "Unknown error"
+          }`
+        );
+      }
+  
+      const outsideProviderData = await response.json();
+  
+      // Assign the outside provider to the client
+      const assignResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/assign`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            clientId: clientId,
+            outsideProviderId: outsideProviderData.outsideProviderId,
+            startServiceDate: newOutsideProvider.startServiceDate || null,
+            endServiceDate: newOutsideProvider.endServiceDate || null,
+          }),
+        }
+      );
+  
+      if (!assignResponse.ok) {
+        const errorData = await assignResponse.json();
+        console.error("Error assigning outside provider:", errorData);
+        throw new Error(
+          `Failed to assign outside provider: ${
+            errorData.message || errorData.error || "Unknown error"
+          }`
+        );
+      }
+  
+      // Refresh the assigned team members list
+      await fetchAssignedTeamMembers();
+  
+      // Clear the form
+      setNewOutsideProvider({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        agency: '',
+        startServiceDate: '',
+        endServiceDate: '',
+      });
+  
+      alert("Outside provider added and assigned successfully!");
+    } catch (error) {
+      console.error("Error adding outside provider:", error);
+      alert(`Error adding outside provider: ${error.message}`);
+    }
+  };
+
+    // the function for future use end
+
 
   // fetch client and guardian by this effect
   useEffect(() => {
@@ -911,6 +1015,7 @@ export default function ViewPatientPersonal() {
             <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
             <TabsTrigger value="medical-info">Medical Info</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
+            <TabsTrigger value="contract">Contract</TabsTrigger>
             <TabsTrigger value="additional-note">Additional Note</TabsTrigger>
           </TabsList>
           <TabsContent value="personal-info">
@@ -1497,323 +1602,444 @@ export default function ViewPatientPersonal() {
           <TabsContent value="team">
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-4">Team Members</h2>
-
-              {/* Currently Working with This Client */}
-              {currentTeamMembers.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold">
-                    Currently Working with This Client
-                  </h3>
-                  <table className="w-full table-fixed">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 text-center w-1/3">
-                          Team Member
-                        </th>
-                        <th className="px-4 py-2 text-center w-1/3">
-                          Service Start Date
-                        </th>
-                        <th className="px-4 py-2 text-center w-1/3">
-                          Service End Date
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentTeamMembers.map((member) => (
-                        <tr key={member.teamMemberId}>
-                          <td className="border px-4 py-2 text-center">
-                            {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                          </td>
-                          {isEditing ? (
-                            <>
+              <Tabs defaultValue="current" className="mb-6">
+                <TabsList>
+                  <TabsTrigger value="current">
+                    Current Team Members
+                  </TabsTrigger>
+                  <TabsTrigger value="past">Past Team Members</TabsTrigger>
+                </TabsList>
+                <TabsContent value="current">
+                  {/* Currently Working with This Client */}
+                  {currentTeamMembers.length > 0 && (
+                    <div className="mb-4">
+                      {/* <h3 className="text-xl font-semibold">
+                        Currently Working with This Client
+                      </h3> */}
+                      <table className="w-full table-fixed">
+                        <thead>
+                          <tr>
+                            <th className="px-4 py-2 text-center w-1/3">
+                              Team Member
+                            </th>
+                            <th className="px-4 py-2 text-center w-1/3">
+                              Service Start Date
+                            </th>
+                            <th className="px-4 py-2 text-center w-1/3">
+                              Service End Date
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentTeamMembers.map((member) => (
+                            <tr key={member.teamMemberId}>
                               <td className="border px-4 py-2 text-center">
-                                <Input
-                                  type="date"
-                                  value={
-                                    member.startServiceDate
-                                      ? member.startServiceDate.split("T")[0]
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    handleAssignedDateChange(
-                                      member.teamMemberId,
-                                      "startServiceDate",
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                                {`${member.userFirstName} ${member.userLastName} (${member.role})`}
                               </td>
+                              {isEditing ? (
+                                <>
+                                  <td className="border px-4 py-2 text-center">
+                                    <Input
+                                      type="date"
+                                      value={
+                                        member.startServiceDate
+                                          ? member.startServiceDate.split(
+                                              "T"
+                                            )[0]
+                                          : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleAssignedDateChange(
+                                          member.teamMemberId,
+                                          "startServiceDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </td>
+                                  <td className="border px-4 py-2 text-center">
+                                    <Input
+                                      type="date"
+                                      value={
+                                        member.endServiceDate
+                                          ? member.endServiceDate.split("T")[0]
+                                          : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleAssignedDateChange(
+                                          member.teamMemberId,
+                                          "endServiceDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </td>
+                                </>
+                              ) : (
+                                <>
+                                  <td className="border px-4 py-2 text-center">
+                                    {member.startServiceDate
+                                      ? new Date(
+                                          member.startServiceDate
+                                        ).toLocaleDateString()
+                                      : "N/A"}
+                                  </td>
+                                  <td className="border px-4 py-2 text-center">
+                                    {member.endServiceDate
+                                      ? new Date(
+                                          member.endServiceDate
+                                        ).toLocaleDateString()
+                                      : "N/A"}
+                                  </td>
+                                </>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </TabsContent>
+                <TabsContent value="past">
+                  {/* Past Working with This Client */}
+                  {pastTeamMembers.length > 0 && (
+                    <div className="mb-4">
+                      {/* <h3 className="text-xl font-semibold">
+                        Past Working with This Client
+                      </h3> */}
+                      <table className="w-full table-fixed">
+                        <thead>
+                          <tr>
+                            <th className="px-4 py-2 text-center w-1/3">
+                              Team Member
+                            </th>
+                            <th className="px-4 py-2 text-center w-1/3">
+                              Service Start Date
+                            </th>
+                            <th className="px-4 py-2 text-center w-1/3">
+                              Service End Date
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pastTeamMembers.map((member) => (
+                            <tr key={member.teamMemberId}>
                               <td className="border px-4 py-2 text-center">
-                                <Input
-                                  type="date"
-                                  value={
-                                    member.endServiceDate
-                                      ? member.endServiceDate.split("T")[0]
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    handleAssignedDateChange(
-                                      member.teamMemberId,
-                                      "endServiceDate",
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                                {`${member.userFirstName} ${member.userLastName} (${member.role})`}
                               </td>
-                            </>
-                          ) : (
-                            <>
-                              <td className="border px-4 py-2 text-center">
-                                {member.startServiceDate
-                                  ? new Date(
-                                      member.startServiceDate
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </td>
-                              <td className="border px-4 py-2 text-center">
-                                {member.endServiceDate
-                                  ? new Date(
-                                      member.endServiceDate
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Past Working with This Client */}
-              {pastTeamMembers.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold">
-                    Past Working with This Client
-                  </h3>
-                  <table className="w-full table-fixed">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 text-center w-1/3">
-                          Team Member
-                        </th>
-                        <th className="px-4 py-2 text-center w-1/3">
-                          Service Start Date
-                        </th>
-                        <th className="px-4 py-2 text-center w-1/3">
-                          Service End Date
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pastTeamMembers.map((member) => (
-                        <tr key={member.teamMemberId}>
-                          <td className="border px-4 py-2 text-center">
-                            {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                          </td>
-                          {isEditing ? (
-                            <>
-                              <td className="border px-4 py-2 text-center">
-                                <Input
-                                  type="date"
-                                  value={
-                                    member.startServiceDate
-                                      ? member.startServiceDate.split("T")[0]
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    handleAssignedDateChange(
-                                      member.teamMemberId,
-                                      "startServiceDate",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </td>
-                              <td className="border px-4 py-2 text-center">
-                                <Input
-                                  type="date"
-                                  value={
-                                    member.endServiceDate
-                                      ? member.endServiceDate.split("T")[0]
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    handleAssignedDateChange(
-                                      member.teamMemberId,
-                                      "endServiceDate",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </td>
-                            </>
-                          ) : (
-                            <>
-                              <td className="border px-4 py-2 text-center">
-                                {member.startServiceDate
-                                  ? new Date(
-                                      member.startServiceDate
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </td>
-                              <td className="border px-4 py-2 text-center">
-                                {member.endServiceDate
-                                  ? new Date(
-                                      member.endServiceDate
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
+                              {isEditing ? (
+                                <>
+                                  <td className="border px-4 py-2 text-center">
+                                    <Input
+                                      type="date"
+                                      value={
+                                        member.startServiceDate
+                                          ? member.startServiceDate.split(
+                                              "T"
+                                            )[0]
+                                          : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleAssignedDateChange(
+                                          member.teamMemberId,
+                                          "startServiceDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </td>
+                                  <td className="border px-4 py-2 text-center">
+                                    <Input
+                                      type="date"
+                                      value={
+                                        member.endServiceDate
+                                          ? member.endServiceDate.split("T")[0]
+                                          : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleAssignedDateChange(
+                                          member.teamMemberId,
+                                          "endServiceDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </td>
+                                </>
+                              ) : (
+                                <>
+                                  <td className="border px-4 py-2 text-center">
+                                    {member.startServiceDate
+                                      ? new Date(
+                                          member.startServiceDate
+                                        ).toLocaleDateString()
+                                      : "N/A"}
+                                  </td>
+                                  <td className="border px-4 py-2 text-center">
+                                    {member.endServiceDate
+                                      ? new Date(
+                                          member.endServiceDate
+                                        ).toLocaleDateString()
+                                      : "N/A"}
+                                  </td>
+                                </>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
               {/* Editing Mode */}
               {isEditing && (
                 <div>
                   <h3 className="text-xl font-semibold mb-4">
                     Assign New Team Member
                   </h3>
-                  {/* Search Inputs */}
-                  <div className="flex items-center mb-4">
-                    <Input
-                      placeholder="Search by name"
-                      value={searchName}
-                      onChange={(e) => {
-                        setSearchName(e.target.value);
-                        handleSearch(e.target.value, searchRole);
-                      }}
-                      className="mr-2"
-                    />
-                    <Input
-                      placeholder="Search by role"
-                      value={searchRole}
-                      onChange={(e) => {
-                        setSearchRole(e.target.value);
-                        handleSearch(searchName, e.target.value);
-                      }}
-                      className="mr-2"
-                    />
-                  </div>
+                  <Tabs defaultValue="assigned" className="mb-6">
+                    <TabsList>
+                      <TabsTrigger value="assigned">Assigned Staff</TabsTrigger>
+                      <TabsTrigger value="outsideProvider">
+                        Add Outside Provider
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="assigned">
+                      {/* Search Inputs */}
+                      <div className="flex items-center mb-4">
+                        <Input
+                          placeholder="Search by name"
+                          value={searchName}
+                          onChange={(e) => {
+                            setSearchName(e.target.value);
+                            handleSearch(e.target.value, searchRole);
+                          }}
+                          className="mr-2"
+                        />
+                        <Input
+                          placeholder="Search by role"
+                          value={searchRole}
+                          onChange={(e) => {
+                            setSearchRole(e.target.value);
+                            handleSearch(searchName, e.target.value);
+                          }}
+                          className="mr-2"
+                        />
+                      </div>
 
-                  {/* Search Results */}
-                  {searchResults.length > 0 && (
-                    <div className="mb-4">
-                      <h3 className="text-xl font-semibold">Search Results</h3>
-                      <table className="w-full table-auto">
-                        <thead>
-                          <tr>
-                            <th className="px-4 py-2 text-left">Name</th>
-                            <th className="px-4 py-2 text-left">Role</th>
-                            <th className="px-4 py-2 text-center">
-                              Action
-                            </th>{" "}
-                            {/* Center align header */}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {searchResults.map((user) => (
-                            <tr key={user.userId}>
-                              <td className="border px-4 py-2">
-                                {`${user.firstName} ${user.lastName}`}
-                              </td>
-                              <td className="border px-4 py-2">{user.role}</td>
-                              <td className="border px-4 py-2 text-center">
-                                {" "}
-                                {/* Center align cell */}
-                                <Button onClick={() => handleSelectUser(user)}>
-                                  Select
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                      {/* Search Results */}
+                      {searchResults.length > 0 && (
+                        <div className="mb-4">
+                          <h3 className="text-xl font-semibold">
+                            Search Results
+                          </h3>
+                          <table className="w-full table-auto">
+                            <thead>
+                              <tr>
+                                <th className="px-4 py-2 text-left">Name</th>
+                                <th className="px-4 py-2 text-left">Role</th>
+                                <th className="px-4 py-2 text-center">
+                                  Action
+                                </th>{" "}
+                                {/* Center align header */}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {searchResults.map((user) => (
+                                <tr key={user.userId}>
+                                  <td className="border px-4 py-2">
+                                    {`${user.firstName} ${user.lastName}`}
+                                  </td>
+                                  <td className="border px-4 py-2">
+                                    {user.role}
+                                  </td>
+                                  <td className="border px-4 py-2 text-center">
+                                    {" "}
+                                    {/* Center align cell */}
+                                    <Button
+                                      onClick={() => handleSelectUser(user)}
+                                    >
+                                      Select
+                                    </Button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
 
-                  {/* Selected Team Members */}
-                  {selectedUsers.length > 0 && (
-                    <div className="mb-4">
-                      <h3 className="text-xl font-semibold">
-                        Selected Team Members
-                      </h3>
-                      <table className="w-full table-auto">
-                        <thead>
-                          <tr>
-                            <th className="px-4 py-2 text-left">Name</th>
-                            <th className="px-4 py-2 text-left">Role</th>
-                            <th className="px-4 py-2 text-left">
+                      {/* Selected Team Members */}
+                      {selectedUsers.length > 0 && (
+                        <div className="mb-4">
+                          <h3 className="text-xl font-semibold">
+                            Selected Team Members
+                          </h3>
+                          <table className="w-full table-auto">
+                            <thead>
+                              <tr>
+                                <th className="px-4 py-2 text-left">Name</th>
+                                <th className="px-4 py-2 text-left">Role</th>
+                                <th className="px-4 py-2 text-left">
+                                  Service Start Date
+                                </th>
+                                <th className="px-4 py-2 text-left">
+                                  Service End Date
+                                </th>
+                                <th className="px-4 py-2 text-center">
+                                  Action
+                                </th>{" "}
+                                {/* Center align header */}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {selectedUsers.map((user, index) => (
+                                <tr key={user.userId}>
+                                  <td className="border px-4 py-2">
+                                    {`${user.firstName} ${user.lastName}`}
+                                  </td>
+                                  <td className="border px-4 py-2">
+                                    {user.role}
+                                  </td>
+                                  <td className="border px-4 py-2">
+                                    <Input
+                                      type="date"
+                                      value={user.startServiceDate}
+                                      onChange={(e) =>
+                                        handleDateChange(
+                                          index,
+                                          "startServiceDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </td>
+                                  <td className="border px-4 py-2">
+                                    <Input
+                                      type="date"
+                                      value={user.endServiceDate}
+                                      onChange={(e) =>
+                                        handleDateChange(
+                                          index,
+                                          "endServiceDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </td>
+                                  <td className="border px-4 py-2 text-center">
+                                    {" "}
+                                    {/* Center align cell */}
+                                    <Button
+                                      onClick={() =>
+                                        handleRemoveSelectedUser(index)
+                                      }
+                                      variant="destructive"
+                                    >
+                                      Remove
+                                    </Button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </TabsContent>
+                    <TabsContent value="outsideProvider">
+                      <div className="mb-4">
+                        {/* <h3 className="text-xl font-semibold">
+                          Add Outside Provider
+                        </h3> */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-muted-foreground">
+                              First Name
+                            </Label>
+                            <Input
+                              name="firstName"
+                              value={newOutsideProvider.firstName}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">
+                              Last Name
+                            </Label>
+                            <Input
+                              name="lastName"
+                              value={newOutsideProvider.lastName}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">
+                              Email
+                            </Label>
+                            <Input
+                              name="email"
+                              value={newOutsideProvider.email}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">
+                              Phone Number
+                            </Label>
+                            <Input
+                              name="phoneNumber"
+                              value={newOutsideProvider.phoneNumber}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">
+                              Agency
+                            </Label>
+                            <Input
+                              name="agency"
+                              value={newOutsideProvider.agency}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">
                               Service Start Date
-                            </th>
-                            <th className="px-4 py-2 text-left">
+                            </Label>
+                            <Input
+                              type="date"
+                              name="startServiceDate"
+                              value={newOutsideProvider.startServiceDate}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">
                               Service End Date
-                            </th>
-                            <th className="px-4 py-2 text-center">Action</th>{" "}
-                            {/* Center align header */}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedUsers.map((user, index) => (
-                            <tr key={user.userId}>
-                              <td className="border px-4 py-2">
-                                {`${user.firstName} ${user.lastName}`}
-                              </td>
-                              <td className="border px-4 py-2">{user.role}</td>
-                              <td className="border px-4 py-2">
-                                <Input
-                                  type="date"
-                                  value={user.startServiceDate}
-                                  onChange={(e) =>
-                                    handleDateChange(
-                                      index,
-                                      "startServiceDate",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </td>
-                              <td className="border px-4 py-2">
-                                <Input
-                                  type="date"
-                                  value={user.endServiceDate}
-                                  onChange={(e) =>
-                                    handleDateChange(
-                                      index,
-                                      "endServiceDate",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </td>
-                              <td className="border px-4 py-2 text-center">
-                                {" "}
-                                {/* Center align cell */}
-                                <Button
-                                  onClick={() =>
-                                    handleRemoveSelectedUser(index)
-                                  }
-                                  variant="destructive"
-                                >
-                                  Remove
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                            </Label>
+                            <Input
+                              type="date"
+                              name="endServiceDate"
+                              value={newOutsideProvider.endServiceDate}
+                              onChange={handleNewOutsideProviderChange}
+                            />
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleAddOutsideProvider}
+                          className="mt-4"
+                        >
+                          Add Outside Provider
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               )}
             </div>
           </TabsContent>
+           
           <TabsContent value="contract">
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-4">Contract</h2>
@@ -2029,3 +2255,5 @@ function ArrowLeftIcon(props) {
     </svg>
   );
 }
+
+
