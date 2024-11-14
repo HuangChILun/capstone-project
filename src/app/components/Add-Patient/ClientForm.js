@@ -23,7 +23,10 @@ export default function ClientForm({
           firstName: waitlistClientData.firstName || "",
           lastName: waitlistClientData.lastName || "",
           gender: waitlistClientData.gender || "",
-          birthDate: new Date(waitlistClientData.birthDate).toISOString().split("T")[0] || null,
+          birthDate:
+            new Date(waitlistClientData.birthDate)
+              .toISOString()
+              .split("T")[0] || null,
           address: waitlistClientData.address || "",
           city: waitlistClientData.city || "Calgary",
           province: waitlistClientData.province || "AB",
@@ -186,8 +189,14 @@ export default function ClientForm({
       alert("Please check all fields before submitting.");
       return;
     }
-    console.log("Form Submitted:", clientData);
-    onSubmit(clientData, diagnosisData);
+    // Convert new lines to \n just before submission
+    const preparedData = {
+      ...clientData
+      //,      psNote: clientData.psNote.replace(/\n/g, "\\n"),
+    };
+
+    console.log("Form Submitted:", preparedData);
+    onSubmit(preparedData, diagnosisData);
   };
   return (
     <form onSubmit={handleSubmit}>

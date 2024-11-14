@@ -407,7 +407,7 @@ export default function ConvertWaitlist() {
   const handleDeleteWaitlist = async (waitlistClientId) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/getWaitlistClient/${waitlistClientId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/deleteWaitlistClient/${waitlistClientId}`,
         {
           method: "DELETE",
           headers: {
@@ -429,7 +429,6 @@ export default function ConvertWaitlist() {
     }
   };
 
-  //deleteWaitlistClient/:id
 
   // Handle final form submission
   const handleFinalSubmit = async () => {
