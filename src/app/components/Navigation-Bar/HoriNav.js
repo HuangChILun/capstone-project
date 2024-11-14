@@ -76,11 +76,11 @@ export default function HoriNav({ user }) {
                 label="Invoice"
                 page="../invoice-management/View-Invoice"
               />
-              <NavItem
+              {/* <NavItem
                 icon={<ScheduleIcon />}
                 label="Schedule"
                 page="../Test/"
-              />
+              /> */}
             </div>
           )}
         </div>
@@ -104,7 +104,7 @@ export default function HoriNav({ user }) {
             label="Invoice"
             page="../invoice-management/View-Invoice"
           />
-          <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Test/" />
+          {/* <NavItem icon={<ScheduleIcon />} label="Schedule" page="../Test/" /> */}
         </div>
       )}
 
