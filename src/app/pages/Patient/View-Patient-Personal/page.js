@@ -11,6 +11,14 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/app/components/HomeUi/tabs";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/app/components/HomeUi/table";
 import { Label } from "@/app/components/HomeUi/label";
 import { Input } from "@/app/components/HomeUi/input";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -114,7 +122,7 @@ export default function ViewPatientPersonal() {
     } catch (error) {
       console.error("Error fetching assigned team members:", error);
     }
-  };  
+  };
 
   // assign new team members
   const assignNewTeamMembers = async () => {
@@ -336,9 +344,9 @@ export default function ViewPatientPersonal() {
           }`
         );
       }
-  
+
       const outsideProviderData = await response.json();
-  
+
       // Assign the outside provider to the client
       const assignResponse = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_IP}/team-member/assign`,
@@ -356,7 +364,7 @@ export default function ViewPatientPersonal() {
           }),
         }
       );
-  
+
       if (!assignResponse.ok) {
         const errorData = await assignResponse.json();
         console.error("Error assigning outside provider:", errorData);
@@ -366,21 +374,21 @@ export default function ViewPatientPersonal() {
           }`
         );
       }
-  
+
       // Refresh the assigned team members list
       await fetchAssignedTeamMembers();
-  
+
       // Clear the form
       setNewOutsideProvider({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: '',
-        agency: '',
-        startServiceDate: '',
-        endServiceDate: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        agency: "",
+        startServiceDate: "",
+        endServiceDate: "",
       });
-  
+
       alert("Outside provider added and assigned successfully!");
     } catch (error) {
       console.error("Error adding outside provider:", error);
@@ -388,8 +396,7 @@ export default function ViewPatientPersonal() {
     }
   };
 
-    // the function for future use end
-
+  // the function for future use end
 
   // fetch client and guardian by this effect
   useEffect(() => {
@@ -1616,29 +1623,26 @@ export default function ViewPatientPersonal() {
                       {/* <h3 className="text-xl font-semibold">
                         Currently Working with This Client
                       </h3> */}
-                      <table className="w-full table-fixed">
-                        <thead>
-                          <tr>
-                            <th className="px-4 py-2 text-center w-1/3">
-                              Team Member
-                            </th>
-                            <th className="px-4 py-2 text-center w-1/3">
-                              Service Start Date
-                            </th>
-                            <th className="px-4 py-2 text-center w-1/3">
-                              Service End Date
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
+
+                      <Table style={styles.table}>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Team Member</TableHead>
+                            <TableHead>Service Start Date</TableHead>
+                            <TableHead>Service End Date</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {currentTeamMembers.map((member) => (
-                            <tr key={member.teamMemberId}>
-                              <td className="border px-4 py-2 text-center">
+                            <TableRow key={member.teamMemberId}>
+                              {/* Display team member's name and role */}
+                              <TableCell>
                                 {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                              </td>
+                              </TableCell>
                               {isEditing ? (
                                 <>
-                                  <td className="border px-4 py-2 text-center">
+                                  {/* Editable start service date */}
+                                  <TableCell>
                                     <Input
                                       type="date"
                                       value={
@@ -1656,8 +1660,9 @@ export default function ViewPatientPersonal() {
                                         )
                                       }
                                     />
-                                  </td>
-                                  <td className="border px-4 py-2 text-center">
+                                  </TableCell>
+                                  {/* Editable end service date */}
+                                  <TableCell>
                                     <Input
                                       type="date"
                                       value={
@@ -1673,30 +1678,32 @@ export default function ViewPatientPersonal() {
                                         )
                                       }
                                     />
-                                  </td>
+                                  </TableCell>
                                 </>
                               ) : (
                                 <>
-                                  <td className="border px-4 py-2 text-center">
+                                  {/* Display start service date */}
+                                  <TableCell>
                                     {member.startServiceDate
                                       ? new Date(
                                           member.startServiceDate
                                         ).toLocaleDateString()
                                       : "N/A"}
-                                  </td>
-                                  <td className="border px-4 py-2 text-center">
+                                  </TableCell>
+                                  {/* Display end service date */}
+                                  <TableCell>
                                     {member.endServiceDate
                                       ? new Date(
                                           member.endServiceDate
                                         ).toLocaleDateString()
                                       : "N/A"}
-                                  </td>
+                                  </TableCell>
                                 </>
                               )}
-                            </tr>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </TabsContent>
@@ -1707,29 +1714,25 @@ export default function ViewPatientPersonal() {
                       {/* <h3 className="text-xl font-semibold">
                         Past Working with This Client
                       </h3> */}
-                      <table className="w-full table-fixed">
-                        <thead>
-                          <tr>
-                            <th className="px-4 py-2 text-center w-1/3">
-                              Team Member
-                            </th>
-                            <th className="px-4 py-2 text-center w-1/3">
-                              Service Start Date
-                            </th>
-                            <th className="px-4 py-2 text-center w-1/3">
-                              Service End Date
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                      <Table style={styles.table}>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Team Member</TableHead>
+                            <TableHead>Service Start Date</TableHead>
+                            <TableHead>Service End Date</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {pastTeamMembers.map((member) => (
-                            <tr key={member.teamMemberId}>
-                              <td className="border px-4 py-2 text-center">
+                            <TableRow key={member.teamMemberId}>
+                              {/* Display team member's name and role */}
+                              <TableCell>
                                 {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                              </td>
+                              </TableCell>
                               {isEditing ? (
                                 <>
-                                  <td className="border px-4 py-2 text-center">
+                                  {/* Editable start service date */}
+                                  <TableCell>
                                     <Input
                                       type="date"
                                       value={
@@ -1747,8 +1750,9 @@ export default function ViewPatientPersonal() {
                                         )
                                       }
                                     />
-                                  </td>
-                                  <td className="border px-4 py-2 text-center">
+                                  </TableCell>
+                                  {/* Editable end service date */}
+                                  <TableCell>
                                     <Input
                                       type="date"
                                       value={
@@ -1764,30 +1768,32 @@ export default function ViewPatientPersonal() {
                                         )
                                       }
                                     />
-                                  </td>
+                                  </TableCell>
                                 </>
                               ) : (
                                 <>
-                                  <td className="border px-4 py-2 text-center">
+                                  {/* Display start service date */}
+                                  <TableCell>
                                     {member.startServiceDate
                                       ? new Date(
                                           member.startServiceDate
                                         ).toLocaleDateString()
                                       : "N/A"}
-                                  </td>
-                                  <td className="border px-4 py-2 text-center">
+                                  </TableCell>
+                                  {/* Display end service date */}
+                                  <TableCell>
                                     {member.endServiceDate
                                       ? new Date(
                                           member.endServiceDate
                                         ).toLocaleDateString()
                                       : "N/A"}
-                                  </td>
+                                  </TableCell>
                                 </>
                               )}
-                            </tr>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </TabsContent>
@@ -1831,42 +1837,36 @@ export default function ViewPatientPersonal() {
                       {/* Search Results */}
                       {searchResults.length > 0 && (
                         <div className="mb-4">
-                          <h3 className="text-xl font-semibold">
+                          {/* <h3 className="text-xl font-semibold">
                             Search Results
-                          </h3>
-                          <table className="w-full table-auto">
-                            <thead>
-                              <tr>
-                                <th className="px-4 py-2 text-left">Name</th>
-                                <th className="px-4 py-2 text-left">Role</th>
-                                <th className="px-4 py-2 text-center">
-                                  Action
-                                </th>{" "}
-                                {/* Center align header */}
-                              </tr>
-                            </thead>
-                            <tbody>
+                          </h3> */}
+                          <Table style={styles.table}>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Action</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
                               {searchResults.map((user) => (
-                                <tr key={user.userId}>
-                                  <td className="border px-4 py-2">
-                                    {`${user.firstName} ${user.lastName}`}
-                                  </td>
-                                  <td className="border px-4 py-2">
-                                    {user.role}
-                                  </td>
-                                  <td className="border px-4 py-2 text-center">
-                                    {" "}
-                                    {/* Center align cell */}
+                                <TableRow key={user.userId}>
+                                  {/* Display user's full name */}
+                                  <TableCell>{`${user.firstName} ${user.lastName}`}</TableCell>
+                                  {/* Display user's role */}
+                                  <TableCell>{user.role}</TableCell>
+                                  {/* Action button to select user */}
+                                  <TableCell>
                                     <Button
                                       onClick={() => handleSelectUser(user)}
                                     >
                                       Select
                                     </Button>
-                                  </td>
-                                </tr>
+                                  </TableCell>
+                                </TableRow>
                               ))}
-                            </tbody>
-                          </table>
+                            </TableBody>
+                          </Table>
                         </div>
                       )}
 
@@ -1876,33 +1876,25 @@ export default function ViewPatientPersonal() {
                           <h3 className="text-xl font-semibold">
                             Selected Team Members
                           </h3>
-                          <table className="w-full table-auto">
-                            <thead>
-                              <tr>
-                                <th className="px-4 py-2 text-left">Name</th>
-                                <th className="px-4 py-2 text-left">Role</th>
-                                <th className="px-4 py-2 text-left">
-                                  Service Start Date
-                                </th>
-                                <th className="px-4 py-2 text-left">
-                                  Service End Date
-                                </th>
-                                <th className="px-4 py-2 text-center">
-                                  Action
-                                </th>{" "}
-                                {/* Center align header */}
-                              </tr>
-                            </thead>
-                            <tbody>
+                          <Table style={styles.table}>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Service Start Date</TableHead>
+                                <TableHead>Service End Date</TableHead>
+                                <TableHead>Action</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
                               {selectedUsers.map((user, index) => (
-                                <tr key={user.userId}>
-                                  <td className="border px-4 py-2">
-                                    {`${user.firstName} ${user.lastName}`}
-                                  </td>
-                                  <td className="border px-4 py-2">
-                                    {user.role}
-                                  </td>
-                                  <td className="border px-4 py-2">
+                                <TableRow key={user.userId}>
+                                  {/* Display user's full name */}
+                                  <TableCell>{`${user.firstName} ${user.lastName}`}</TableCell>
+                                  {/* Display user's role */}
+                                  <TableCell>{user.role}</TableCell>
+                                  {/* Editable start service date */}
+                                  <TableCell>
                                     <Input
                                       type="date"
                                       value={user.startServiceDate}
@@ -1914,8 +1906,9 @@ export default function ViewPatientPersonal() {
                                         )
                                       }
                                     />
-                                  </td>
-                                  <td className="border px-4 py-2">
+                                  </TableCell>
+                                  {/* Editable end service date */}
+                                  <TableCell>
                                     <Input
                                       type="date"
                                       value={user.endServiceDate}
@@ -1927,10 +1920,9 @@ export default function ViewPatientPersonal() {
                                         )
                                       }
                                     />
-                                  </td>
-                                  <td className="border px-4 py-2 text-center">
-                                    {" "}
-                                    {/* Center align cell */}
+                                  </TableCell>
+                                  {/* Action button to remove user */}
+                                  <TableCell>
                                     <Button
                                       onClick={() =>
                                         handleRemoveSelectedUser(index)
@@ -1939,11 +1931,11 @@ export default function ViewPatientPersonal() {
                                     >
                                       Remove
                                     </Button>
-                                  </td>
-                                </tr>
+                                  </TableCell>
+                                </TableRow>
                               ))}
-                            </tbody>
-                          </table>
+                            </TableBody>
+                          </Table>
                         </div>
                       )}
                     </TabsContent>
@@ -2039,7 +2031,7 @@ export default function ViewPatientPersonal() {
               )}
             </div>
           </TabsContent>
-           
+
           <TabsContent value="contract">
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-4">Contract</h2>
@@ -2256,4 +2248,13 @@ function ArrowLeftIcon(props) {
   );
 }
 
-
+const styles = {
+  table: {
+    width: "100%",
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    border: "1px solid #ccc", 
+  },
+};

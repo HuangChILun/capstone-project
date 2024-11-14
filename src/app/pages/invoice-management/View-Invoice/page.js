@@ -1,105 +1,175 @@
-"use client"
-import { useEffect } from 'react';
+"use client";
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import axios from 'axios';
+import Link from 'next/link';
 
-import Link from "next/link"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs";
 import { Input } from '@/app/components/HomeUi/input';
 import { Button } from '@/app/components/HomeUi/button';
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
-import Nav from '@/app/components/Navigation-Bar/NavBar';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table";
 import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
-export default function ViewInvoice() {
+export default function StaffInvoicesPage() {
   const router = useRouter();
-  const user = JSON.parse(localStorage.getItem("user"));
-  
+  const [staffList, setStaffList] = useState([]);
+  const [markedStaff, setMarkedStaff] = useState([]);
+  const [unmarkedStaff, setUnmarkedStaff] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const user = JSON.parse(localStorage.getItem('user'));
+
   useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
       router.push('/');
+    } else {
+      fetchStaffAndInvoices(token);
     }
   }, [router]);
 
-  const handleAddInvoice = () => {
-    router.push('/pages/invoice-management/Add-Invoice'); 
+  const fetchStaffAndInvoices = async (token) => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch all staff
+      const staffResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users`,
+        { headers }
+      );
+
+      // Fetch all invoices
+      const invoicesResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice`,
+        { headers }
+      );
+
+      const staffData = staffResponse.data;
+      const invoicesData = invoicesResponse.data;
+
+      // Categorize staff based on invoice isGiven status
+      const marked = [];
+      const unmarked = [];
+
+      staffData.forEach((staff) => {
+        const staffInvoices = invoicesData.filter(
+          (invoice) => invoice.userId === staff.userId
+        );
+
+        if (staffInvoices.length === 0) {
+          // If staff has no invoices, decide where to place them. Here, we add them to 'Unmarked'.
+          unmarked.push(staff);
+        } else {
+          const allInvoicesGiven = staffInvoices.every(
+            (invoice) => invoice.isGiven === 1 || invoice.isGiven === true
+          );
+
+          if (allInvoicesGiven) {
+            // All invoices have isGiven === true
+            marked.push(staff);
+          } else {
+            // Has at least one invoice with isGiven === false
+            unmarked.push(staff);
+          }
+        }
+      });
+
+      setStaffList(staffData);
+      setMarkedStaff(marked);
+      setUnmarkedStaff(unmarked);
+    } catch (error) {
+      console.error('Error fetching staff and invoices:', error);
+    }
   };
+
+  const handleAddInvoice = () => {
+    router.push('/pages/invoice-management/Add-Invoice');
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredMarkedStaff = markedStaff.filter(
+    (staff) =>
+      staff.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      staff.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredUnmarkedStaff = unmarkedStaff.filter(
+    (staff) =>
+      staff.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      staff.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderStaffTable = (staffArray) => {
+    return (
+      <Table style={styles.table}>
+        <TableHeader>
+          <TableRow>
+            <TableHead>First Name</TableHead>
+            <TableHead>Last Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {staffArray.map((staff) => (
+            <TableRow key={staff.userId}>
+              <TableCell>{staff.firstName}</TableCell>
+              <TableCell>{staff.lastName}</TableCell>
+              <TableCell>{staff.email}</TableCell>
+              <TableCell>{staff.role}</TableCell>
+              <TableCell>
+                <Link href={`./View-Invoice-Personal?userId=${staff.userId}`}>
+                  <Button style={styles.viewButton}>View Invoices</Button>
+                </Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
+
   return (
     <div style={styles.pageContainer}>
       <HoriNav user={user} />
       <main style={styles.mainContent}>
         <header style={styles.header}>
           <div style={styles.searchContainer}>
-            <Input type="text" placeholder="input Patient name..." style={styles.searchInput} />
-            <Button style={styles.searchButton}>
-              <SearchIcon style={styles.iconSmall} />
-              Search
-            </Button>
+            <Input
+              type="text"
+              placeholder="Search staff..."
+              value={searchTerm}
+              onChange={handleSearch}
+              style={styles.searchInput}
+            />
           </div>
           <div style={styles.rightHeaderSection}>
-            <Button style={styles.searchButton} onClick={handleAddInvoice}>Add New Invoice</Button>
+            <Button style={styles.searchButton} onClick={handleAddInvoice}>
+              Add New Invoice
+            </Button>
           </div>
         </header>
         <section style={styles.tableSection}>
-          <Table style={styles.table}>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice Number</TableHead>
-                <TableHead>Patient Name</TableHead>
-                <TableHead>Service Provider Name</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>061524001</TableCell>
-                <TableCell>Albert Christoff</TableCell>
-                <TableCell>Kevin Huang</TableCell>
-                <TableCell>OT</TableCell>
-                <TableCell>
-                  <Link href="./View-Invoice-Personal">
-                    <Button style={styles.viewButton}>View</Button>
-                  </Link>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>123456789</TableCell>
-                <TableCell>Albert Christoff</TableCell>
-                <TableCell>Bella Jones</TableCell>
-                <TableCell>Aide</TableCell>
-                <TableCell>
-                  <Link href="./View-Invoice-Personal">
-                    <Button style={styles.viewButton}>View</Button>
-                  </Link>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <Tabs defaultValue="unmarked" style={styles.tabs}>
+            <TabsList>
+              <TabsTrigger value="unmarked">Unmarked</TabsTrigger>
+              <TabsTrigger value="marked">Marked</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="unmarked">
+              {renderStaffTable(filteredUnmarkedStaff)}
+            </TabsContent>
+            <TabsContent value="marked">
+              {renderStaffTable(filteredMarkedStaff)}
+            </TabsContent>
+          </Tabs>
         </section>
       </main>
     </div>
-  );
-}
-
-function SearchIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
   );
 }
 
@@ -139,11 +209,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
-  },
-  iconSmall: {
-    width: "16px",
-    height: "16px",
-    marginRight: "8px",
   },
   tableSection: {
     marginTop: "24px",
