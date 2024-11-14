@@ -553,7 +553,7 @@ export default function WaitlistForm({ onSubmit }) {
                 id="dateContact"
                 type="date"
                 className="w-full"
-                value={formData.dateContacted}
+                value={formData.dateContact}
                 onChange={handleChange}
               />
             </div>
@@ -575,7 +575,7 @@ export default function WaitlistForm({ onSubmit }) {
                 id="dateServiceOffered"
                 type="date"
                 className="w-full"
-                value={formData.dateServicesOffered}
+                value={formData.dateServiceOffered}
                 onChange={handleChange}
               />
             </div>

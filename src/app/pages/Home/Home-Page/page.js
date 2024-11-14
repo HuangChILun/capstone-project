@@ -49,6 +49,7 @@ export default function Homepage() {
           const data = await response.json();
           const allPatients = [...data];
           let active = 0;
+          let waitlist = 0;
 
           for (const patient of allPatients) {
             if (patient.currentStatus === 1) {
