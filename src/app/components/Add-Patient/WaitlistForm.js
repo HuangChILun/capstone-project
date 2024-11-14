@@ -147,7 +147,7 @@ export default function WaitlistForm({ onSubmit }) {
   const secondStepRequiredFieldsFilled = () => {
     const requiredFieldsStep2 = [
       "serviceType",
-      "fundingSource",
+      "fundingSources",
       "datePlaced",
       // add other fields required in step 2 here
     ];
@@ -616,13 +616,13 @@ export default function WaitlistForm({ onSubmit }) {
 
             {/* Fourth row: Funding Source, Fees Discussed, Referral From, Follow Up */}
             <div style={styles.fieldContainer}>
-              <Label htmlFor="fundingSource">Funding Source*</Label>
+              <Label htmlFor="fundingSources">Funding Source*</Label>
               <Select
                 onValueChange={(value) =>
-                  handleSelectChange("fundingSource", value)
+                  handleSelectChange("fundingSources", value)
                 }
               >
-                <SelectTrigger id="fundingSource" className="w-full">
+                <SelectTrigger id="fundingSources" className="w-full">
                   <SelectValue placeholder="Select Funding Source" />
                 </SelectTrigger>
                 <SelectContent>
