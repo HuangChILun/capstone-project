@@ -90,7 +90,7 @@ export default function StaffInvoicesPage() {
   };
 
   const handleAddInvoice = () => {
-    router.push('/pages/invoice-management/Add-Invoice');
+    router.push('/invoice-management/Add-Invoice');
   };
 
   const handleSearch = (e) => {

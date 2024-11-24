@@ -2,8 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -32,6 +31,14 @@ function formatInputDate(dateStr) {
 }
 
 export default function ViewStaffPersonal() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ViewStaffPersonalContent />
+    </Suspense>
+  );
+}
+
+function ViewStaffPersonalContent() {
   const [staffData, setStaffData] = useState(null);
   const [editedStaffData, setEditedStaffData] = useState(null); // For editing
   const [assignedClients, setAssignedClients] = useState([]); // Updated

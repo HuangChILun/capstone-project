@@ -2,8 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -26,8 +25,15 @@ import {
   TableCell,
 } from "@/app/components/HomeUi/table";
 
-
 export default function ViewStaffInvoices() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ViewStaffInvoicesContent />
+    </Suspense>
+  );
+}
+
+function ViewStaffInvoicesContent() {
   const [staffData, setStaffData] = useState(null);
   const [unmarkedInvoices, setUnmarkedInvoices] = useState([]);
   const [markedInvoices, setMarkedInvoices] = useState([]);
