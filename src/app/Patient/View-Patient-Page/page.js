@@ -148,7 +148,7 @@ export default function ViewPatient() {
   );
 
   const handleAddPatient = () => {
-    router.push("/pages/Patient/Add-New-Patient");
+    router.push("/Patient/Add-New-Patient");
   };
 
   if (!user || !token || isLoading) return <div>Loading...</div>;

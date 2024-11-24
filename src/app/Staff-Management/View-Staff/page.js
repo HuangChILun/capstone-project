@@ -84,7 +84,7 @@ export default function ViewStaff() {
   // };
   // const isAdmin = access();
   const handleAddStaff = () => {
-    router.push("/pages/Staff-Management/Add-New-Staff");
+    router.push("/Staff-Management/Add-New-Staff");
   };
 
   return (

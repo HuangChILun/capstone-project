@@ -46,7 +46,7 @@ export default function Login() {
           isAdmin: data.user.isAdmin
         }));
         console.log("Login Success");
-        router.push("/pages/Home/Home-Page");
+        router.push("Home/Home-Page");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Login failed");
@@ -109,7 +109,7 @@ export default function Login() {
             </div>
             <div className="mb-6 text-right">
               <Link
-                href="/pages/Login/ForgotPassword"
+                href="/Login/ForgotPassword"
                 className="text-sm text-[#0000FF] hover:underline"
               >
                 Forgot your password?
