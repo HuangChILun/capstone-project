@@ -24,6 +24,8 @@ import {
   TableCell,
 } from "@/app/components/HomeUi/table";
 
+export const dynamic = 'force-dynamic';
+
 export default function ViewStaffInvoices() {
   const [staffData, setStaffData] = useState(null);
   const [unmarkedInvoices, setUnmarkedInvoices] = useState([]);

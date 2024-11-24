@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [captchaCode, setCaptchaCode] = useState("");

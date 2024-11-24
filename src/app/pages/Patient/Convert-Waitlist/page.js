@@ -8,6 +8,8 @@ import OtherForm from "@/app/components/Add-Patient/OtherForm";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { useSearchParams } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 export default function ConvertWaitlist() {
   // State variables
   const [step, setStep] = useState(1);

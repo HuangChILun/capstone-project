@@ -6,7 +6,7 @@ import { Tabs, TabsContent } from "@/app/components/HomeUi/tabs"
 import StaffRegistrationForm from '@/app/components/Add-Staff/StaffRegistrationForm';
 import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
-
+export const dynamic = 'force-dynamic';
 
 export default function AddStaff() {
   const router = useRouter();

@@ -15,6 +15,8 @@ import WaitlistForm from "@/app/components/Add-Patient/WaitlistForm";
 import ClientForm from "@/app/components/Add-Patient/ClientForm";
 import OtherForm from "@/app/components/Add-Patient/OtherForm";
 
+export const dynamic = 'force-dynamic';
+
 export default function AddNewPatient() {
   const [clientForm, setClientForm] = useState(null);
   const [diagnosisForm, setDiagnosisForm] = useState(null);

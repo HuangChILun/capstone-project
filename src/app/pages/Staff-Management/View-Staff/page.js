@@ -9,6 +9,8 @@ import { Button } from "@/app/components/HomeUi/button"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/app/components/HomeUi/table"
 import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
+export const dynamic = 'force-dynamic';
+
 export default function ViewStaff() {
   const [staff, setStaff] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");

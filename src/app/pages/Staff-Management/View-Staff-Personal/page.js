@@ -1,4 +1,6 @@
 "use client";
+
+
 import React from 'react';
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,6 +17,7 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { Input } from "@/app/components/HomeUi/input";
 import { Label } from "@/app/components/HomeUi/label";
 
+
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "N/A";
   const date = new Date(dateStr);
@@ -26,6 +29,9 @@ function formatInputDate(dateStr) {
   if (!dateStr) return "";
   return dateStr.split("T")[0]; // Extracts the date part from ISO string
 }
+
+export const dynamic = 'force-dynamic';
+
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);
   const [editedStaffData, setEditedStaffData] = useState(null); // For editing

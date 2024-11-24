@@ -6,6 +6,7 @@ import { Button } from "@/app/components/HomeUi/button";
 import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
+export const dynamic = 'force-dynamic';
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);

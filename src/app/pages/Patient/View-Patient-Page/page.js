@@ -23,6 +23,8 @@ import {
 } from "@/app/components/HomeUi/tabs";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
+export const dynamic = 'force-dynamic';
+
 export default function ViewPatient() {
   const [patients, setPatients] = useState([]);
   const [waitlistClients, setWaitlistClients] = useState([]);

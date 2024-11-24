@@ -7,6 +7,8 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 export default function PasswordChange() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

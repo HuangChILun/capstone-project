@@ -6,6 +6,9 @@ import { Button } from "@/app/components/HomeUi/button";
 import { Input } from "@/app/components/HomeUi/input";
 import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
+
+export const dynamic = 'force-dynamic';
+
 export default function Edit() {
   const [formData, setFormData] = useState({
     //firstName: "",

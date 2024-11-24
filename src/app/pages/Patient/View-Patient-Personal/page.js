@@ -47,6 +47,9 @@ function formatDisplayDate(dateStr) {
   const [year, month, day] = dateStr.split("T")[0].split("-");
   return `${month}/${day}/${year}`;
 }
+
+export const dynamic = 'force-dynamic';
+
 export default function ViewPatientPersonal() {
   const router = useRouter();
   const searchParams = useSearchParams();

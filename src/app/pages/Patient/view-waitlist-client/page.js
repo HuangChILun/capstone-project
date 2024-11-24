@@ -17,6 +17,8 @@ import { Input } from "@/app/components/HomeUi/input";
 import { Label } from "@/app/components/HomeUi/label";
 import { Badge } from "@/app/components/HomeUi/badge";
 
+export const dynamic = 'force-dynamic';
+
 export default function ViewWaitList() {
   const [clientData, setClientData] = useState(null);
   const [editedClientData, setEditedClientData] = useState(null); // For editing
