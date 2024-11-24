@@ -1,9 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { Badge } from "@/app/components/HomeUi/badge";
@@ -50,7 +47,18 @@ function formatDisplayDate(dateStr) {
   const [year, month, day] = dateStr.split("T")[0].split("-");
   return `${month}/${day}/${year}`;
 }
+
 export default function ViewPatientPersonal() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ViewPatientPersonalContent />
+      </Suspense>
+    </div>
+  );
+}
+
+function ViewPatientPersonalContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clientId = searchParams.get("clientId");
