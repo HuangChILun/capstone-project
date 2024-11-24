@@ -2,8 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -20,6 +19,14 @@ import { Label } from "@/app/components/HomeUi/label";
 import { Badge } from "@/app/components/HomeUi/badge";
 
 export default function ViewWaitList() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ViewWaitListContent />
+    </Suspense>
+  );
+}
+
+function ViewWaitListContent() {
   const [clientData, setClientData] = useState(null);
   const [editedClientData, setEditedClientData] = useState(null); // For editing
   const [isLoading, setIsLoading] = useState(true);

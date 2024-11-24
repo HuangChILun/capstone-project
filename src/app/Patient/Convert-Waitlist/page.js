@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Cookies from "js-cookie";
 import ClientForm from "@/app/components/Add-Patient/ClientForm";
 import GuardianForm from "@/app/components/Add-Patient/GuardianForm";
@@ -10,9 +10,15 @@ import OtherForm from "@/app/components/Add-Patient/OtherForm";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { useSearchParams } from "next/navigation";
 
-
-
 export default function ConvertWaitlist() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ConvertWaitlistContent />
+    </Suspense>
+  );
+}
+
+function ConvertWaitlistContent() {
   // State variables
   const [step, setStep] = useState(1);
   const [waitlistClientData, setWaitlistClientData] = useState();
@@ -31,6 +37,7 @@ export default function ConvertWaitlist() {
   const [clientId, setClientId] = useState();
 
   // Retrieve token and search parameters
+  const { useSearchParams } = require("next/navigation");
   const token = Cookies.get("token");
   const searchParams = useSearchParams();
   const waitlistClientId = searchParams.get("waitlistClientId");
@@ -541,3 +548,4 @@ export default function ConvertWaitlist() {
     </main>
   );
 }
+
