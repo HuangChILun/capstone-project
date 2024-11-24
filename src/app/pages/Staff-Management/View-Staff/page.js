@@ -17,8 +17,17 @@ export default function ViewStaff() {
   const [filterType, setFilterType] = useState("name");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [user, setUser] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      router.push('/');
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchStaff = async () => {
@@ -66,14 +75,14 @@ export default function ViewStaff() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const access = () => {
-    if (user.isAdmin === 1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  const isAdmin = access();
+  // const access = () => {
+  //   if (user && user.isAdmin === 1) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // };
+  // const isAdmin = access();
   const handleAddStaff = () => {
     router.push("/pages/Staff-Management/Add-New-Staff");
   };
