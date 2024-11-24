@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import ClientForm from "@/app/components/Add-Patient/ClientForm";
@@ -8,7 +10,7 @@ import OtherForm from "@/app/components/Add-Patient/OtherForm";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { useSearchParams } from "next/navigation";
 
-export const dynamic = 'force-dynamic';
+
 
 export default function ConvertWaitlist() {
   // State variables

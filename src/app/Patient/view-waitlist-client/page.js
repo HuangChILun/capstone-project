@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,8 +18,6 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { Input } from "@/app/components/HomeUi/input";
 import { Label } from "@/app/components/HomeUi/label";
 import { Badge } from "@/app/components/HomeUi/badge";
-
-export const dynamic = 'force-dynamic';
 
 export default function ViewWaitList() {
   const [clientData, setClientData] = useState(null);

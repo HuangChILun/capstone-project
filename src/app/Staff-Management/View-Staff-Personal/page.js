@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,8 +30,6 @@ function formatInputDate(dateStr) {
   if (!dateStr) return "";
   return dateStr.split("T")[0]; // Extracts the date part from ISO string
 }
-
-export const dynamic = 'force-dynamic';
 
 export default function ViewStaffPersonal() {
   const [staffData, setStaffData] = useState(null);

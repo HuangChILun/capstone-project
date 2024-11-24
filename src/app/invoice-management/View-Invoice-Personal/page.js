@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -24,7 +26,6 @@ import {
   TableCell,
 } from "@/app/components/HomeUi/table";
 
-export const dynamic = 'force-dynamic';
 
 export default function ViewStaffInvoices() {
   const [staffData, setStaffData] = useState(null);
