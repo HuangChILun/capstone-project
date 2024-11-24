@@ -10,7 +10,6 @@ export const dynamic = 'force-dynamic';
 
 export default function AddStaff() {
   const router = useRouter();
-  const admin = JSON.parse(localStorage.getItem('user'));
   const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
@@ -21,10 +20,12 @@ export default function AddStaff() {
       router.push('/');
     }
   }, [router]);
-
+  if (!user) {
+    return null; // or a loading indicator
+  }
   return (
     <div style={styles.pageContainer}>
-      <HoriNav user={admin} />
+      <HoriNav user={user} />
       <main style={styles.mainContent}>
         <Tabs defaultValue="active" style={styles.tabs}>
           <TabsContent value="active">

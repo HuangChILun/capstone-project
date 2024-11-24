@@ -39,11 +39,19 @@ export default function ViewStaffPersonal() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false); // Changed to boolean
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const staffId = searchParams.get("userId");
-
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      router.push('/');
+    }
+  }, [router]);
+  
   useEffect(() => {
     const token = Cookies.get("token");
     if (!token) {
