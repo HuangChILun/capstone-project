@@ -1,5 +1,5 @@
 "use client";
-
+import React from 'react';
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -1022,7 +1022,7 @@ export default function ViewPatientPersonal() {
             <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
             <TabsTrigger value="medical-info">Medical Info</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
-            <TabsTrigger value="contract">Contract</TabsTrigger>
+            {/* <TabsTrigger value="contract">Contract</TabsTrigger> */}
             <TabsTrigger value="additional-note">Additional Note</TabsTrigger>
           </TabsList>
           <TabsContent value="personal-info">

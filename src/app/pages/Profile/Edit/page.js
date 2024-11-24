@@ -1,15 +1,11 @@
 "use client";
-
+import React from "react";
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/HomeUi/button";
 import { Input } from "@/app/components/HomeUi/input";
 import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
-{/*!!! notice when the 
-  user or admin tried to edit 
-  the information(profile and edit staff page), the user can not 
-  login duo to some unknown error*/}
 export default function Edit() {
   const [formData, setFormData] = useState({
     //firstName: "",
@@ -25,7 +21,7 @@ export default function Edit() {
   const router = useRouter();
   const token = Cookies.get("token");
   const user = JSON.parse(localStorage.getItem("user"));
-  
+
   useEffect(() => {
     if (!token) {
       router.push("/");
@@ -34,19 +30,22 @@ export default function Edit() {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const data = await response.json();
         setFormData({
           phoneNumber: data.phoneNumber,
-    address: data.address,
-    city: data.city,
-    postalCode: data.postalCode,
-    province: data.province,
+          address: data.address,
+          city: data.city,
+          postalCode: data.postalCode,
+          province: data.province,
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -64,14 +63,17 @@ export default function Edit() {
   };
   const handleSubmit = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}/profile`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}/profile`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       console.log(formData);
       if (response.ok) {
         alert("Profile updated successfully!");
@@ -83,7 +85,6 @@ export default function Edit() {
       console.error("Error updating profile:", error);
     }
   };
-  
 
   return (
     <div style={styles.pageContainer}>
@@ -92,14 +93,15 @@ export default function Edit() {
         <div style={styles.profileContainer}>
           {/* Save and Cancel Buttons */}
           <div style={styles.buttonContainer}>
-            <Button onClick={handleSubmit}>
-              Save
-            </Button>
-            <Button style={styles.cancelButton} onClick={() => router.push("./View-Profile")}>
+            <Button onClick={handleSubmit}>Save</Button>
+            <Button
+              style={styles.cancelButton}
+              onClick={() => router.push("./View-Profile")}
+            >
               Cancel
             </Button>
           </div>
-  
+
           {/* Edit Profile Form */}
           <div style={styles.profileGrid}>
             {/* <div>
@@ -115,24 +117,47 @@ export default function Edit() {
               <Input name="email" value={formData.email} onChange={handleChange} />
             </div> */}
             <div>
-              <p style={styles.fieldLabel}>Phone Number</p>
-              <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+              <label style={styles.fieldLabel} htmlFor="phoneNumber">
+                Phone Number
+              </label>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+              />
             </div>
             <div>
               <p style={styles.fieldLabel}>Address</p>
-              <Input name="address" value={formData.address} onChange={handleChange} />
+              <Input
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+              />
             </div>
             <div>
               <p style={styles.fieldLabel}>City</p>
-              <Input name="city" value={formData.city} onChange={handleChange} />
+              <Input
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+              />
             </div>
             <div>
               <p style={styles.fieldLabel}>Postal Code</p>
-              <Input name="postalCode" value={formData.postalCode} onChange={handleChange} />
+              <Input
+                name="postalCode"
+                value={formData.postalCode}
+                onChange={handleChange}
+              />
             </div>
             <div>
               <p style={styles.fieldLabel}>Province</p>
-              <Input name="province" value={formData.province} onChange={handleChange} />
+              <Input
+                name="province"
+                value={formData.province}
+                onChange={handleChange}
+              />
             </div>
           </div>
         </div>

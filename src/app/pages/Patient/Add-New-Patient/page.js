@@ -16,7 +16,6 @@ import ClientForm from "@/app/components/Add-Patient/ClientForm";
 import OtherForm from "@/app/components/Add-Patient/OtherForm";
 
 export default function AddNewPatient() {
-  const router = useRouter();
   const [clientForm, setClientForm] = useState(null);
   const [diagnosisForm, setDiagnosisForm] = useState(null);
   const [primaryGuardianForm, setPrimaryGuardianForm] = useState(null);

@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Tabs,
-  TabsList,
-  TabsTrigger,
   TabsContent,
 } from "@/app/components/HomeUi/tabs";
 import { Label } from "@/app/components/HomeUi/label";

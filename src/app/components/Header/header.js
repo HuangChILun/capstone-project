@@ -1,5 +1,5 @@
 "use client"
-
+import React from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/HomeUi/avatar";
 import Link from "next/link";
 

@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -10,9 +11,9 @@ import InvoiceSection from "@/app/components/HomeUi/invoice-display";
 export default function Homepage() {
   const [activeClients, setActiveClients] = useState(0);
   const [waitlistClients, setWaitlistClients] = useState(0);
-  const [assignedClients, setAssignedClients] = useState(0);
-  const [pendingTasks, setPendingTasks] = useState(0); // Placeholder for pending tasks
-  const [invoiceAmount, setInvoiceAmount] = useState(0); // Placeholder for invoice amount
+  // const [assignedClients, setAssignedClients] = useState(0);
+  // const [pendingTasks, setPendingTasks] = useState(0); // Placeholder for pending tasks
+  // const [invoiceAmount, setInvoiceAmount] = useState(0); // Placeholder for invoice amount
   const user = JSON.parse(localStorage.getItem("user"));
   const router = useRouter();
 

@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/HomeUi/tabs"
-import Nav from '@/app/components/Navigation-Bar/NavBar';
+import { Tabs, TabsContent } from "@/app/components/HomeUi/tabs"
 import StaffRegistrationForm from '@/app/components/Add-Staff/StaffRegistrationForm';
 import HoriNav from '@/app/components/Navigation-Bar/HoriNav';
 
@@ -56,3 +55,4 @@ const styles = {
     width: "100%",
   },
 };
+

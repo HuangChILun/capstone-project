@@ -1,3 +1,7 @@
+"use client";
+
+import React from 'react';
+
 export default function AppointmentCard({ appointment }) {
   // Format the date to show only the abbreviated month and day
   const formattedDate = new Date(appointment.date).toLocaleDateString("en-US", {

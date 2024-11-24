@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { Label } from "@/app/components/HomeUi/label";
 import { Input } from "@/app/components/HomeUi/input";

@@ -1,5 +1,5 @@
+"use client";
 import Cookies from 'js-cookie';
-
 const BASE_URL = 'http://localhost:8000'; // 
 
 export const apiRequest = async (endpoint, method = 'GET', body = null) => {
