@@ -31,32 +31,28 @@ export default function ViewPatient() {
   const [searchInput, setSearchInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const router = useRouter();
-  const token = Cookies.get("token");
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   // Memoize the user object
-  const user = useMemo(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  }, []);
-
-  // If user is not found, redirect to login
   useEffect(() => {
-    if (!user) {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
       router.push("/");
+    } else {
+      setToken(token);
+      setUser(JSON.parse(storedUser));
     }
-  }, [user, router]);
+  }, [router]);
 
   const isAdmin = user?.isAdmin === 1;
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!token || !user) {
-        router.push("/");
-        console.log("need login");
-        return;
-      }
+    if (!token || !user) return;
 
+    const fetchData = async () => {
       try {
         if (isAdmin) {
           // Admin user, fetch all patients and waitlist
@@ -105,9 +101,6 @@ export default function ViewPatient() {
           }
           const assignedClientData = await assignedClientResponse.json();
 
-          // Log the assignedClientData to see its structure
-          console.log("Assigned Client Data:", assignedClientData);
-
           // Ensure that patients is set to an array
           if (Array.isArray(assignedClientData.data)) {
             setPatients(assignedClientData.data);
@@ -124,7 +117,7 @@ export default function ViewPatient() {
     };
 
     fetchData();
-  }, [router, token, user?.userId, isAdmin]);
+  }, [router, token, user, isAdmin]);
 
   // Filter active and archived patients based on currentStatus
   const activePatients = patients.filter(
@@ -158,7 +151,7 @@ export default function ViewPatient() {
     router.push("/pages/Patient/Add-New-Patient");
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (!user || !token || isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (

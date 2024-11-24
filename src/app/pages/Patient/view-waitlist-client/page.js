@@ -25,17 +25,24 @@ export default function ViewWaitList() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false); // Toggle for editing mode
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const waitlistClientId = searchParams.get("waitlistClientId"); // Ensure 'waitlistClientId' exists in the URL
 
   useEffect(() => {
     const token = Cookies.get("token");
-    if (!token) {
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
       router.push("/");
       return;
     }
+
+    setToken(token);
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
 
     const fetchWaitListClientData = async () => {
       try {
@@ -77,6 +84,10 @@ export default function ViewWaitList() {
 
     fetchWaitListClientData();
   }, [router, waitlistClientId]);
+
+  if (!user || !token) {
+    return <div>Loading...</div>;
+  }
 
   // Enable editing mode
   const handleEditClick = () => {

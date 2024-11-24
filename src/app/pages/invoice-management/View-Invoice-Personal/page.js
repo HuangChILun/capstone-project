@@ -35,12 +35,27 @@ export default function ViewStaffInvoices() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null);
+  const [staffId, setStaffId] = useState(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const staffId = searchParams.get("userId");
 
   useEffect(() => {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem("user");
+    const staffId = searchParams.get("userId");
+
+    if (!token || !storedUser) {
+      router.push("/");
+    } else {
+      setUser(JSON.parse(storedUser));
+      setStaffId(staffId);
+    }
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    if (!staffId) return;
+
     fetchStaffData();
     fetchInvoices();
   }, [router, staffId]);
@@ -54,11 +69,7 @@ export default function ViewStaffInvoices() {
 
     try {
       setIsLoading(true);
-      if (!staffId) {
-        throw new Error("Staff ID is missing from URL");
-      }
 
-      // Fetch staff data
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${staffId}`,
         {
@@ -87,7 +98,6 @@ export default function ViewStaffInvoices() {
     try {
       setIsLoading(true);
 
-      // Fetch invoices for the staff member
       const invoicesResponse = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice/${staffId}`,
         {
@@ -99,7 +109,6 @@ export default function ViewStaffInvoices() {
 
       const invoicesData = invoicesResponse.data;
 
-      // Separate invoices into marked and unmarked
       const unmarked = invoicesData.filter((invoice) => !invoice.isGiven);
       const marked = invoicesData.filter((invoice) => invoice.isGiven);
 
@@ -160,6 +169,9 @@ export default function ViewStaffInvoices() {
     const currentInvoices =
       isEditing && editedInvoices ? editedInvoices : invoices;
 
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!staffData) return <div>No staff data found.</div>;
     return (
       <Table>
         <TableHeader>
