@@ -22,19 +22,26 @@ export default function Edit() {
   });
 
   const router = useRouter();
-  const token = Cookies.get("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    if (!token) {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
       router.push("/");
       return;
     }
 
+    setToken(token);
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+
     const fetchUserData = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${parsedUser.userId}`,
           {
             method: "GET",
             headers: {
@@ -56,7 +63,11 @@ export default function Edit() {
     };
 
     fetchUserData();
-  }, [token]);
+  }, [router]);
+
+  if (!user || !token) {
+    return <div>Loading...</div>;
+  }
 
   const handleChange = (e) => {
     setFormData({

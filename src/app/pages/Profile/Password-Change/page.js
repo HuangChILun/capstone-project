@@ -1,6 +1,5 @@
 "use client";
-import React from 'react';
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/app/components/HomeUi/input";
 import { Button } from "@/app/components/HomeUi/button";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
@@ -22,14 +21,27 @@ export default function PasswordChange() {
     specialChar: false,
     minLength: false,
   });
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const router = useRouter();
-  const token = Cookies.get("token");
+
   
-  if (!token) {
-    router.push("/");
-    console.log("need login");
-    return;
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
+      router.push("/");
+      console.log("need login");
+      return;
+    }
+
+    setToken(token);
+    setUser(JSON.parse(storedUser));
+  }, [router]);
+
+  if (!user || !token) {
+    return <div>Loading...</div>;
   }
 
   // Check new password criteria

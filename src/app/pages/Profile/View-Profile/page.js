@@ -1,22 +1,24 @@
 "use client";
-import React from 'react';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/app/components/HomeUi/button";
 import Cookies from "js-cookie";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
+import { useRouter } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
+
 export default function Profile() {
   const [userData, setUserData] = useState(null);
-  const token = Cookies.get("token");
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
 
   // Fetch user data from API
-  const fetchUserData = async () => {
+  const fetchUserData = async (token, userId) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${user.userId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${userId}`, {
         headers: {
           Method: "GET",
           Authorization: `Bearer ${token}`,
@@ -35,17 +37,22 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    if (!token) {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem('user');
+
+    if (!token || !storedUser) {
       router.push("/");
       console.log("need login");
       return;
     }
-    
-    fetchUserData();
-  }, [token]);
 
-  
-  if (!userData) {
+    setToken(token);
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+    fetchUserData(token, parsedUser.userId);
+  }, [router]);
+
+  if (!userData || !user) {
     return <p>Loading...</p>;
   }
 
