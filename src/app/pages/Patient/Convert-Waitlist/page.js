@@ -9,6 +9,7 @@ import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { useSearchParams } from "next/navigation";
 
 export default function ConvertWaitlist() {
+  // State variables
   const [step, setStep] = useState(1);
   const [waitlistClientData, setWaitlistClientData] = useState();
   const [clientForm, setClientForm] = useState(null);
@@ -23,15 +24,14 @@ export default function ConvertWaitlist() {
   const [error, setError] = useState();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [clientId, setClientId] = useState();
+
+  // Retrieve token and search parameters
   const token = Cookies.get("token");
   const searchParams = useSearchParams();
   const waitlistClientId = searchParams.get("waitlistClientId");
-  const [clientId, setClientId] = useState();
 
-  if (!waitlistClientId) {
-    return null;
-  }
-
+  // useEffect should always be called unconditionally
   useEffect(() => {
     if (!token) {
       alert("Need login");
@@ -79,16 +79,18 @@ export default function ConvertWaitlist() {
         };
 
         fetchWaitListClientData();
-        console.log(waitlistClientData);
       }
     }
   }, [token, waitlistClientId]);
 
-  if (!token || loading || !waitlistClientData) {
+  // Ensure that all hooks are called before any return statement
+  // Conditional rendering after hooks are called
+  if (!waitlistClientId || !token || loading || !waitlistClientData) {
     // Only render after data has been loaded
     return null;
   }
-  //NoteGeneration
+
+  // Function to generate note section based on waitlist data
   const generateNoteSection = (data) => {
     // Define the fields you want to include in the note section
     const fieldsToInclude = [
@@ -159,12 +161,14 @@ export default function ConvertWaitlist() {
     return lines.join("\n");
   };
 
-  //Client
+  // Client form update handler
   const clientFormUpdate = (clientData, diagnosisData) => {
     setClientForm(clientData);
     setDiagnosisForm(diagnosisData);
     setStep(2);
   };
+
+  // Function to submit client data
   const handleClientSubmit = async () => {
     console.log("Submitting client data:", clientForm);
     try {
@@ -185,7 +189,7 @@ export default function ConvertWaitlist() {
         const id = result.clientId;
         setClientId(id);
         console.log(diagnosisForm);
-        //foreach diagnosis in diagnosisData do a try catch to backend to save data onto backend
+        // For each diagnosis in diagnosisData, save data to backend
         for (const diagnosis of diagnosisForm) {
           try {
             const diagnosisResponse = await fetch(
@@ -225,7 +229,8 @@ export default function ConvertWaitlist() {
       alert("An error occurred while adding the client");
     }
   };
-  //Guardian
+
+  // Guardian form update handler
   const guardianFormUpdate = (guardianData) => {
     if (guardianData === null) {
       handleFinalSubmit();
@@ -242,6 +247,8 @@ export default function ConvertWaitlist() {
       }
     }
   };
+
+  // Function to submit guardian data
   const handleGuardianSubmit = async (guardianForm, clientId) => {
     // Include clientId in the data to send
     const dataToSend = {
@@ -274,10 +281,12 @@ export default function ConvertWaitlist() {
     }
   };
 
-  //Consent
+  // Consent form update handler
   const consentFormUpdate = (consentData) => {
     setConsentForm(consentData);
   };
+
+  // Function to submit consent data
   const handleConsentSubmit = async (clientId) => {
     const updatedConsentData = {
       ...consentForm,
@@ -307,10 +316,13 @@ export default function ConvertWaitlist() {
       console.error("Error adding consent:", error);
     }
   };
-  //Insurance
+
+  // Insurance form update handler
   const insuranceFormUpdate = (insuranceData) => {
     setInsuranceForm(insuranceData);
   };
+
+  // Function to submit insurance data
   const handleInsuranceSubmit = async (clientId) => {
     const updatedInsuranceData = {
       ...insuranceForm,
@@ -340,12 +352,15 @@ export default function ConvertWaitlist() {
       console.error("Error adding insurance:", error);
     }
   };
-  //Contract
+
+  // Contract form update handler
   const contractFormUpdate = (selectedFile, contractData) => {
     setSelectedFile(selectedFile);
     setContractForm(contractData);
     setStep(3);
   };
+
+  // Function to submit contract data
   const handleContractSubmit = async (clientId) => {
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -403,7 +418,8 @@ export default function ConvertWaitlist() {
       console.error("Error during file upload:", error);
     }
   };
-  //delete waitlist client after converting
+
+  // Function to delete waitlist client after converting
   const handleDeleteWaitlist = async (waitlistClientId) => {
     try {
       const response = await fetch(
@@ -429,7 +445,6 @@ export default function ConvertWaitlist() {
     }
   };
 
-
   // Handle final form submission
   const handleFinalSubmit = async () => {
     try {
@@ -440,40 +455,27 @@ export default function ConvertWaitlist() {
 
       // Handle consent form submission
       if (consentForm != null) {
-        const consentSuccess = await handleConsentSubmit(id);
-        if (!consentSuccess) throw new Error("Consent submission failed");
+        await handleConsentSubmit(id);
       }
 
       // Handle insurance form submission
       if (insuranceForm != null) {
-        const insuranceSuccess = await handleInsuranceSubmit(id);
-        if (!insuranceSuccess) throw new Error("Insurance submission failed");
+        await handleInsuranceSubmit(id);
       }
 
       // Handle contract form submission
       if (contractForm != null) {
-        const contractSuccess = await handleContractSubmit(id);
-        if (!contractSuccess) throw new Error("Contract submission failed");
+        await handleContractSubmit(id);
       }
 
       // Handle primary guardian form submission
       if (primaryGuardianForm != null) {
-        const primaryGuardianSuccess = await handleGuardianSubmit(
-          primaryGuardianForm,
-          id
-        );
-        if (!primaryGuardianSuccess)
-          throw new Error("Primary guardian submission failed");
+        await handleGuardianSubmit(primaryGuardianForm, id);
       }
 
       // Handle secondary guardian form submission
       if (secondaryGuardianForm != null) {
-        const secondaryGuardianSuccess = await handleGuardianSubmit(
-          secondaryGuardianForm,
-          id
-        );
-        if (!secondaryGuardianSuccess)
-          throw new Error("Secondary guardian submission failed");
+        await handleGuardianSubmit(secondaryGuardianForm, id);
       }
 
       // If all submissions are successful, delete the waitlist entry
@@ -505,7 +507,7 @@ export default function ConvertWaitlist() {
           />
         )}
 
-        {/*Step 2: Contract/Consent/Insurance Form */}
+        {/* Step 2: Contract/Consent/Insurance Form */}
         {step === 2 && (
           <OtherForm
             clientData={clientForm}
