@@ -19,15 +19,20 @@ export default function StaffInvoicesPage() {
   const [markedStaff, setMarkedStaff] = useState([]);
   const [unmarkedStaff, setUnmarkedStaff] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [user, setUser] = useState(null); 
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const token = Cookies.get('token');
-    if (!token) {
+    const storedUser = localStorage.getItem('user');
+
+    if (!token || !storedUser) {
       router.push('/');
     } else {
+      setUser(JSON.parse(storedUser));
       fetchStaffAndInvoices(token);
     }
+    setLoading(false);
   }, [router]);
 
   const fetchStaffAndInvoices = async (token) => {
@@ -134,6 +139,14 @@ export default function StaffInvoicesPage() {
       </Table>
     );
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div style={styles.pageContainer}>

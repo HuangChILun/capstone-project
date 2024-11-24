@@ -14,20 +14,30 @@ export default function Homepage() {
   // const [assignedClients, setAssignedClients] = useState(0);
   // const [pendingTasks, setPendingTasks] = useState(0); // Placeholder for pending tasks
   // const [invoiceAmount, setInvoiceAmount] = useState(0); // Placeholder for invoice amount
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null); 
+  const [isAdmin, setIsAdmin] = useState(false); 
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // Role-based logic
 
-  const access = () => {
-    if (user.isAdmin === 1) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-  const isAdmin = access();
   useEffect(() => {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
+      router.push("/");
+    } else {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setIsAdmin(parsedUser.isAdmin === 1);
+      setLoading(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+
     const fetchPatients = async () => {
       const token = Cookies.get("token");
       if (!token) {
@@ -59,6 +69,7 @@ export default function Homepage() {
           }
           setActiveClients(active);
         } else {
+          // Handle error
         }
       } catch (error) {
         console.error("Error fetching patients:", error);
@@ -66,7 +77,11 @@ export default function Homepage() {
     };
 
     fetchPatients();
-  }, [router]);
+  }, [user, router]);
+
+  if (loading || !user) {
+    return <div>Loading...</div>;
+  }
   //Test data
   const testAppointments = [
     { patientName: "John Doe", date: "2024-10-10", time: "10:30 AM" },

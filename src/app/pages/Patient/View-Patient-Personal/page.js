@@ -47,9 +47,6 @@ function formatDisplayDate(dateStr) {
   const [year, month, day] = dateStr.split("T")[0].split("-");
   return `${month}/${day}/${year}`;
 }
-
-export const dynamic = 'force-dynamic';
-
 export default function ViewPatientPersonal() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -92,8 +89,17 @@ export default function ViewPatientPersonal() {
     []
   );
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null); 
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const storedUser = localStorage.getItem("user");
 
+    if (!token || !storedUser) {
+      router.push("/");
+    } else {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [router]);
   // Fetch assigned team members and initialize editedAssignedTeamMembers
   const fetchAssignedTeamMembers = async () => {
     const token = Cookies.get("token");
