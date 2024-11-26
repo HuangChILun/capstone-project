@@ -189,12 +189,13 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <fieldset style={styles.formContainer}>
-        <legend className="text-lg font-semibold mb-4">
+      <fieldset style={styles.card}>
+        <div style={styles.sectionHeader}>
           {primary
             ? "Primary Guardian Information"
             : "Secondary Guardian Information"}
-        </legend>
+        </div>
+        <div style={styles.formContainer}>
         {/* Checkbox for no guardian */}
         {primary && (
           <div style={styles.fullWidth}>
@@ -417,6 +418,7 @@ export default function GuardianForm({ SendGuardian, clientData, primary }) {
               : "Submit"}
           </Button>
         </div>
+        </div>
       </fieldset>
     </form>
   );
@@ -447,5 +449,33 @@ const styles = {
     display: "flex",
     justifyContent: "space-between", // Align "Back" button to the left, "Submit" to the right
     gridColumn: "span 4", // Full width for the button container
+  },
+  sectionHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid #ccc", // Optional underline
+    paddingBottom: "4px",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "24px",
+  },
+  subHeader: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    paddingBottom: "4px",
+    color: "#333",
+  },
+
+  guardianBox: {
+    backgroundColor: "#F9FAFB", // Subtle light gray
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "16px",
   },
 };

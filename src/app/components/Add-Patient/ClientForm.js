@@ -201,11 +201,11 @@ export default function ClientForm({
   };
   return (
     <form onSubmit={handleSubmit}>
-      <fieldset style={styles.formContainer}>
-        <legend className="text-lg font-semibold mb-4">
+      <fieldset style={styles.card}>
+        <h2 style={styles.sectionHeader}>
           Personal Information
-        </legend>
-
+        </h2>
+        <div style={styles.formContainer}>
         {/* First row: First Name, Last Name, Gender, Birth Date */}
         <div style={styles.fieldContainer}>
           <Label htmlFor="firstName">First Name*</Label>
@@ -256,7 +256,38 @@ export default function ClientForm({
             onChange={handleInputChange}
           />
         </div>
-
+        <div style={styles.fieldContainer}>
+          <Label htmlFor="school">School</Label>
+          <Input
+            id="school"
+            placeholder=""
+            className="w-full"
+            value={clientData.school}
+            onChange={handleInputChange}
+          />
+          {validationErrors.school && (
+            <p style={{ color: "red" }}>{validationErrors.school}</p>
+          )}
+        </div>
+        <div style={styles.fieldContainer}>
+          <Label htmlFor="grade">Grade</Label>
+          <Input
+            id="grade"
+            type="number"
+            placeholder=""
+            className="w-full"
+            value={clientData.grade}
+            min={1}
+            max={12}
+            onChange={handleInputChange}
+          />
+          {validationErrors.grade && (
+            <p style={{ color: "red" }}>{validationErrors.grade}</p>
+          )}
+        </div>
+        </div>
+<h2 style={styles.sectionHeader}>Contact Information</h2>
+<div style={styles.formContainer}>
         {/* Second row: Address, City, Province, Postal Code */}
         <div style={styles.fieldContainer}>
           <Label htmlFor="address">Address*</Label>
@@ -358,6 +389,9 @@ export default function ClientForm({
             <p style={{ color: "red" }}>{validationErrors.email}</p>
           )}
         </div>
+        </div>
+        <h2 style={styles.sectionHeader}>Service Information</h2>
+<div style={styles.formContainer}>
         <div style={styles.fieldContainer}>
           <Label htmlFor="fscdIdNum">FSCD Number</Label>
           <Input
@@ -368,35 +402,7 @@ export default function ClientForm({
             onChange={handleInputChange}
           />
         </div>
-        <div style={styles.fieldContainer}>
-          <Label htmlFor="school">School</Label>
-          <Input
-            id="school"
-            placeholder=""
-            className="w-full"
-            value={clientData.school}
-            onChange={handleInputChange}
-          />
-          {validationErrors.school && (
-            <p style={{ color: "red" }}>{validationErrors.school}</p>
-          )}
-        </div>
-        <div style={styles.fieldContainer}>
-          <Label htmlFor="grade">Grade</Label>
-          <Input
-            id="grade"
-            type="number"
-            placeholder=""
-            className="w-full"
-            value={clientData.grade}
-            min={1}
-            max={12}
-            onChange={handleInputChange}
-          />
-          {validationErrors.grade && (
-            <p style={{ color: "red" }}>{validationErrors.grade}</p>
-          )}
-        </div>
+
         <div style={styles.fieldContainer}>
           <Label htmlFor="serviceStartDate">Service Start Date*</Label>
           <Input
@@ -428,6 +434,8 @@ export default function ClientForm({
             placeholder="Enter any additional Notes"
           />
         </div>
+        </div>
+        <h2 style={styles.sectionHeader}>Medical Information</h2>
         <div style={styles.halfWidth}>
           <Diagnosis
             diagnosisData={diagnosisData}
@@ -471,5 +479,33 @@ const styles = {
     display: "flex",
     justifyContent: "space-between", // Align "Back" button to the left, "Submit" to the right
     gridColumn: "span 4", // Full width for the button container
+  },
+  sectionHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid #ccc", // Optional underline
+    paddingBottom: "4px",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "24px",
+  },
+  subHeader: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    paddingBottom: "4px",
+    color: "#333",
+  },
+
+  guardianBox: {
+    backgroundColor: "#F9FAFB", // Subtle light gray
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "16px",
   },
 };

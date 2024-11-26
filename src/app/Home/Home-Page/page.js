@@ -179,7 +179,7 @@ export default function Homepage() {
                 <div
                   style={{
                     ...homepageStyle.dashboardCard,
-                    backgroundColor: "#03fc77",
+                    backgroundColor: "white",
                   }}
                 >
                   <p style={homepageStyle.cardTitle}>Active Clients</p>
@@ -192,7 +192,7 @@ export default function Homepage() {
                 <div
                   style={{
                     ...homepageStyle.dashboardCard,
-                    backgroundColor: "#fc5e03",
+                    backgroundColor: "white",
                   }}
                 >
                   <p style={homepageStyle.cardTitle}>Waitlisted Clients</p>
@@ -204,7 +204,7 @@ export default function Homepage() {
                 <div
                   style={{
                     ...homepageStyle.dashboardCard,
-                    backgroundColor: "#909693",
+                    backgroundColor: "white",
                   }}
                 >
                   <p style={homepageStyle.cardTitle}>Archived Clients</p>
@@ -216,7 +216,7 @@ export default function Homepage() {
                 <div
                   style={{
                     ...homepageStyle.dashboardCard,
-                    backgroundColor: "#737875",
+                    backgroundColor: "white",
                   }}
                 >
                   <p style={homepageStyle.cardTitle}>Archived Waitlist</p>

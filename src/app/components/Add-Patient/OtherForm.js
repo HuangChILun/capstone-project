@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React from "react";
 import { useEffect, useState } from "react";
 import { Label } from "../HomeUi/label";
 import { Input } from "../HomeUi/input";
@@ -203,11 +203,9 @@ export default function OtherForm({
   };
   return (
     <form onSubmit={handleSubmit}>
-      <fieldset>
+      <fieldset style={styles.card}>
+        <h2 style={styles.sectionHeader}>Consent Information</h2>
         <div style={styles.formContainer}>
-          <legend className="text-lg font-semibold mb-4">
-            Consent Information
-          </legend>
           <div style={styles.fullWidth}>
             <label>
               <input
@@ -243,11 +241,9 @@ export default function OtherForm({
             </>
           )}
         </div>
-
+        <h2 style={styles.sectionHeader}>Insurance Information</h2>
         <div style={styles.formContainer}>
-          <legend className="text-lg font-semibold mb-4">
-            Insurance Information
-          </legend>
+          
           <div style={styles.fullWidth}>
             <label>
               <input
@@ -334,10 +330,8 @@ export default function OtherForm({
             </>
           )}
         </div>
+        <h2 style={styles.sectionHeader}>Contract Information</h2>
         <div style={styles.formContainer}>
-          <legend className="text-lg font-semibold mb-4">
-            Contract Information
-          </legend>
           <div style={styles.fullWidth}>
             <label>
               <input
@@ -527,5 +521,33 @@ const styles = {
     width: "100%",
     fontSize: "14px",
     padding: "8px",
+  },
+  sectionHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid #ccc", // Optional underline
+    paddingBottom: "4px",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "24px",
+  },
+  subHeader: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    paddingBottom: "4px",
+    color: "#333",
+  },
+
+  guardianBox: {
+    backgroundColor: "#F9FAFB", // Subtle light gray
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "16px",
   },
 };
