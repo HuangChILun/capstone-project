@@ -237,7 +237,7 @@ export default function ViewPatient() {
                       })}
                     </TableCell>
                     <TableCell>{client.phoneNumber}</TableCell>
-                    <TableCell>{client.serviceNeeded}</TableCell>
+                    <TableCell>{client.serviceProvidersNeeded}</TableCell>
                     <TableCell>
                       <Link
                         href={`./view-waitlist-client?waitlistClientId=${client.waitlistClientId}`}

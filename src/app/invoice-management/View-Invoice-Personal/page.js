@@ -162,6 +162,10 @@ function ViewStaffInvoicesContent() {
     editedInvoices,
     setEditedInvoices
   ) => {
+    if (!user.isAdmin) {
+      alert("Only admin can modify 'Mark as Finished'");
+      return;
+    }
     const updatedInvoices = [...editedInvoices];
     updatedInvoices[index].isGiven = !updatedInvoices[index].isGiven;
     setEditedInvoices(updatedInvoices);
@@ -176,9 +180,10 @@ function ViewStaffInvoicesContent() {
     const currentInvoices =
       isEditing && editedInvoices ? editedInvoices : invoices;
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!staffData) return <div>No staff data found.</div>;
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+    if (!staffData) return <div>No staff data found.</div>;
+
     return (
       <Table>
         <TableHeader>
@@ -187,13 +192,13 @@ function ViewStaffInvoicesContent() {
             <TableHead>Hours</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Month</TableHead>
-            <TableHead>Mark as Finished</TableHead>
+            {!!user.isAdmin && <TableHead>Mark as Finished</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentInvoices.map((invoice, index) => (
-            <TableRow key={invoice.invoiceId}>
-              <TableCell>
+          {currentInvoices.map((invoice, index) => {
+            const cells = [
+              <TableCell key={`rate-${invoice.invoiceId}`}>
                 {isEditing ? (
                   <Input
                     name="rate"
@@ -211,8 +216,8 @@ function ViewStaffInvoicesContent() {
                 ) : (
                   invoice.rate
                 )}
-              </TableCell>
-              <TableCell>
+              </TableCell>,
+              <TableCell key={`hours-${invoice.invoiceId}`}>
                 {isEditing ? (
                   <Input
                     name="hours"
@@ -230,11 +235,11 @@ function ViewStaffInvoicesContent() {
                 ) : (
                   invoice.hours
                 )}
-              </TableCell>
-              <TableCell>
+              </TableCell>,
+              <TableCell key={`amount-${invoice.invoiceId}`}>
                 {(invoice.rate * invoice.hours).toFixed(2)}
-              </TableCell>
-              <TableCell>
+              </TableCell>,
+              <TableCell key={`month-${invoice.invoiceId}`}>
                 {isEditing ? (
                   <Input
                     name="month"
@@ -252,30 +257,37 @@ function ViewStaffInvoicesContent() {
                 ) : (
                   formatMonthDisplay(invoice.month)
                 )}
-              </TableCell>
-              <TableCell>
-                {isEditing ? (
-                  <input
-                    type="checkbox"
-                    checked={invoice.isGiven}
-                    onChange={() =>
-                      handleInvoiceCheckboxChange(
-                        index,
-                        editedInvoices,
-                        setEditedInvoices
-                      )
-                    }
-                  />
-                ) : (
-                  <input
-                    type="checkbox"
-                    checked={invoice.isGiven}
-                    disabled
-                  />
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
+              </TableCell>,
+            ];
+
+            if (user.isAdmin) {
+              cells.push(
+                <TableCell key={`isGiven-${invoice.invoiceId}`}>
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={invoice.isGiven}
+                      onChange={() =>
+                        handleInvoiceCheckboxChange(
+                          index,
+                          editedInvoices,
+                          setEditedInvoices
+                        )
+                      }
+                    />
+                  ) : (
+                    <input
+                      type="checkbox"
+                      checked={invoice.isGiven}
+                      disabled
+                    />
+                  )}
+                </TableCell>
+              );
+            }
+
+            return <TableRow key={invoice.invoiceId}>{cells}</TableRow>;
+          })}
         </TableBody>
       </Table>
     );
@@ -285,14 +297,17 @@ function ViewStaffInvoicesContent() {
     const token = Cookies.get("token");
     try {
       for (const invoice of editedUnmarkedInvoices) {
+        const dataToSend = {
+          rate: invoice.rate,
+          hours: invoice.hours,
+          month: formatMonthForBackend(invoice.month),
+        };
+        if (user.isAdmin) {
+          dataToSend.isGiven = invoice.isGiven;
+        }
         await axios.patch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice/${invoice.invoiceId}`,
-          {
-            rate: invoice.rate,
-            hours: invoice.hours,
-            month: formatMonthForBackend(invoice.month),
-            isGiven: invoice.isGiven,
-          },
+          dataToSend,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -302,14 +317,17 @@ function ViewStaffInvoicesContent() {
       }
 
       for (const invoice of editedMarkedInvoices) {
+        const dataToSend = {
+          rate: invoice.rate,
+          hours: invoice.hours,
+          month: formatMonthForBackend(invoice.month),
+        };
+        if (user.isAdmin) {
+          dataToSend.isGiven = invoice.isGiven;
+        }
         await axios.patch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice/${invoice.invoiceId}`,
-          {
-            rate: invoice.rate,
-            hours: invoice.hours,
-            month: formatMonthForBackend(invoice.month),
-            isGiven: invoice.isGiven,
-          },
+          dataToSend,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -378,7 +396,7 @@ function ViewStaffInvoicesContent() {
           <TabsContent value="unmarkedInvoice">
             {isEditing
               ? renderInvoiceTable(
-                  unmarkedInvoices,
+                  editedUnmarkedInvoices,
                   false,
                   editedUnmarkedInvoices,
                   setEditedUnmarkedInvoices
@@ -389,7 +407,7 @@ function ViewStaffInvoicesContent() {
           <TabsContent value="markedInvoice">
             {isEditing
               ? renderInvoiceTable(
-                  markedInvoices,
+                  editedMarkedInvoices,
                   true,
                   editedMarkedInvoices,
                   setEditedMarkedInvoices

@@ -29,30 +29,48 @@ export default function StaffInvoicesPage() {
     if (!token || !storedUser) {
       router.push('/');
     } else {
-      setUser(JSON.parse(storedUser));
-      fetchStaffAndInvoices(token);
+      const userData = JSON.parse(storedUser);
+      setUser(userData);
+      fetchStaffAndInvoices(token, userData);
     }
     setLoading(false);
   }, [router]);
 
-  const fetchStaffAndInvoices = async (token) => {
+  const fetchStaffAndInvoices = async (token, userData) => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
+      let staffData = [];
+      let invoicesData = [];
 
-      // Fetch all staff
-      const staffResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/users`,
-        { headers }
-      );
+      if (userData.isAdmin == 1) {
+        // Fetch all staff
+        const staffResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users`,
+          { headers }
+        );
+        staffData = staffResponse.data;
 
-      // Fetch all invoices
-      const invoicesResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice`,
-        { headers }
-      );
+        // Fetch all invoices
+        const invoicesResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice`,
+          { headers }
+        );
+        invoicesData = invoicesResponse.data;
+      } else {
+        // Fetch only the user
+        const staffResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/users/${userData.userId}`,
+          { headers }
+        );
+        staffData = [staffResponse.data]; // Wrap in array to match structure
 
-      const staffData = staffResponse.data;
-      const invoicesData = invoicesResponse.data;
+        // Fetch invoices for the user
+        const invoicesResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice/${userData.userId}`,
+          { headers }
+        );
+        invoicesData = invoicesResponse.data;
+      }
 
       // Categorize staff based on invoice isGiven status
       const marked = [];
@@ -64,7 +82,7 @@ export default function StaffInvoicesPage() {
         );
 
         if (staffInvoices.length === 0) {
-          // If staff has no invoices, decide where to place them. Here, we add them to 'Unmarked'.
+          // If staff has no invoices, add them to 'Unmarked'
           unmarked.push(staff);
         } else {
           const allInvoicesGiven = staffInvoices.every(

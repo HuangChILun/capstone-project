@@ -526,16 +526,20 @@ function ViewWaitListContent() {
                 </div>
                 {/* Fees Discussed */}
                 <div>
-                  <Label>Fees Discussed</Label>
+                  <Label>Fee Discussed</Label>
                   {isEditing ? (
-                    <Input
-                      name="feesDiscussed"
-                      value={editedClientData.feesDiscussed || ""}
-                      onChange={handleInputChange}
-                    />
+                     <select
+                     name="feeDiscussed"
+                     value={editedClientData.feeDiscussed}
+                     onChange={handleInputChange}
+                     className="border rounded p-2 w-full"
+                   >
+                     <option value={1}>Yes</option>
+                     <option value={0}>No</option>
+                   </select>
                   ) : (
                     <div className="text-lg font-bold">
-                      {clientData.feesDiscussed}
+                      {clientData.feeDiscussed === 1 ? "Yes" : "No"}
                     </div>
                   )}
                 </div>
@@ -629,21 +633,6 @@ function ViewWaitListContent() {
                             clientData.nextMeetingDate
                           ).toLocaleDateString()
                         : ""}
-                    </div>
-                  )}
-                </div>
-                {/* Service Needed */}
-                <div>
-                  <Label>Service Needed</Label>
-                  {isEditing ? (
-                    <Input
-                      name="serviceNeeded"
-                      value={editedClientData.serviceNeeded || ""}
-                      onChange={handleInputChange}
-                    />
-                  ) : (
-                    <div className="text-lg font-bold">
-                      {clientData.serviceNeeded}
                     </div>
                   )}
                 </div>

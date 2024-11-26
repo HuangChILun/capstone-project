@@ -90,6 +90,43 @@ function ViewPatientPersonalContent() {
   });
   // end the function
 
+  //Add consent if no information
+  const [addingConsent, setAddingConsent] = useState(false);
+  const [newConsent, setNewConsent] = useState({
+    clientId: clientId,
+    permissionNote: "",
+    receivedDate: "",
+    withdrawDate: "",
+  });
+  // end here
+
+  // add insurance if no information
+  const [addingInsurance, setAddingInsurance] = useState(false);
+  const [newInsurance, setNewInsurance] = useState({
+    clientId: clientId,
+    insuranceProvider: "",
+    primaryPlanName: "",
+    certificateId: "",
+    coverateDetail: "",
+    startDate: "",
+    endDate: "",
+  });
+  // add contract if no information
+  const [addingContract, setAddingContract] = useState(false);
+  const [newContract, setNewContract] = useState({
+    clientId: clientId,
+    startDate: "",
+    endDate: "",
+    COOhours: 0,
+    PBChours: 0,
+    SLPhours: 0,
+    OThours: 0,
+    PThours: 0,
+    AIDEhours: 0,
+    COUShours: 0,
+    CARhours: 0,
+  });
+  const [newContractFile, setNewContractFile] = useState(null);
   // Team tab states
   const [searchName, setSearchName] = useState("");
   const [searchRole, setSearchRole] = useState("");
@@ -318,20 +355,26 @@ function ViewPatientPersonalContent() {
       if (!contractResponse.ok) {
         throw new Error("Failed to fetch contract information");
       }
+
       const contractData = await contractResponse.json();
-      setContract(contractData);
-      setEditedContract(contractData);
+
+      //
+      let contractItem;
+      if (Array.isArray(contractData)) {
+        if (contractData.length > 0) {
+          contractItem = contractData[0]; //
+        } else {
+          contractItem = null;
+        }
+      } else {
+        contractItem = contractData;
+      }
+
+      setContract(contractItem);
+      setEditedContract(contractItem);
     } catch (error) {
       console.error("Error fetching contract information:", error);
     }
-  };
-  // the function for future use
-  const handleNewOutsideProviderChange = (e) => {
-    const { name, value } = e.target;
-    setNewOutsideProvider({
-      ...newOutsideProvider,
-      [name]: value,
-    });
   };
 
   const handleAddOutsideProvider = async () => {
@@ -890,6 +933,121 @@ function ViewPatientPersonalContent() {
     }
   };
 
+  // add consent if no information
+  const createConsentInfo = async () => {
+    const token = Cookies.get("token");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/consents`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newConsent),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error creating consent data:", errorData);
+        throw new Error(
+          `Failed to create consent data: ${
+            errorData.message || errorData.error || "Unknown error"
+          }`
+        );
+      }
+
+      // Fetch the new consent data and update the state
+      await fetchConsent();
+      setAddingConsent(false);
+      alert("Consent information added successfully!");
+    } catch (error) {
+      console.error("Error creating consent data:", error);
+      alert(`Error creating consent data: ${error.message}`);
+    }
+  };
+
+  // add insurance when no information
+  const createInsuranceInfo = async () => {
+    const token = Cookies.get("token");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/insurance-info`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newInsurance),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error creating insurance data:", errorData);
+        throw new Error(
+          `Failed to create insurance data: ${
+            errorData.message || errorData.error || "Unknown error"
+          }`
+        );
+      }
+
+      // Fetch the new insurance data and update the state
+      await fetchInsurance();
+      setAddingInsurance(false);
+      alert("Insurance information added successfully!");
+    } catch (error) {
+      console.error("Error creating insurance data:", error);
+      alert(`Error creating insurance data: ${error.message}`);
+    }
+  };
+  // add contract when no information
+  const createContractInfo = async () => {
+    const token = Cookies.get("token");
+    try {
+      const formData = new FormData();
+      // Append contract data
+      for (const key in newContract) {
+        formData.append(key, newContract[key]);
+      }
+      // Append the file
+      if (newContractFile) {
+        formData.append("contractFile", newContractFile);
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/client-contract`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error creating contract data:", errorData);
+        throw new Error(
+          `Failed to create contract data: ${
+            errorData.message || errorData.error || "Unknown error"
+          }`
+        );
+      }
+
+      // Fetch the new contract data and update the state
+      await fetchContract();
+      setAddingContract(false);
+      alert("Contract information added successfully!");
+    } catch (error) {
+      console.error("Error creating contract data:", error);
+      alert(`Error creating contract data: ${error.message}`);
+    }
+  };
   // Handle saving changes
   const handleSaveChanges = async () => {
     try {
@@ -971,10 +1129,58 @@ function ViewPatientPersonalContent() {
   };
 
   // Handle downloading the contract PDF
-  const handleDownloadContract = () => {
+  const handleDownloadContract = async () => {
     if (contract && contract.fileId) {
-      const fileUrl = `${process.env.NEXT_PUBLIC_BACKEND_IP}/files/${contract.fileId}`;
-      window.open(fileUrl, "_blank");
+      const token = Cookies.get("token");
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/files/${contract.fileId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Response Status:", response.status);
+        console.log("Response Headers:", response.headers);
+        if (!response.ok) {
+          throw new Error("Failed to fetch contract file");
+        }
+
+        const responseClone = response.clone();
+        const text = await responseClone.text();
+        console.log("Response Body:", text);
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        // Option 1: Download the file
+        const link = document.createElement("a");
+        link.href = url;
+        // Extract the filename from the response headers if available
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let fileName = "contract.pdf"; // Default filename
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+          if (fileNameMatch.length > 1) {
+            fileName = fileNameMatch[1];
+          }
+        }
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        // Option 2: Open the file in a new window (uncomment if preferred)
+        // window.open(url, "_blank");
+
+        // Clean up the URL object
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading contract:", error);
+        alert("Error downloading contract. Please try again.");
+      }
     } else {
       alert("No contract file available.");
     }
@@ -986,7 +1192,35 @@ function ViewPatientPersonalContent() {
 
   // Categorize team members based on endServiceDate
   const today = new Date();
+  // for add consent when no information
+  const handleNewConsentInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewConsent({ ...newConsent, [name]: value });
+  };
+  // for add insurance when no information
+  const handleNewInsuranceInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewInsurance({ ...newInsurance, [name]: value });
+  };
 
+  // for add contract when no information
+  const handleNewContractInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewContract({ ...newContract, [name]: value });
+  };
+
+  const handleNewContractFileChange = (e) => {
+    setNewContractFile(e.target.files[0]);
+  };
+
+  // for add new outside provider
+  const handleNewOutsideProviderChange = (e) => {
+    const { name, value } = e.target;
+    setNewOutsideProvider({
+      ...newOutsideProvider,
+      [name]: value,
+    });
+  };
   // Ensure editedAssignedTeamMembers is an array
   const assignedTeamMembersArray = Array.isArray(editedAssignedTeamMembers)
     ? editedAssignedTeamMembers
@@ -1042,12 +1276,12 @@ function ViewPatientPersonalContent() {
             <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
             <TabsTrigger value="medical-info">Medical Info</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
-            {/* <TabsTrigger value="contract">Contract</TabsTrigger> */}
+            <TabsTrigger value="contract">Contract</TabsTrigger>
             <TabsTrigger value="additional-note">Additional Note</TabsTrigger>
           </TabsList>
           <TabsContent value="personal-info">
             {/* Patient Info */}
-            <div style={styles.card} >
+            <div style={styles.card}>
               <h2 style={styles.sectionHeader}>Basic Information</h2>
               <div style={styles.formContainer}>
                 {/* First Name */}
@@ -1229,12 +1463,13 @@ function ViewPatientPersonalContent() {
             </div>
             {/* Guardian Info */}
             <div style={styles.card}>
-              <h2 style={styles.sectionHeader}>
-                Guardian Information
-              </h2>
+              <h2 style={styles.sectionHeader}>Guardian Information</h2>
               {guardian.length > 0 ? (
                 guardian.map((guardianItem, index) => (
-                  <div key={guardianItem.guardianId || index} style={styles.guardianBox}>
+                  <div
+                    key={guardianItem.guardianId || index}
+                    style={styles.guardianBox}
+                  >
                     <h3 style={styles.subHeader}>
                       {index === 0 ? "Primary Guardian" : "Secondary Guardian"}
                     </h3>
@@ -1277,8 +1512,8 @@ function ViewPatientPersonalContent() {
                           </p>
                         )}
                       </div>
-                                            {/* Relation to Patient */}
-                                            <div>
+                      {/* Relation to Patient */}
+                      <div>
                         <Label className="text-muted-foreground">
                           Relation to Patient
                         </Label>
@@ -1465,7 +1700,9 @@ function ViewPatientPersonalContent() {
                         </div>
                         {/* aType */}
                         <div>
-                          <Label className="text-muted-foreground">Typicality</Label>
+                          <Label className="text-muted-foreground">
+                            Typicality
+                          </Label>
                           {isEditing ? (
                             <select
                               name="aType"
@@ -1496,81 +1733,58 @@ function ViewPatientPersonalContent() {
               <div style={styles.card}>
                 <h2 style={styles.sectionHeader}>Insurance</h2>
                 {insurance ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Insurance Provider */}
-                    <div>
-                      <Label className="text-muted-foreground">
-                        Insurance Provider
-                      </Label>
-                      {isEditing ? (
+                  isEditing ? (
+                    // Code to edit existing insurance information
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Insurance Provider */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Insurance Provider
+                        </Label>
                         <Input
                           name="insuranceProvider"
                           value={editedInsurance.insuranceProvider || ""}
                           onChange={handleInsuranceInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {insurance.insuranceProvider || "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    {/* Primary Plan Name */}
-                    <div>
-                      <Label className="text-muted-foreground">
-                        Primary Plan Name
-                      </Label>
-                      {isEditing ? (
+                      </div>
+                      {/* Primary Plan Name */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Primary Plan Name
+                        </Label>
                         <Input
                           name="primaryPlanName"
                           value={editedInsurance.primaryPlanName || ""}
                           onChange={handleInsuranceInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {insurance.primaryPlanName || "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    {/* Certificate ID */}
-                    <div>
-                      <Label className="text-muted-foreground">
-                        Certificate ID
-                      </Label>
-                      {isEditing ? (
+                      </div>
+                      {/* Certificate ID */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Certificate ID
+                        </Label>
                         <Input
                           name="certificateId"
                           value={editedInsurance.certificateId || ""}
                           onChange={handleInsuranceInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {insurance.certificateId || "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    {/* Coverage Detail */}
-                    <div>
-                      <Label className="text-muted-foreground">
-                        Coverage Detail
-                      </Label>
-                      {isEditing ? (
+                      </div>
+                      {/* Coverage Detail */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Coverage Detail
+                        </Label>
                         <Input
                           name="coverateDetail"
                           value={editedInsurance.coverateDetail || ""}
                           onChange={handleInsuranceInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {insurance.coverateDetail || "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    {/* Start Date */}
-                    <div>
-                      <Label className="text-muted-foreground">
-                        Start Date
-                      </Label>
-                      {isEditing ? (
+                      </div>
+                      {/* Start Date */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Start Date
+                        </Label>
                         <Input
                           type="date"
                           name="startDate"
@@ -1581,18 +1795,12 @@ function ViewPatientPersonalContent() {
                           }
                           onChange={handleInsuranceInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {insurance.startDate
-                            ? formatDisplayDate(insurance.startDate)
-                            : "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    {/* End Date */}
-                    <div>
-                      <Label className="text-muted-foreground">End Date</Label>
-                      {isEditing ? (
+                      </div>
+                      {/* End Date */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          End Date
+                        </Label>
                         <Input
                           type="date"
                           name="endDate"
@@ -1603,17 +1811,161 @@ function ViewPatientPersonalContent() {
                           }
                           onChange={handleInsuranceInputChange}
                         />
-                      ) : (
+                      </div>
+                    </div>
+                  ) : (
+                    // Display existing insurance information
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Insurance Provider */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Insurance Provider
+                        </Label>
+                        <p className="text-lg font-semibold">
+                          {insurance.insuranceProvider || "N/A"}
+                        </p>
+                      </div>
+                      {/* Primary Plan Name */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Primary Plan Name
+                        </Label>
+                        <p className="text-lg font-semibold">
+                          {insurance.primaryPlanName || "N/A"}
+                        </p>
+                      </div>
+                      {/* Certificate ID */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Certificate ID
+                        </Label>
+                        <p className="text-lg font-semibold">
+                          {insurance.certificateId || "N/A"}
+                        </p>
+                      </div>
+                      {/* Coverage Detail */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Coverage Detail
+                        </Label>
+                        <p className="text-lg font-semibold">
+                          {insurance.coverateDetail || "N/A"}
+                        </p>
+                      </div>
+                      {/* Start Date */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Start Date
+                        </Label>
+                        <p className="text-lg font-semibold">
+                          {insurance.startDate
+                            ? formatDisplayDate(insurance.startDate)
+                            : "N/A"}
+                        </p>
+                      </div>
+                      {/* End Date */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          End Date
+                        </Label>
                         <p className="text-lg font-semibold">
                           {insurance.endDate
                             ? formatDisplayDate(insurance.endDate)
                             : "N/A"}
                         </p>
-                      )}
+                      </div>
                     </div>
-                  </div>
+                  )
+                ) : isEditing ? (
+                  addingInsurance ? (
+                    // Code to add new insurance information
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Insurance Provider */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Insurance Provider
+                        </Label>
+                        <Input
+                          name="insuranceProvider"
+                          value={newInsurance.insuranceProvider || ""}
+                          onChange={handleNewInsuranceInputChange}
+                        />
+                      </div>
+                      {/* Primary Plan Name */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Primary Plan Name
+                        </Label>
+                        <Input
+                          name="primaryPlanName"
+                          value={newInsurance.primaryPlanName || ""}
+                          onChange={handleNewInsuranceInputChange}
+                        />
+                      </div>
+                      {/* Certificate ID */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Certificate ID
+                        </Label>
+                        <Input
+                          name="certificateId"
+                          value={newInsurance.certificateId || ""}
+                          onChange={handleNewInsuranceInputChange}
+                        />
+                      </div>
+                      {/* Coverage Detail */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Coverage Detail
+                        </Label>
+                        <Input
+                          name="coverateDetail"
+                          value={newInsurance.coverateDetail || ""}
+                          onChange={handleNewInsuranceInputChange}
+                        />
+                      </div>
+                      {/* Start Date */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Start Date
+                        </Label>
+                        <Input
+                          type="date"
+                          name="startDate"
+                          value={newInsurance.startDate}
+                          onChange={handleNewInsuranceInputChange}
+                        />
+                      </div>
+                      {/* End Date */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          End Date
+                        </Label>
+                        <Input
+                          type="date"
+                          name="endDate"
+                          value={newInsurance.endDate}
+                          onChange={handleNewInsuranceInputChange}
+                        />
+                      </div>
+                      {/* Save and Cancel Buttons */}
+                      <div style={styles.fullWidth}>
+                        <Button onClick={createInsuranceInfo}>Save</Button>
+                        <Button
+                          onClick={() => setAddingInsurance(false)}
+                          className="ml-2"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button onClick={() => setAddingInsurance(true)}>
+                      Add Insurance Information
+                    </Button>
+                  )
                 ) : (
-                  <p>No insurance data available.</p>
+                  <p>No insurance information available.</p>
                 )}
               </div>
             </div>
@@ -2047,18 +2399,19 @@ function ViewPatientPersonalContent() {
           </TabsContent>
 
           <TabsContent value="contract">
+            {/* Contract Information */}
             <div style={styles.card}>
               <h2 style={styles.sectionHeader}>Contract</h2>
               {contract ? (
-                <div>
-                  {/* Display contract details */}
-                  <div className="mb-4">
-                    {/* Start Date */}
-                    <div>
-                      <Label className="text-muted-foreground">
-                        Start Date
-                      </Label>
-                      {isEditing ? (
+                isEditing ? (
+                  // Edit existing contract information
+                  <div>
+                    <div className="mb-4">
+                      {/* Start Date */}
+                      <div className="mb-2">
+                        <Label className="text-muted-foreground">
+                          Start Date
+                        </Label>
                         <Input
                           type="date"
                           name="startDate"
@@ -2069,16 +2422,12 @@ function ViewPatientPersonalContent() {
                           }
                           onChange={handleContractInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {formatDisplayDate(contract.startDate)}
-                        </p>
-                      )}
-                    </div>
-                    {/* End Date */}
-                    <div>
-                      <Label className="text-muted-foreground">End Date</Label>
-                      {isEditing ? (
+                      </div>
+                      {/* End Date */}
+                      <div className="mb-6">
+                        <Label className="text-muted-foreground">
+                          End Date
+                        </Label>
                         <Input
                           type="date"
                           name="endDate"
@@ -2089,35 +2438,307 @@ function ViewPatientPersonalContent() {
                           }
                           onChange={handleContractInputChange}
                         />
-                      ) : (
-                        <p className="text-lg font-semibold">
-                          {formatDisplayDate(contract.endDate)}
-                        </p>
-                      )}
-                    </div>
-                    {/* Hours fields can be added here if needed */}
-                  </div>
-                  {/* View or Update Contract File */}
-                  <div>
-                    {isEditing ? (
-                      <div>
-                        <Label className="text-muted-foreground">
-                          Upload New Contract
-                        </Label>
-                        <Input
-                          type="file"
-                          name="contractFile"
-                          onChange={handleContractInputChange}
-                        />
                       </div>
-                    ) : (
+                      {/* Service Hours */}
+                      <Table style={styles.table}>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Service</TableHead>
+                            <TableHead>Hours</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {/* Coordinator */}
+                          <TableRow>
+                            <TableCell>Coordinator</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="COOhours"
+                                value={editedContract.COOhours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Psychologist/Behavioral Consultant */}
+                          <TableRow>
+                            <TableCell>
+                              Psychologist/Behavioral Consultant
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="PBChours"
+                                value={editedContract.PBChours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Speech-Language Pathologist */}
+                          <TableRow>
+                            <TableCell>SLP</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="SLPhours"
+                                value={editedContract.SLPhours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Additional services */}
+                          {/* OT */}
+                          <TableRow>
+                            <TableCell>OT</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="OThours"
+                                value={editedContract.OThours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* PT */}
+                          <TableRow>
+                            <TableCell>PT</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="PThours"
+                                value={editedContract.PThours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Aide */}
+                          <TableRow>
+                            <TableCell>Aide</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="AIDEhours"
+                                value={editedContract.AIDEhours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Counseling */}
+                          <TableRow>
+                            <TableCell>Counseling</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="COUShours"
+                                value={editedContract.COUShours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Community Aide Respite */}
+                          <TableRow>
+                            <TableCell>Community Aide Respite</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="CARhours"
+                                value={editedContract.CARhours || 0}
+                                onChange={handleContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {/* File Upload */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Upload New Contract
+                      </Label>
+                      <Input
+                        type="file"
+                        name="contractFile"
+                        onChange={handleContractFileChange}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  // Display existing contract information
+                  <div>
+                    {/* Start Date */}
+                    <div className="mb-2">
+                      <Label className="text-muted-foreground">
+                        Start Date
+                      </Label>
+                      <p className="text-lg font-semibold">
+                        {contract.startDate
+                          ? formatDisplayDate(contract.startDate)
+                          : "N/A"}
+                      </p>
+                    </div>
+                    {/* End Date */}
+                    <div className="mb-6">
+                      <Label className="text-muted-foreground">End Date</Label>
+                      <p className="text-lg font-semibold">
+                        {contract.endDate
+                          ? formatDisplayDate(contract.endDate)
+                          : "N/A"}
+                      </p>
+                    </div>
+                    {/* Service Hours */}
+                    <Table style={styles.table}>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Service</TableHead>
+                          <TableHead>Hours</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {contract.COOhours !== 0 && (
+                          <TableRow>
+                            <TableCell>Coordinator</TableCell>
+                            <TableCell>{contract.COOhours}</TableCell>
+                          </TableRow>
+                        )}
+                        {contract.PBChours !== 0 && (
+                          <TableRow>
+                            <TableCell>
+                              Psychologist/Behavioral Consultant
+                            </TableCell>
+                            <TableCell>{contract.PBChours}</TableCell>
+                          </TableRow>
+                        )}
+                        {contract.SLPhours !== 0 && (
+                          <TableRow>
+                            <TableCell>SLP</TableCell>
+                            <TableCell>{contract.SLPhours}</TableCell>
+                          </TableRow>
+                        )}
+                        {contract.OThours !== 0 && (
+                          <TableRow>
+                            <TableCell>OT</TableCell>
+                            <TableCell>{contract.OThours}</TableCell>
+                          </TableRow>
+                        )}
+                        {/* Additional services */}
+                        {contract.PThours !== 0 && (
+                          <TableRow>
+                            <TableCell>PT</TableCell>
+                            <TableCell>{contract.PThours}</TableCell>
+                          </TableRow>
+                        )}
+                        {contract.AIDEhours !== 0 && (
+                          <TableRow>
+                            <TableCell>Aide</TableCell>
+                            <TableCell>{contract.AIDEhours}</TableCell>
+                          </TableRow>
+                        )}
+                        {contract.COUShours !== 0 && (
+                          <TableRow>
+                            <TableCell>Counseling</TableCell>
+                            <TableCell>{contract.COUShours}</TableCell>
+                          </TableRow>
+                        )}
+                        {contract.CARhours !== 0 && (
+                          <TableRow>
+                            <TableCell>Community Aide Respite</TableCell>
+                            <TableCell>{contract.CARhours}</TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                    {/* View Contract File */}
+                    <div className="pt-4">
                       <Button onClick={handleDownloadContract}>
                         View Contract
                       </Button>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )
+              ) : isEditing ? (
+                addingContract ? (
+                  // Add new contract information
+                  <div>
+                    <div className="mb-4">
+                      {/* Start Date */}
+                      <div className="mb-2">
+                        <Label className="text-muted-foreground">
+                          Start Date
+                        </Label>
+                        <Input
+                          type="date"
+                          name="startDate"
+                          value={newContract.startDate}
+                          onChange={handleNewContractInputChange}
+                        />
+                      </div>
+                      {/* End Date */}
+                      <div className="mb-6">
+                        <Label className="text-muted-foreground">
+                          End Date
+                        </Label>
+                        <Input
+                          type="date"
+                          name="endDate"
+                          value={newContract.endDate}
+                          onChange={handleNewContractInputChange}
+                        />
+                      </div>
+                      {/* Service Hours */}
+                      <Table style={styles.table}>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Service</TableHead>
+                            <TableHead>Hours</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {/* Coordinator */}
+                          <TableRow>
+                            <TableCell>Coordinator</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="COOhours"
+                                value={newContract.COOhours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Additional services */}
+                          {/* ... */}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {/* File Upload */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Contract Upload*
+                      </Label>
+                      <Input
+                        type="file"
+                        onChange={handleNewContractFileChange}
+                      />
+                    </div>
+                    {/* Save and Cancel Buttons */}
+                    <div className="mt-4">
+                      <Button onClick={createContractInfo}>Save</Button>
+                      <Button
+                        onClick={() => setAddingContract(false)}
+                        className="ml-2"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  // Button to add contract information
+                  <Button onClick={() => setAddingContract(true)}>
+                    Add Contract Information
+                  </Button>
+                )
               ) : (
+                // No contract information available
                 <p>No contract information available.</p>
               )}
             </div>
@@ -2129,30 +2750,25 @@ function ViewPatientPersonalContent() {
               {/* Consent Information */}
               <h2 style={styles.sectionHeader}>Consent</h2>
               {consent ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Permission Note */}
-                  <div style={styles.fullWidth}>
-                    <Label className="text-muted-foreground">
-                      Permission Note
-                    </Label>
-                    {isEditing ? (
+                isEditing ? (
+                  // Code to edit existing consent information
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Permission Note */}
+                    <div style={styles.fullWidth}>
+                      <Label className="text-muted-foreground">
+                        Permission Note
+                      </Label>
                       <Input
                         name="permissionNote"
                         value={editedConsent.permissionNote || ""}
                         onChange={handleConsentInputChange}
                       />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {consent.permissionNote || "N/A"}
-                      </p>
-                    )}
-                  </div>
-                  {/* Received Date */}
-                  <div>
-                    <Label className="text-muted-foreground">
-                      Received Date
-                    </Label>
-                    {isEditing ? (
+                    </div>
+                    {/* Received Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Received Date
+                      </Label>
                       <Input
                         type="date"
                         name="receivedDate"
@@ -2163,20 +2779,12 @@ function ViewPatientPersonalContent() {
                         }
                         onChange={handleConsentInputChange}
                       />
-                    ) : (
-                      <p className="text-lg font-semibold">
-                        {consent.receivedDate
-                          ? formatDisplayDate(consent.receivedDate)
-                          : "N/A"}
-                      </p>
-                    )}
-                  </div>
-                  {/* Withdraw Date */}
-                  <div>
-                    <Label className="text-muted-foreground">
-                      Withdraw Date
-                    </Label>
-                    {isEditing ? (
+                    </div>
+                    {/* Withdraw Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Withdraw Date
+                      </Label>
                       <Input
                         type="date"
                         name="withdrawDate"
@@ -2187,50 +2795,132 @@ function ViewPatientPersonalContent() {
                         }
                         onChange={handleConsentInputChange}
                       />
-                    ) : (
+                    </div>
+                  </div>
+                ) : (
+                  // Display existing consent information
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Permission Note */}
+                    <div style={styles.fullWidth}>
+                      <Label className="text-muted-foreground">
+                        Permission Note
+                      </Label>
+                      <p className="text-lg font-semibold">
+                        {consent.permissionNote || "N/A"}
+                      </p>
+                    </div>
+                    {/* Received Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Received Date
+                      </Label>
+                      <p className="text-lg font-semibold">
+                        {consent.receivedDate
+                          ? formatDisplayDate(consent.receivedDate)
+                          : "N/A"}
+                      </p>
+                    </div>
+                    {/* Withdraw Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Withdraw Date
+                      </Label>
                       <p className="text-lg font-semibold">
                         {consent.withdrawDate
                           ? formatDisplayDate(consent.withdrawDate)
                           : "N/A"}
                       </p>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )
+              ) : isEditing ? (
+                addingConsent ? (
+                  // Code to add new consent information
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Permission Note */}
+                    <div style={styles.fullWidth}>
+                      <Label className="text-muted-foreground">
+                        Permission Note
+                      </Label>
+                      <Input
+                        name="permissionNote"
+                        value={newConsent.permissionNote || ""}
+                        onChange={handleNewConsentInputChange}
+                      />
+                    </div>
+                    {/* Received Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Received Date
+                      </Label>
+                      <Input
+                        type="date"
+                        name="receivedDate"
+                        value={newConsent.receivedDate}
+                        onChange={handleNewConsentInputChange}
+                      />
+                    </div>
+                    {/* Withdraw Date */}
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Withdraw Date
+                      </Label>
+                      <Input
+                        type="date"
+                        name="withdrawDate"
+                        value={newConsent.withdrawDate}
+                        onChange={handleNewConsentInputChange}
+                      />
+                    </div>
+                    {/* Save and Cancel Buttons */}
+                    <div style={styles.fullWidth}>
+                      <Button onClick={createConsentInfo}>Save</Button>
+                      <Button
+                        onClick={() => setAddingConsent(false)}
+                        className="ml-2"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button onClick={() => setAddingConsent(true)}>
+                    Add Consent Information
+                  </Button>
+                )
               ) : (
                 <p>No consent information available.</p>
               )}
-</div>
-              {/* Additional Note */}
-              <div style={styles.card}>
-                <h2 style={styles.sectionHeader}>Additional</h2>
-                <Label className="text-muted-foreground">Note</Label>
-                {isEditing ? (
-                  <Input
-                    name="psNote"
-                    value={editedPatient.psNote || ""}
-                    onChange={handlePatientInputChange}
-                  />
-                ) : (
-                  <p className="text-lg font-semibold">{patient.psNote}</p>
-                )}
-                <Label className="text-muted-foreground">
-                  Status
-                </Label>
-                {isEditing ? (
-                  <select
-                    name="currentStatus"
-                    value={editedPatient.currentStatus || ""}
-                    onChange={handlePatientInputChange}
-                    className="border rounded p-2 w-full"
-                  >
-                    <option value={0}>Archived</option>
-                    <option value={1}>Active</option>
-                  </select>
-                ) : (
-                  <div className="text-lg font-bold">
-                    {patient.currentStatus === 1 ? "Active" : "Archived"}
-                  </div>
-                )}
+            </div>
+            {/* Additional Note */}
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>Additional</h2>
+              <Label className="text-muted-foreground">Note</Label>
+              {isEditing ? (
+                <Input
+                  name="psNote"
+                  value={editedPatient.psNote || ""}
+                  onChange={handlePatientInputChange}
+                />
+              ) : (
+                <p className="text-lg font-semibold">{patient.psNote}</p>
+              )}
+              <Label className="text-muted-foreground">Status</Label>
+              {isEditing ? (
+                <select
+                  name="currentStatus"
+                  value={editedPatient.currentStatus || ""}
+                  onChange={handlePatientInputChange}
+                  className="border rounded p-2 w-full"
+                >
+                  <option value={0}>Archived</option>
+                  <option value={1}>Active</option>
+                </select>
+              ) : (
+                <div className="text-lg font-bold">
+                  {patient.currentStatus === 1 ? "Active" : "Archived"}
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
@@ -2269,8 +2959,7 @@ const styles = {
     border: "1px solid #ccc",
   },
   formContainer: {
-
-    borderRadius:"16px",
+    borderRadius: "16px",
     padding: "24px",
     display: "grid",
     gridTemplateColumns: "repeat(4, minmax(0, 1fr))", // Four columns for the form
@@ -2297,36 +2986,36 @@ const styles = {
 
   divider: {
     border: "none",
-    borderTop: "2px solid #ccc", 
+    borderTop: "2px solid #ccc",
     margin: "10px 0",
     width: "100%",
-},
-sectionHeader: {
-  fontSize: "20px",
-  fontWeight: "bold",
-  marginBottom: "16px",
-  borderBottom: "1px solid #ccc", // Optional underline
-  paddingBottom: "4px",
-},
-card: {
-  backgroundColor: "#ffffff",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  borderRadius: "8px",
-  padding: "16px",
-  marginBottom: "24px",
-},
-subHeader: {
-  fontSize: "18px",
-  fontWeight: "bold",
-  marginBottom: "12px",
-  paddingBottom: "4px",
-  color: "#333",
-},
+  },
+  sectionHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid #ccc", // Optional underline
+    paddingBottom: "4px",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "24px",
+  },
+  subHeader: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    paddingBottom: "4px",
+    color: "#333",
+  },
 
-guardianBox: {
-  backgroundColor: "#F9FAFB", // Subtle light gray
-  borderRadius: "8px",
-  padding: "16px",
-  marginBottom: "16px",
-},
+  guardianBox: {
+    backgroundColor: "#F9FAFB", // Subtle light gray
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "16px",
+  },
 };
