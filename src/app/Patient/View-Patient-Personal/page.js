@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { Badge } from "@/app/components/HomeUi/badge";
@@ -100,7 +100,7 @@ function ViewPatientPersonalContent() {
     []
   );
 
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
   useEffect(() => {
     const token = Cookies.get("token");
     const storedUser = localStorage.getItem("user");
@@ -1047,11 +1047,9 @@ function ViewPatientPersonalContent() {
           </TabsList>
           <TabsContent value="personal-info">
             {/* Patient Info */}
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">
-                Client Information
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style={styles.card} >
+              <h2 style={styles.sectionHeader}>Basic Information</h2>
+              <div style={styles.formContainer}>
                 {/* First Name */}
                 <div>
                   <Label className="text-muted-foreground">First Name</Label>
@@ -1078,6 +1076,34 @@ function ViewPatientPersonalContent() {
                     <p className="text-lg font-semibold">{patient.lastName}</p>
                   )}
                 </div>
+                {/* Date of Birth */}
+                <div>
+                  <Label className="text-muted-foreground">Date Of Birth</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="birthDate"
+                      value={
+                        editedPatient.birthDate
+                          ? editedPatient.birthDate.split("T")[0]
+                          : ""
+                      }
+                      onChange={handlePatientInputChange}
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {formatDisplayDate(patient.birthDate)}
+                    </p>
+                  )}
+                </div>
+                {/* Age */}
+                <div>
+                  <Label className="text-muted-foreground">Age</Label>
+                  <p className="text-lg font-semibold">
+                    {calculateAge(patient.birthDate)}
+                  </p>
+                </div>
+
                 {/* Address */}
                 <div>
                   <Label className="text-muted-foreground">Address</Label>
@@ -1131,33 +1157,6 @@ function ViewPatientPersonalContent() {
                       {patient.postalCode}
                     </p>
                   )}
-                </div>
-                {/* Date of Birth */}
-                <div>
-                  <Label className="text-muted-foreground">Date Of Birth</Label>
-                  {isEditing ? (
-                    <Input
-                      type="date"
-                      name="birthDate"
-                      value={
-                        editedPatient.birthDate
-                          ? editedPatient.birthDate.split("T")[0]
-                          : ""
-                      }
-                      onChange={handlePatientInputChange}
-                    />
-                  ) : (
-                    <p className="text-lg font-semibold">
-                      {formatDisplayDate(patient.birthDate)}
-                    </p>
-                  )}
-                </div>
-                {/* Age */}
-                <div>
-                  <Label className="text-muted-foreground">Age</Label>
-                  <p className="text-lg font-semibold">
-                    {calculateAge(patient.birthDate)}
-                  </p>
                 </div>
                 {/* Gender */}
                 <div>
@@ -1229,17 +1228,17 @@ function ViewPatientPersonalContent() {
               </div>
             </div>
             {/* Guardian Info */}
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>
                 Guardian Information
               </h2>
               {guardian.length > 0 ? (
                 guardian.map((guardianItem, index) => (
-                  <div key={guardianItem.guardianId || index} className="mb-4">
-                    <h3 className="text-xl font-semibold">
+                  <div key={guardianItem.guardianId || index} style={styles.guardianBox}>
+                    <h3 style={styles.subHeader}>
                       {index === 0 ? "Primary Guardian" : "Secondary Guardian"}
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div style={styles.formContainer}>
                       {/* First Name */}
                       <div>
                         <Label className="text-muted-foreground">
@@ -1275,6 +1274,42 @@ function ViewPatientPersonalContent() {
                         ) : (
                           <p className="text-lg font-semibold">
                             {guardianItem.lastName}
+                          </p>
+                        )}
+                      </div>
+                                            {/* Relation to Patient */}
+                                            <div>
+                        <Label className="text-muted-foreground">
+                          Relation to Patient
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            name="relationship"
+                            value={editedGuardian[index].relationship || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.relationship}
+                          </p>
+                        )}
+                      </div>
+                      {/* Custody */}
+                      <div>
+                        <Label className="text-muted-foreground">Custody</Label>
+                        {isEditing ? (
+                          <Input
+                            name="custody"
+                            value={editedGuardian[index].custody || ""}
+                            onChange={(e) =>
+                              handleGuardianInputChange(e, index)
+                            }
+                          />
+                        ) : (
+                          <p className="text-lg font-semibold">
+                            {guardianItem.custody}
                           </p>
                         )}
                       </div>
@@ -1350,42 +1385,7 @@ function ViewPatientPersonalContent() {
                           </p>
                         )}
                       </div>
-                      {/* Relation to Patient */}
-                      <div>
-                        <Label className="text-muted-foreground">
-                          Relation to Patient
-                        </Label>
-                        {isEditing ? (
-                          <Input
-                            name="relationship"
-                            value={editedGuardian[index].relationship || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.relationship}
-                          </p>
-                        )}
-                      </div>
-                      {/* Custody */}
-                      <div>
-                        <Label className="text-muted-foreground">Custody</Label>
-                        {isEditing ? (
-                          <Input
-                            name="custody"
-                            value={editedGuardian[index].custody || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.custody}
-                          </p>
-                        )}
-                      </div>
+
                       {/* Email */}
                       <div>
                         <Label className="text-muted-foreground">Email</Label>
@@ -1433,23 +1433,17 @@ function ViewPatientPersonalContent() {
 
           {/* Medical Info Tab */}
           <TabsContent value="medical-info">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">
-                Medical Information
-              </h2>
+            <div>
               {/* Diagnosis Information */}
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2">Diagnoses</h3>
+              <div style={styles.card}>
+                <h3 style={styles.sectionHeader}>Diagnoses</h3>
                 {diagnosis.length > 0 ? (
                   diagnosis.map((diagnosisItem, index) => (
                     <div
                       key={diagnosisItem.diagnosisId || index}
                       className="mb-4"
                     >
-                      <h4 className="text-lg font-semibold">
-                        Diagnosis {index + 1}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Diagnosis */}
                         <div>
                           <Label className="text-muted-foreground">
@@ -1471,7 +1465,7 @@ function ViewPatientPersonalContent() {
                         </div>
                         {/* aType */}
                         <div>
-                          <Label className="text-muted-foreground">Type</Label>
+                          <Label className="text-muted-foreground">Typicality</Label>
                           {isEditing ? (
                             <select
                               name="aType"
@@ -1499,10 +1493,10 @@ function ViewPatientPersonalContent() {
               </div>
 
               {/* Insurance Information */}
-              <div className="mb-4">
-                <h2 className="text-2xl font-semibold mb-4">Insurance</h2>
+              <div style={styles.card}>
+                <h2 style={styles.sectionHeader}>Insurance</h2>
                 {insurance ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Insurance Provider */}
                     <div>
                       <Label className="text-muted-foreground">
@@ -1627,8 +1621,8 @@ function ViewPatientPersonalContent() {
 
           {/* Team Tab */}
           <TabsContent value="team">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">Team Members</h2>
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>Team Members</h2>
               <Tabs defaultValue="current" className="mb-6">
                 <TabsList>
                   <TabsTrigger value="current">
@@ -2053,8 +2047,8 @@ function ViewPatientPersonalContent() {
           </TabsContent>
 
           <TabsContent value="contract">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-4">Contract</h2>
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>Contract</h2>
               {contract ? (
                 <div>
                   {/* Display contract details */}
@@ -2131,13 +2125,13 @@ function ViewPatientPersonalContent() {
 
           {/* Additional Note Tab */}
           <TabsContent value="additional-note">
-            <div className="mb-6">
+            <div style={styles.card}>
               {/* Consent Information */}
-              <h2 className="text-2xl font-semibold mb-4">Consent</h2>
+              <h2 style={styles.sectionHeader}>Consent</h2>
               {consent ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Permission Note */}
-                  <div>
+                  <div style={styles.fullWidth}>
                     <Label className="text-muted-foreground">
                       Permission Note
                     </Label>
@@ -2205,10 +2199,11 @@ function ViewPatientPersonalContent() {
               ) : (
                 <p>No consent information available.</p>
               )}
-
+</div>
               {/* Additional Note */}
-              <div className="mt-6">
-                <Label className="text-muted-foreground">Additional Note</Label>
+              <div style={styles.card}>
+                <h2 style={styles.sectionHeader}>Additional</h2>
+                <Label className="text-muted-foreground">Note</Label>
                 {isEditing ? (
                   <Input
                     name="psNote"
@@ -2216,13 +2211,10 @@ function ViewPatientPersonalContent() {
                     onChange={handlePatientInputChange}
                   />
                 ) : (
-                  <p>{patient.psNote}</p>
+                  <p className="text-lg font-semibold">{patient.psNote}</p>
                 )}
-              </div>
-
-              <div className="mt-6">
                 <Label className="text-muted-foreground">
-                  Move to Archived
+                  Status
                 </Label>
                 {isEditing ? (
                   <select
@@ -2239,7 +2231,6 @@ function ViewPatientPersonalContent() {
                     {patient.currentStatus === 1 ? "Active" : "Archived"}
                   </div>
                 )}
-              </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -2275,6 +2266,67 @@ const styles = {
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     borderRadius: "8px",
     padding: "16px",
-    border: "1px solid #ccc", 
+    border: "1px solid #ccc",
   },
+  formContainer: {
+
+    borderRadius:"16px",
+    padding: "24px",
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))", // Four columns for the form
+    gap: "20px",
+    overflow: "visible",
+    height: "auto",
+  },
+  fieldContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  fullWidth: {
+    gridColumn: "span 4", // Full width row (used for buttons or large elements)
+  },
+  halfWidth: {
+    gridColumn: "span 2", // For two-column text areas
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "space-between", // Align "Back" button to the left, "Submit" to the right
+    gridColumn: "span 4", // Full width for the button container
+  },
+
+  divider: {
+    border: "none",
+    borderTop: "2px solid #ccc", 
+    margin: "10px 0",
+    width: "100%",
+},
+sectionHeader: {
+  fontSize: "20px",
+  fontWeight: "bold",
+  marginBottom: "16px",
+  borderBottom: "1px solid #ccc", // Optional underline
+  paddingBottom: "4px",
+},
+card: {
+  backgroundColor: "#ffffff",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  borderRadius: "8px",
+  padding: "16px",
+  marginBottom: "24px",
+},
+subHeader: {
+  fontSize: "18px",
+  fontWeight: "bold",
+  marginBottom: "12px",
+  paddingBottom: "4px",
+  color: "#333",
+},
+
+guardianBox: {
+  backgroundColor: "#F9FAFB", // Subtle light gray
+  borderRadius: "8px",
+  padding: "16px",
+  marginBottom: "16px",
+},
 };

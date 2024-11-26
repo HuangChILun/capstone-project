@@ -192,7 +192,7 @@ const styles = {
     backgroundColor: "#f8f9fa",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "start",
   },
   profileContainer: {
     width: "100%",

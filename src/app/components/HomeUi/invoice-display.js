@@ -1,14 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   BarElement,
   CategoryScale,
   LinearScale,
   ArcElement,
-  Tooltip
+  Tooltip,
 } from "chart.js";
 import { Bar, Pie } from "react-chartjs-2";
+import { Button } from "./button";
 
 // Register the required components
 ChartJS.register(
@@ -16,12 +17,31 @@ ChartJS.register(
   CategoryScale, // For Category scale on X-axis
   LinearScale, // For Linear scale on Y-axis
   ArcElement, // For Pie charts
-  Tooltip,
+  Tooltip
 );
 
-export default function InvoiceSection({ monthlyData, clientData }) {
-    const [mode, setMode] = useState("monthly"); // Default to 'monthly' mode
-    const [selectedMonth, setSelectedMonth] = useState(null); // Track selected month
+export default function InvoiceSection({ invoice }) {
+  const [invoiceData, setInvoiceData] = useState([]);
+  const [mode, setMode] = useState("monthly"); // Default to 'monthly' mode
+  const [selectedMonth, setSelectedMonth] = useState(null); // Track selected month
+  const [selectedYear, setSelectedYear] = useState(""); // Track selected year
+  const [availableYears, setAvailableYears] = useState([]); // Store available years
+
+  // Populate invoiceData from props and extract available years
+  useEffect(() => {
+    if (invoice && Array.isArray(invoice)) {
+      setInvoiceData(invoice);
+
+      // Extract unique years from invoice data
+      const years = [...new Set(invoice.map((item) => new Date(item.month).getFullYear()))];
+      setAvailableYears(years);
+      // Set the default year to the most recent year available
+      if (years.length > 0) {
+        setSelectedYear(years[0]);
+      }
+    }
+  }, [invoice]);
+
   // Ensure all 12 months are present in the data
   const allMonths = [
     "January",
@@ -38,6 +58,48 @@ export default function InvoiceSection({ monthlyData, clientData }) {
     "December",
   ];
 
+  // Filter invoice data by the selected year
+  const filteredInvoiceData = invoiceData.filter(
+    (item) => new Date(item.month).getFullYear() === selectedYear
+  );
+
+  // Transform filtered invoice data to match mock format (use only month names)
+  const monthlyData = filteredInvoiceData.reduce((acc, item) => {
+    const date = new Date(item.month);
+    const monthName = new Intl.DateTimeFormat("en-US", {
+      month: "long",
+    }).format(date); // Get only the month name (e.g., "July")
+
+    if (!acc[monthName]) {
+      acc[monthName] = 0;
+    }
+
+    acc[monthName] += item.rate * item.hours;
+
+    return acc;
+  }, {});
+
+  // Transform filtered invoice data for client breakdown
+  const clientData = filteredInvoiceData.reduce((acc, item) => {
+    const date = new Date(item.month);
+    const monthName = new Intl.DateTimeFormat("en-US", {
+      month: "long",
+    }).format(date);
+
+    if (!acc[monthName]) {
+      acc[monthName] = {};
+    }
+
+    const clientName = `${item.firstName} ${item.lastName}`;
+    if (!acc[monthName][clientName]) {
+      acc[monthName][clientName] = 0;
+    }
+
+    acc[monthName][clientName] += item.rate * item.hours;
+
+    return acc;
+  }, {});
+
   // Fill missing months with 0
   const completeMonthlyData = allMonths.reduce((acc, month) => {
     acc[month] = monthlyData[month] || 0; // If month is missing in monthlyData, set it to 0
@@ -52,18 +114,13 @@ export default function InvoiceSection({ monthlyData, clientData }) {
     setMode("detailed"); // Switch to detailed mode to show pie chart
   };
 
-//   // Toggle between monthly total mode and detail mode
-//   const toggleMode = () => {
-//     setMode((prevMode) => (prevMode === "monthly" ? "detailed" : "monthly"));
-//   };
-
   // Monthly Bar Chart Data
   const monthlyChartData = {
     labels: allMonths,
     datasets: [
       {
         label: "Monthly Invoice Total",
-        data: Object.values(completeMonthlyData),
+        data: allMonths.map((month) => completeMonthlyData[month]),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -89,9 +146,10 @@ export default function InvoiceSection({ monthlyData, clientData }) {
       },
     ],
   };
-// Chart options for bar click and tooltips
-const barChartOptions = {
-    onClick: (event, elements) => handleBarClick(elements), // Add onClick handler for bars
+
+  // Chart options for bar click and tooltips
+  const barChartOptions = {
+    onClick: (event, elements) => handleBarClick(elements),
     plugins: {
       tooltip: {
         callbacks: {
@@ -121,14 +179,30 @@ const barChartOptions = {
 
   return (
     <div style={styles.invoiceSection}>
+      {/* Dropdown to select year */}
+      <div style={styles.yearDropdown}>
+        <label htmlFor="year-select">Select Year: </label>
+        <select
+          id="year-select"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+        >
+          {availableYears.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Conditionally Render the Top Right Button Only in Pie Chart Mode */}
       {mode === "detailed" && (
-        <button
+        <Button
           onClick={() => setMode("monthly")} // Go back to bar chart when clicked
           style={styles.toggleButton}
         >
           Back to Monthly Breakdown
-        </button>
+        </Button>
       )}
 
       {/* Conditionally Render Chart Based on Mode */}
@@ -157,16 +231,15 @@ const styles = {
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
     textAlign: "center",
-    position: "relative", // This allows us to position the toggle button within the section
+    position: "relative",
+  },
+  yearDropdown: {
+    marginBottom: "20px",
   },
   toggleButton: {
     padding: "10px 20px",
-    backgroundColor: "#007BFF",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
     cursor: "pointer",
-    position: "absolute", // Absolute position for top-right corner
+    position: "absolute",
     top: "10px",
     right: "20px",
   },
@@ -174,14 +247,14 @@ const styles = {
     width: "100%",
     height: "200px",
     display: "flex",
-    justifyContent: "center", // Center the chart horizontally
+    justifyContent: "center",
     flexDirection: "column",
-    alignItems: "center", // Center the chart container contents
+    alignItems: "center",
   },
   pieChartContainer: {
-    width: "200px", // Ensure pie chart has a fixed size
+    width: "200px",
     height: "200px",
     display: "flex",
-    justifyContent: "center", // Center the pie chart horizontally
+    justifyContent: "center",
   },
 };

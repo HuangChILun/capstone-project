@@ -236,7 +236,7 @@ const styles = {
     flex: 1,
     padding: "84px 32px 32px 32px", // Adding padding to move content below the navbar
     display: "flex",
-    alignItems: "center",
+    alignItems: "start",
     justifyContent: "center",
     backgroundColor: "#f7f7f7",
   },

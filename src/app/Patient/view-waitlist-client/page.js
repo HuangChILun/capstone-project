@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -111,18 +111,17 @@ function ViewWaitListContent() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let processedValue = value;
-  
+
     // Convert 'isArchived' value to integer
     if (name === "isArchived") {
       processedValue = parseInt(value, 10);
     }
-  
+
     setEditedClientData({
       ...editedClientData,
       [name]: processedValue,
     });
   };
-  
 
   // Save changes to the backend
   const handleSaveChanges = async () => {
@@ -131,7 +130,7 @@ function ViewWaitListContent() {
       const updatedData = {
         ...editedClientData,
       };
-  
+
       // Validate required fields
       // for (const [key, value] of Object.entries(updatedData)) {
       //   if (
@@ -141,7 +140,7 @@ function ViewWaitListContent() {
       //     throw new Error(`Field ${key} is required and cannot be empty.`);
       //   }
       // }
-  
+
       // Format date fields to 'YYYY-MM-DD'
       const dateFields = [
         "birthDate",
@@ -158,7 +157,7 @@ function ViewWaitListContent() {
           updatedData[field] = updatedData[field].split("T")[0];
         }
       });
-  
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_IP}/waitlist-client/updateWaitlistClient/${waitlistClientId}`,
         {
@@ -170,7 +169,7 @@ function ViewWaitListContent() {
           body: JSON.stringify(updatedData),
         }
       );
-  
+
       if (!response.ok) {
         // Check if response is JSON
         let errorMessage = `Failed to update waitlist client data. Status: ${response.status}`;
@@ -184,7 +183,7 @@ function ViewWaitListContent() {
         }
         throw new Error(errorMessage);
       }
-  
+
       alert("Waitlist client data updated successfully!");
       setClientData(updatedData); // Update clientData with saved data
       setIsEditing(false);
@@ -193,7 +192,6 @@ function ViewWaitListContent() {
       alert(`Error updating waitlist client data: ${error.message}`);
     }
   };
-  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -212,7 +210,7 @@ function ViewWaitListContent() {
 
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-          <h1 className="text-4xl font-bold">{`${clientData.firstName} ${clientData.lastName}`}</h1>
+            <h1 className="text-4xl font-bold">{`${clientData.firstName} ${clientData.lastName}`}</h1>
             <Badge variant="default" className="ml-4 ">
               {clientData.isArchived ? "Archived" : "Active"}
             </Badge>
@@ -245,601 +243,656 @@ function ViewWaitListContent() {
 
           {/* Personal Info Tab */}
           <TabsContent value="personal-info">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* First Name */}
-              <div>
-                <Label>First Name</Label>
-                {isEditing ? (
-                  <Input
-                    name="firstName"
-                    value={editedClientData.firstName || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.firstName}</div>
-                )}
-              </div>
-              {/* Last Name */}
-              <div>
-                <Label>Last Name</Label>
-                {isEditing ? (
-                  <Input
-                    name="lastName"
-                    value={editedClientData.lastName || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.lastName}</div>
-                )}
-              </div>
-              {/* Gender */}
-              <div>
-                <Label>Gender</Label>
-                {isEditing ? (
-                  <Input
-                    name="gender"
-                    value={editedClientData.gender || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.gender}</div>
-                )}
-              </div>
-              {/* Birth Date */}
-              <div>
-                <Label>Birth Date</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="birthDate"
-                    value={
-                      editedClientData.birthDate
-                        ? editedClientData.birthDate.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.birthDate
-                      ? new Date(clientData.birthDate).toLocaleDateString()
-                      : ""}
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>Personal Information</h2>
+              <div style={styles.guardianBox}>
+                <h3 style={styles.subHeader}>Basic Information</h3>
+                <div style={styles.formContainer}>
+                  {/* First Name */}
+                  <div>
+                    <Label>First Name</Label>
+                    {isEditing ? (
+                      <Input
+                        name="firstName"
+                        value={editedClientData.firstName || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.firstName}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              {/* School */}
-              <div>
-                <Label>School</Label>
-                {isEditing ? (
-                  <Input
-                    name="school"
-                    value={editedClientData.school || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.school}</div>
-                )}
-              </div>
-              {/* Email */}
-              <div>
-                <Label>Email</Label>
-                {isEditing ? (
-                  <Input
-                    name="email"
-                    value={editedClientData.email || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.email}</div>
-                )}
-              </div>
-              {/* Phone Number */}
-              <div>
-                <Label>Phone Number</Label>
-                {isEditing ? (
-                  <Input
-                    name="phoneNumber"
-                    value={editedClientData.phoneNumber || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.phoneNumber}
+                  {/* Last Name */}
+                  <div>
+                    <Label>Last Name</Label>
+                    {isEditing ? (
+                      <Input
+                        name="lastName"
+                        value={editedClientData.lastName || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.lastName}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              {/* Address */}
-              <div>
-                <Label>Address</Label>
-                {isEditing ? (
-                  <Input
-                    name="address"
-                    value={editedClientData.address || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.address}</div>
-                )}
-              </div>
-              {/* Postal Code */}
-              <div>
-                <Label>Postal Code</Label>
-                {isEditing ? (
-                  <Input
-                    name="postalCode"
-                    value={editedClientData.postalCode || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.postalCode}
+                  {/* Gender */}
+                  <div>
+                    <Label>Gender</Label>
+                    {isEditing ? (
+                      <Input
+                        name="gender"
+                        value={editedClientData.gender || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.gender}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              {/* City */}
-              <div>
-                <Label>City</Label>
-                {isEditing ? (
-                  <Input
-                    name="city"
-                    value={editedClientData.city || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.city}</div>
-                )}
-              </div>
-              {/* Province */}
-              <div>
-                <Label>Province</Label>
-                {isEditing ? (
-                  <Input
-                    name="province"
-                    value={editedClientData.province || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.province}</div>
-                )}
-              </div>
-              {/* Community */}
-              <div>
-                <Label>Community</Label>
-                {isEditing ? (
-                  <Input
-                    name="community"
-                    value={editedClientData.community || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.community}
+                  {/* Birth Date */}
+                  <div>
+                    <Label>Birth Date</Label>
+                    {isEditing ? (
+                      <Input
+                        type="date"
+                        name="birthDate"
+                        value={
+                          editedClientData.birthDate
+                            ? editedClientData.birthDate.split("T")[0]
+                            : ""
+                        }
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.birthDate
+                          ? new Date(clientData.birthDate).toLocaleDateString()
+                          : ""}
+                      </div>
+                    )}
                   </div>
-                )}
+                  {/* School */}
+                  <div>
+                    <Label>School</Label>
+                    {isEditing ? (
+                      <Input
+                        name="school"
+                        value={editedClientData.school || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.school}
+                      </div>
+                    )}
+                  </div>
+                  {/* Community */}
+                  <div>
+                    <Label>Community</Label>
+                    {isEditing ? (
+                      <Input
+                        name="community"
+                        value={editedClientData.community || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.community}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div style={styles.guardianBox}>
+                <h3 style={styles.subHeader}>Contact Information</h3>
+                <div style={styles.formContainer}>
+                  {/* Address */}
+                  <div>
+                    <Label>Address</Label>
+                    {isEditing ? (
+                      <Input
+                        name="address"
+                        value={editedClientData.address || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.address}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <Label>City</Label>
+                    {isEditing ? (
+                      <Input
+                        name="city"
+                        value={editedClientData.city || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">{clientData.city}</div>
+                    )}
+                  </div>
+                  {/* Province */}
+                  <div>
+                    <Label>Province</Label>
+                    {isEditing ? (
+                      <Input
+                        name="province"
+                        value={editedClientData.province || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.province}
+                      </div>
+                    )}
+                  </div>
+                  {/* Postal Code */}
+                  <div>
+                    <Label>Postal Code</Label>
+                    {isEditing ? (
+                      <Input
+                        name="postalCode"
+                        value={editedClientData.postalCode || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.postalCode}
+                      </div>
+                    )}
+                  </div>
+                  {/* Parent Name*/}
+                  <div>
+                    <Label>Parent Name</Label>
+                    {isEditing ? (
+                      <Input
+                        name="parentName"
+                        value={editedClientData.parentName || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.parentName}
+                      </div>
+                    )}
+                  </div>
+                  {/* Phone Number */}
+                  <div>
+                    <Label>Phone Number</Label>
+                    {isEditing ? (
+                      <Input
+                        name="phoneNumber"
+                        value={editedClientData.phoneNumber || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.phoneNumber}
+                      </div>
+                    )}
+                  </div>
+                  {/* Email */}
+                  <div>
+                    <Label>Email</Label>
+                    {isEditing ? (
+                      <Input
+                        name="email"
+                        value={editedClientData.email || ""}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <div className="text-lg font-bold">
+                        {clientData.email}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </TabsContent>
 
           {/* Service Info Tab */}
           <TabsContent value="service-info">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* Service Type */}
-              <div>
-                <Label>Service Type</Label>
-                {isEditing ? (
-                  <Input
-                    name="serviceType"
-                    value={editedClientData.serviceType || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.serviceType}
-                  </div>
-                )}
-              </div>
-              {/* Service Providers Needed */}
-              <div>
-                <Label>Service Providers Needed</Label>
-                {isEditing ? (
-                  <Input
-                    name="serviceProvidersNeeded"
-                    value={editedClientData.serviceProvidersNeeded || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.serviceProvidersNeeded}
-                  </div>
-                )}
-              </div>
-              {/* Availability */}
-              <div>
-                <Label>Availability</Label>
-                {isEditing ? (
-                  <Input
-                    name="availability"
-                    value={editedClientData.availability || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.availability}
-                  </div>
-                )}
-              </div>
-              {/* Location Of Service */}
-              <div>
-                <Label>Location Of Service</Label>
-                {isEditing ? (
-                  <Input
-                    name="locationOfService"
-                    value={editedClientData.locationOfService || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.locationOfService}
-                  </div>
-                )}
-              </div>
-              {/* Fees Discussed */}
-              <div>
-                <Label>Fees Discussed</Label>
-                {isEditing ? (
-                  <Input
-                    name="feesDiscussed"
-                    value={editedClientData.feesDiscussed || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.feesDiscussed}
-                  </div>
-                )}
-              </div>
-              {/* Follow Up */}
-              <div>
-                <Label>Follow Up</Label>
-                {isEditing ? (
-                  <Input
-                    name="followUp"
-                    value={editedClientData.followUp || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.followUp}</div>
-                )}
-              </div>
-              {/* Referral From */}
-              <div>
-                <Label>Referral From</Label>
-                {isEditing ? (
-                  <Input
-                    name="referralFrom"
-                    value={editedClientData.referralFrom || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.referralFrom}
-                  </div>
-                )}
-              </div>
-              {/* Previous Service */}
-              <div>
-                <Label>Previous Service</Label>
-                {isEditing ? (
-                  <Input
-                    name="previousService"
-                    value={editedClientData.previousService || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.previousService}
-                  </div>
-                )}
-              </div>
-              {/* Paperwork Deadline */}
-              <div>
-                <Label>Paperwork Deadline</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="paperworkDeadline"
-                    value={
-                      editedClientData.paperworkDeadline
-                        ? editedClientData.paperworkDeadline.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.paperworkDeadline
-                      ? new Date(
-                          clientData.paperworkDeadline
-                        ).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Next Meeting Date */}
-              <div>
-                <Label>Next Meeting Date</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="nextMeetingDate"
-                    value={
-                      editedClientData.nextMeetingDate
-                        ? editedClientData.nextMeetingDate.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.nextMeetingDate
-                      ? new Date(
-                          clientData.nextMeetingDate
-                        ).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Service Needed */}
-              <div>
-                <Label>Service Needed</Label>
-                {isEditing ? (
-                  <Input
-                    name="serviceNeeded"
-                    value={editedClientData.serviceNeeded || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.serviceNeeded}
-                  </div>
-                )}
-              </div>
-              {/* Funding Sources */}
-              <div>
-                <Label>Funding Sources</Label>
-                {isEditing ? (
-                  <Input
-                    name="fundingSources"
-                    value={editedClientData.fundingSources || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.fundingSources}
-                  </div>
-                )}
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}></h2>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                {/* Service Type */}
+                <div>
+                  <Label>Service Type</Label>
+                  {isEditing ? (
+                    <Input
+                      name="serviceType"
+                      value={editedClientData.serviceType || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.serviceType}
+                    </div>
+                  )}
+                </div>
+                {/* Service Providers Needed */}
+                <div>
+                  <Label>Service Providers Needed</Label>
+                  {isEditing ? (
+                    <Input
+                      name="serviceProvidersNeeded"
+                      value={editedClientData.serviceProvidersNeeded || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.serviceProvidersNeeded}
+                    </div>
+                  )}
+                </div>
+                {/* Availability */}
+                <div>
+                  <Label>Availability</Label>
+                  {isEditing ? (
+                    <Input
+                      name="availability"
+                      value={editedClientData.availability || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.availability}
+                    </div>
+                  )}
+                </div>
+                {/* Location Of Service */}
+                <div>
+                  <Label>Location Of Service</Label>
+                  {isEditing ? (
+                    <Input
+                      name="locationOfService"
+                      value={editedClientData.locationOfService || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.locationOfService}
+                    </div>
+                  )}
+                </div>
+                {/* Fees Discussed */}
+                <div>
+                  <Label>Fees Discussed</Label>
+                  {isEditing ? (
+                    <Input
+                      name="feesDiscussed"
+                      value={editedClientData.feesDiscussed || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.feesDiscussed}
+                    </div>
+                  )}
+                </div>
+                {/* Follow Up */}
+                <div>
+                  <Label>Follow Up</Label>
+                  {isEditing ? (
+                    <Input
+                      name="followUp"
+                      value={editedClientData.followUp || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.followUp}
+                    </div>
+                  )}
+                </div>
+                {/* Referral From */}
+                <div>
+                  <Label>Referral From</Label>
+                  {isEditing ? (
+                    <Input
+                      name="referralFrom"
+                      value={editedClientData.referralFrom || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.referralFrom}
+                    </div>
+                  )}
+                </div>
+                {/* Previous Service */}
+                <div>
+                  <Label>Previous Service</Label>
+                  {isEditing ? (
+                    <Input
+                      name="previousService"
+                      value={editedClientData.previousService || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.previousService}
+                    </div>
+                  )}
+                </div>
+                {/* Paperwork Deadline */}
+                <div>
+                  <Label>Paperwork Deadline</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="paperworkDeadline"
+                      value={
+                        editedClientData.paperworkDeadline
+                          ? editedClientData.paperworkDeadline.split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.paperworkDeadline
+                        ? new Date(
+                            clientData.paperworkDeadline
+                          ).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Next Meeting Date */}
+                <div>
+                  <Label>Next Meeting Date</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="nextMeetingDate"
+                      value={
+                        editedClientData.nextMeetingDate
+                          ? editedClientData.nextMeetingDate.split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.nextMeetingDate
+                        ? new Date(
+                            clientData.nextMeetingDate
+                          ).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Service Needed */}
+                <div>
+                  <Label>Service Needed</Label>
+                  {isEditing ? (
+                    <Input
+                      name="serviceNeeded"
+                      value={editedClientData.serviceNeeded || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.serviceNeeded}
+                    </div>
+                  )}
+                </div>
+                {/* Funding Sources */}
+                <div>
+                  <Label>Funding Sources</Label>
+                  {isEditing ? (
+                    <Input
+                      name="fundingSources"
+                      value={editedClientData.fundingSources || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.fundingSources}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </TabsContent>
 
           {/* Consultation History Tab */}
           <TabsContent value="consultation-history">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* Date Consultation Booked */}
-              <div>
-                <Label>Date Consultation Booked</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="dateConsultationBooked"
-                    value={
-                      editedClientData.dateConsultationBooked
-                        ? editedClientData.dateConsultationBooked.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.dateConsultationBooked
-                      ? new Date(
-                          clientData.dateConsultationBooked
-                        ).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Date Placed */}
-              <div>
-                <Label>Date Placed</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="datePlaced"
-                    value={
-                      editedClientData.datePlaced
-                        ? editedClientData.datePlaced.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.datePlaced
-                      ? new Date(clientData.datePlaced).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Date Contact */}
-              <div>
-                <Label>Date Contact</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="dateContact"
-                    value={
-                      editedClientData.dateContact
-                        ? editedClientData.dateContact.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.dateContact
-                      ? new Date(clientData.dateContact).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Date Service Offered */}
-              <div>
-                <Label>Date Service Offered</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="dateServiceOffered"
-                    value={
-                      editedClientData.dateServiceOffered
-                        ? editedClientData.dateServiceOffered.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.dateServiceOffered
-                      ? new Date(
-                          clientData.dateServiceOffered
-                        ).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Date Started Service */}
-              <div>
-                <Label>Date Started Service</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="dateStartedService"
-                    value={
-                      editedClientData.dateStartedService
-                        ? editedClientData.dateStartedService.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.dateStartedService
-                      ? new Date(
-                          clientData.dateStartedService
-                        ).toLocaleDateString()
-                      : ""}
-                  </div>
-                )}
-              </div>
-              {/* Consult History */}
-              <div>
-                <Label>Consult History</Label>
-                {isEditing ? (
-                  <Input
-                    name="consultHistory"
-                    value={editedClientData.consultHistory || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.consultHistory}
-                  </div>
-                )}
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>History</h2>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                {/* Date Consultation Booked */}
+                <div>
+                  <Label>Date Consultation Booked</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="dateConsultationBooked"
+                      value={
+                        editedClientData.dateConsultationBooked
+                          ? editedClientData.dateConsultationBooked.split(
+                              "T"
+                            )[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.dateConsultationBooked
+                        ? new Date(
+                            clientData.dateConsultationBooked
+                          ).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Date Placed */}
+                <div>
+                  <Label>Date Placed</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="datePlaced"
+                      value={
+                        editedClientData.datePlaced
+                          ? editedClientData.datePlaced.split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.datePlaced
+                        ? new Date(clientData.datePlaced).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Date Contact */}
+                <div>
+                  <Label>Date Contact</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="dateContact"
+                      value={
+                        editedClientData.dateContact
+                          ? editedClientData.dateContact.split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.dateContact
+                        ? new Date(clientData.dateContact).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Date Service Offered */}
+                <div>
+                  <Label>Date Service Offered</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="dateServiceOffered"
+                      value={
+                        editedClientData.dateServiceOffered
+                          ? editedClientData.dateServiceOffered.split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.dateServiceOffered
+                        ? new Date(
+                            clientData.dateServiceOffered
+                          ).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Date Started Service */}
+                <div>
+                  <Label>Date Started Service</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="dateStartedService"
+                      value={
+                        editedClientData.dateStartedService
+                          ? editedClientData.dateStartedService.split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.dateStartedService
+                        ? new Date(
+                            clientData.dateStartedService
+                          ).toLocaleDateString()
+                        : ""}
+                    </div>
+                  )}
+                </div>
+                {/* Consult History */}
+                <div>
+                  <Label>Consult History</Label>
+                  {isEditing ? (
+                    <Input
+                      name="consultHistory"
+                      value={editedClientData.consultHistory || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.consultHistory}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </TabsContent>
 
           {/* Additional Info Tab */}
           <TabsContent value="additional-info">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* Case Worker Name */}
-              <div>
-                <Label>Case Worker Name</Label>
-                {isEditing ? (
-                  <Input
-                    name="caseWorkerName"
-                    value={editedClientData.caseWorkerName || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.caseWorkerName}
-                  </div>
-                )}
-              </div>
-              {/* Concerns */}
-              <div>
-                <Label>Concerns</Label>
-                {isEditing ? (
-                  <Input
-                    name="concerns"
-                    value={editedClientData.concerns || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{clientData.concerns}</div>
-                )}
-              </div>
-              {/* Diagnosis */}
-              <div>
-                <Label>Diagnosis</Label>
-                {isEditing ? (
-                  <Input
-                    name="diagnosis"
-                    value={editedClientData.diagnosis || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.diagnosis}
-                  </div>
-                )}
-              </div>
-              {/* FSCD ID Number */}
-              <div>
-                <Label>FSCD ID Number</Label>
-                {isEditing ? (
-                  <Input
-                    name="fscdIdNum"
-                    value={editedClientData.fscdIdNum || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {clientData.fscdIdNum}
-                  </div>
-                )}
-              </div>
-              {/* Is Archived */}
-            <div>
-            <Label>Is Archived</Label>
-            {isEditing ? (
-                <select
-                name="isArchived"
-                value={editedClientData.isArchived ? "1" : "0"}
-                onChange={handleInputChange}
-                className="border rounded p-2 w-full"
-                >
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-                </select>
-            ) : (
-                <div className="text-lg font-bold">
-                {clientData.isArchived ? "Yes" : "No"}
+            <div style={styles.card}>
+              <h2 style={styles.sectionHeader}>Additional</h2>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                {/* Case Worker Name */}
+                <div>
+                  <Label>Case Worker Name</Label>
+                  {isEditing ? (
+                    <Input
+                      name="caseWorkerName"
+                      value={editedClientData.caseWorkerName || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.caseWorkerName}
+                    </div>
+                  )}
                 </div>
-            )}
-            </div>
-
+                {/* Concerns */}
+                <div>
+                  <Label>Concerns</Label>
+                  {isEditing ? (
+                    <Input
+                      name="concerns"
+                      value={editedClientData.concerns || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.concerns}
+                    </div>
+                  )}
+                </div>
+                {/* Diagnosis */}
+                <div>
+                  <Label>Diagnosis</Label>
+                  {isEditing ? (
+                    <Input
+                      name="diagnosis"
+                      value={editedClientData.diagnosis || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.diagnosis}
+                    </div>
+                  )}
+                </div>
+                {/* FSCD ID Number */}
+                <div>
+                  <Label>FSCD ID Number</Label>
+                  {isEditing ? (
+                    <Input
+                      name="fscdIdNum"
+                      value={editedClientData.fscdIdNum || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.fscdIdNum}
+                    </div>
+                  )}
+                </div>
+                {/* Is Archived */}
+                <div>
+                  <Label>Archive Status</Label>
+                  {isEditing ? (
+                    <select
+                      name="isArchived"
+                      value={editedClientData.isArchived ? "1" : "0"}
+                      onChange={handleInputChange}
+                      className="border rounded p-2 w-full"
+                    >
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                    </select>
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {clientData.isArchived ? "Yes" : "No"}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -868,3 +921,74 @@ function ArrowLeftIcon(props) {
     </svg>
   );
 }
+
+const styles = {
+  table: {
+    width: "100%",
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    border: "1px solid #ccc",
+  },
+  formContainer: {
+    borderRadius: "16px",
+    padding: "24px",
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))", // Four columns for the form
+    gap: "20px",
+    overflow: "visible",
+    height: "auto",
+  },
+  fieldContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  fullWidth: {
+    gridColumn: "span 4", // Full width row (used for buttons or large elements)
+  },
+  halfWidth: {
+    gridColumn: "span 2", // For two-column text areas
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "space-between", // Align "Back" button to the left, "Submit" to the right
+    gridColumn: "span 4", // Full width for the button container
+  },
+
+  divider: {
+    border: "none",
+    borderTop: "2px solid #ccc",
+    margin: "10px 0",
+    width: "100%",
+  },
+  sectionHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid #ccc", // Optional underline
+    paddingBottom: "4px",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "24px",
+  },
+  subHeader: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    paddingBottom: "4px",
+    color: "#333",
+  },
+
+  guardianBox: {
+    backgroundColor: "#F9FAFB", // Subtle light gray
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "16px",
+  },
+};

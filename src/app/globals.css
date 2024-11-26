@@ -67,3 +67,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* global.css */
+html, body {
+  background-color: #FAFAFA; 
+  color: #000; /* Black text */
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif; /* Optional, for consistent typography */
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100vh; /* Ensures full viewport height */
+}

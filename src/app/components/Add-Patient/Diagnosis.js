@@ -26,7 +26,7 @@ export default function Diagnosis({ diagnosisData, onAddDiagnosis, onRemoveDiagn
       <table style={styles.table}>
         <thead>
           <tr>
-            <th style={styles.header}>Diagnosis</th>
+            <th style={styles.header}>Diagnosis*</th>
             <th style={styles.header}>Atypical?</th>
             <th style={styles.header}>Action</th>
           </tr>

@@ -109,14 +109,16 @@ export default function HoriNav({ user }) {
         </div>
       )}
 
-      <div style={navStyles.centerSection}>
-        <img
-          src="/icon/logo-1.png"
-          alt="Bridging Abilities"
-          style={navStyles.organizationLogo}
-        />
-        <span style={navStyles.organizationName}>Bridging Abilities</span>
-      </div>
+<div style={navStyles.centerSection}>
+  <Link href="../Home/Home-Page">
+    <img
+      src="/icon/logo-1.png"
+      alt="Bridging Abilities"
+      style={navStyles.organizationLogo}
+    />
+  </Link>
+  <span style={navStyles.organizationName}>Bridging Abilities</span>
+</div>
 
       <div style={navStyles.rightSection}>
         {/* Profile Button with User Initials */}

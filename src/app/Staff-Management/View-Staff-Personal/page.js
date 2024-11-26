@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,7 +16,6 @@ import {
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 import { Input } from "@/app/components/HomeUi/input";
 import { Label } from "@/app/components/HomeUi/label";
-
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "N/A";
@@ -50,14 +49,14 @@ function ViewStaffPersonalContent() {
   const searchParams = useSearchParams();
   const staffId = searchParams.get("userId");
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else {
-      router.push('/');
+      router.push("/");
     }
   }, [router]);
-  
+
   useEffect(() => {
     const token = Cookies.get("token");
     if (!token) {
@@ -109,7 +108,7 @@ function ViewStaffPersonalContent() {
         }
 
         const clientsData = await clientsResponse.json();
-        console.log('clientsData:', clientsData);
+        console.log("clientsData:", clientsData);
 
         // Assuming clientsData has the structure { data: [ { client }, { client }, ... ] }
         const clients = clientsData.data || [];
@@ -185,15 +184,6 @@ function ViewStaffPersonalContent() {
   if (error) return <div>Error: {error}</div>;
   if (!staffData) return <div>No staff data found.</div>;
 
-  const styles = {
-    viewButton: {
-      border: "1px solid #e5e5e5",
-      padding: "8px 16px",
-      cursor: "pointer",
-      marginLeft: "10px",
-    },
-  };
-
   return (
     <div>
       <HoriNav user={user} />
@@ -233,246 +223,267 @@ function ViewStaffPersonalContent() {
           </TabsList>
 
           <TabsContent value="personal-info">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <Label>First Name</Label>
-                {isEditing ? (
-                  <Input
-                    name="firstName"
-                    value={editedStaffData.firstName || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.firstName}</div>
-                )}
+            <div style={styles.card}>
+              <h3 style={styles.sectionHeader}>Basic Information</h3>
+              <div style={styles.formContainer}>
+                <div>
+                  <Label>First Name</Label>
+                  {isEditing ? (
+                    <Input
+                      name="firstName"
+                      value={editedStaffData.firstName || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {staffData.firstName}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Last Name</Label>
+                  {isEditing ? (
+                    <Input
+                      name="lastName"
+                      value={editedStaffData.lastName || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {staffData.lastName}
+                    </div>
+                  )}
+                </div>
+                <div >
+                  <Label>Role</Label>
+                  {isEditing ? (
+                    <Input
+                      name="role"
+                      value={editedStaffData.role}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {editedStaffData.role}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>SIN</Label>
+                  {isEditing ? (
+                    <Input
+                      name="SIN"
+                      value={editedStaffData.SIN || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">{staffData.SIN}</div>
+                  )}
+                </div>
               </div>
-              <div>
-                <Label>Last Name</Label>
-                {isEditing ? (
-                  <Input
-                    name="lastName"
-                    value={editedStaffData.lastName || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {staffData.lastName}
-                  </div>
-                )}
+            </div>
+            <div style={styles.card}>
+              <h3 style={styles.sectionHeader}>Contact Information</h3>
+              <div style={styles.formContainer}>
+                <div>
+                  <Label>Address</Label>
+                  {isEditing ? (
+                    <Input
+                      name="address"
+                      value={editedStaffData.address || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">{staffData.address}</div>
+                  )}
+                </div>
+                <div>
+                  <Label>City</Label>
+                  {isEditing ? (
+                    <Input
+                      name="city"
+                      value={editedStaffData.city || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">{staffData.city}</div>
+                  )}
+                </div>
+                <div>
+                  <Label>Postal Code</Label>
+                  {isEditing ? (
+                    <Input
+                      name="postalCode"
+                      value={editedStaffData.postalCode || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {staffData.postalCode}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Province</Label>
+                  {isEditing ? (
+                    <Input
+                      name="province"
+                      value={editedStaffData.province || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {staffData.province}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  {isEditing ? (
+                    <Input
+                      name="email"
+                      value={editedStaffData.email || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">{staffData.email}</div>
+                  )}
+                </div>
+                <div>
+                  <Label>Phone Number</Label>
+                  {isEditing ? (
+                    <Input
+                      name="phoneNumber"
+                      value={editedStaffData.phoneNumber || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {staffData.phoneNumber}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <Label>Email</Label>
-                {isEditing ? (
-                  <Input
-                    name="email"
-                    value={editedStaffData.email || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.email}</div>
-                )}
-              </div>
-              <div>
-                <Label>Phone Number</Label>
-                {isEditing ? (
-                  <Input
-                    name="phoneNumber"
-                    value={editedStaffData.phoneNumber || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {staffData.phoneNumber}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Address</Label>
-                {isEditing ? (
-                  <Input
-                    name="address"
-                    value={editedStaffData.address || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.address}</div>
-                )}
-              </div>
-              <div>
-                <Label>City</Label>
-                {isEditing ? (
-                  <Input
-                    name="city"
-                    value={editedStaffData.city || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.city}</div>
-                )}
-              </div>
-              <div>
-                <Label>Postal Code</Label>
-                {isEditing ? (
-                  <Input
-                    name="postalCode"
-                    value={editedStaffData.postalCode || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {staffData.postalCode}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Province</Label>
-                {isEditing ? (
-                  <Input
-                    name="province"
-                    value={editedStaffData.province || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.province}</div>
-                )}
-              </div>
-              <div>
-                <Label>SIN</Label>
-                {isEditing ? (
-                  <Input
-                    name="SIN"
-                    value={editedStaffData.SIN || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.SIN}</div>
-                )}
-              </div>
-              <div>
-                <Label>Rate</Label>
-                {isEditing ? (
-                  <Input
-                    name="rate"
-                    value={editedStaffData.rate || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">{staffData.rate}</div>
-                )}
-              </div>
-              <div>
-                <Label>Beneficiary</Label>
-                {isEditing ? (
-                  <Input
-                    name="beneficiary"
-                    value={editedStaffData.beneficiary || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {staffData.beneficiary}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Licensing College</Label>
-                {isEditing ? (
-                  <Input
-                    name="licencingCollege"
-                    value={editedStaffData.licencingCollege}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {editedStaffData.licencingCollege}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Registration Number</Label>
-                {isEditing ? (
-                  <Input
-                    name="registrationNumber"
-                    value={editedStaffData.registrationNumber}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {editedStaffData.registrationNumber}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Contract Start Date</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="contractStartDate"
-                    value={formatInputDate(editedStaffData.contractStartDate)}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {formatDisplayDate(editedStaffData.contractStartDate)}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Contract End Date</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="contractEndDate"
-                    value={formatInputDate(editedStaffData.contractEndDate)}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {formatDisplayDate(editedStaffData.contractEndDate)}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Role</Label>
-                {isEditing ? (
-                  <Input
-                    name="role"
-                    value={editedStaffData.role}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {editedStaffData.role}
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label>Agency</Label>
-                {isEditing ? (
-                  <Input
-                    name="agency"
-                    value={editedStaffData.agency}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <div className="text-lg font-bold">
-                    {editedStaffData.agency}
-                  </div>
-                )}
+            </div>
+            <div style={styles.card}>
+              <h3 style={styles.sectionHeader}>Professional Information</h3>
+              <div style={styles.formContainer}>
+                <div>
+                  <Label>Rate</Label>
+                  {isEditing ? (
+                    <Input
+                      name="rate"
+                      value={editedStaffData.rate || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">{staffData.rate}</div>
+                  )}
+                </div>
+                <div>
+                  <Label>Beneficiary</Label>
+                  {isEditing ? (
+                    <Input
+                      name="beneficiary"
+                      value={editedStaffData.beneficiary || ""}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {staffData.beneficiary}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Licensing College</Label>
+                  {isEditing ? (
+                    <Input
+                      name="licencingCollege"
+                      value={editedStaffData.licencingCollege}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {editedStaffData.licencingCollege}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Registration Number</Label>
+                  {isEditing ? (
+                    <Input
+                      name="registrationNumber"
+                      value={editedStaffData.registrationNumber}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {editedStaffData.registrationNumber}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Contract Start Date</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="contractStartDate"
+                      value={formatInputDate(editedStaffData.contractStartDate)}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {formatDisplayDate(editedStaffData.contractStartDate)}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label>Contract End Date</Label>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      name="contractEndDate"
+                      value={formatInputDate(editedStaffData.contractEndDate)}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {formatDisplayDate(editedStaffData.contractEndDate)}
+                    </div>
+                  )}
+                </div>
+
+                {/* <div>
+                  <Label>Agency</Label>
+                  {isEditing ? (
+                    <Input
+                      name="agency"
+                      value={editedStaffData.agency}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <div className="text-lg font-bold">
+                      {editedStaffData.agency}
+                    </div>
+                  )}
+                </div> */}
               </div>
             </div>
           </TabsContent>
 
           {/* Assigned Clients Tab */}
           <TabsContent value="assigned-client">
-            <div className="mt-4">
+            <div style={styles.card}>
               {assignedClients.length === 0 ? (
                 <p>No clients assigned.</p>
               ) : (
                 <ul>
                   <Label>Client</Label>
                   {assignedClients.map((client) => (
-                    <li key={client.clientId} className="flex items-center mb-2">
+                    <li
+                      key={client.clientId}
+                      className="flex items-center mb-2"
+                    >
                       <div className="text-lg font-bold mr-2">
                         {`${client.firstName} ${client.lastName}`}
                       </div>
@@ -490,7 +501,7 @@ function ViewStaffPersonalContent() {
 
           {/* Account Access Tab */}
           <TabsContent value="account-access">
-            <div className="mt-4">
+            <div style={styles.card}>
               <div>
                 <Label>Account Type</Label>
                 {isEditing ? (
@@ -517,8 +528,6 @@ function ViewStaffPersonalContent() {
   );
 }
 
-
-
 function ArrowLeftIcon(props) {
   return (
     <svg
@@ -538,3 +547,80 @@ function ArrowLeftIcon(props) {
     </svg>
   );
 }
+
+const styles = {
+  table: {
+    width: "100%",
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    border: "1px solid #ccc",
+  },
+  formContainer: {
+    borderRadius: "16px",
+    padding: "24px",
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))", // Four columns for the form
+    gap: "20px",
+    overflow: "visible",
+    height: "auto",
+  },
+  fieldContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  fullWidth: {
+    gridColumn: "span 4", // Full width row (used for buttons or large elements)
+  },
+  halfWidth: {
+    gridColumn: "span 2", // For two-column text areas
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "space-between", // Align "Back" button to the left, "Submit" to the right
+    gridColumn: "span 4", // Full width for the button container
+  },
+
+  divider: {
+    border: "none",
+    borderTop: "2px solid #ccc",
+    margin: "10px 0",
+    width: "100%",
+  },
+  sectionHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid #ccc", // Optional underline
+    paddingBottom: "4px",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "24px",
+  },
+  subHeader: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    paddingBottom: "4px",
+    color: "#333",
+  },
+
+  guardianBox: {
+    backgroundColor: "#F9FAFB", // Subtle light gray
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "16px",
+  },
+  viewButton: {
+    border: "1px solid #e5e5e5",
+    padding: "8px 16px",
+    cursor: "pointer",
+    marginLeft: "10px",
+  },
+};

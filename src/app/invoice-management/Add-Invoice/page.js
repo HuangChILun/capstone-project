@@ -66,7 +66,7 @@ export default function AddInvoice() {
       // Handle success
       console.log(response.data);
       alert("Invoice created successfully");
-      router.push("/pages/invoice-management/View-Invoice"); // Redirect to invoice management page
+      router.push("./View-Invoice"); // Redirect to invoice management page
     } catch (error) {
       console.error("Error creating invoice:", error);
       alert("Failed to create invoice");
