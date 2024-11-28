@@ -24,30 +24,6 @@ import { Input } from "@/app/components/HomeUi/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import HoriNav from "@/app/components/Navigation-Bar/HoriNav";
 
-// Function to calculate age based on birthDate
-function calculateAge(birthDate) {
-  const today = new Date();
-  const birth = new Date(birthDate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-
-  return age;
-}
-// format date to store in the database
-function formatDate(dateStr) {
-  if (!dateStr) return null;
-  return dateStr.split("T")[0];
-}
-function formatDisplayDate(dateStr) {
-  if (!dateStr) return "N/A";
-  const [year, month, day] = dateStr.split("T")[0].split("-");
-  return `${month}/${day}/${year}`;
-}
-
 export default function ViewPatientPersonal() {
   return (
     <div>
@@ -127,6 +103,29 @@ function ViewPatientPersonalContent() {
     CARhours: 0,
   });
   const [newContractFile, setNewContractFile] = useState(null);
+  const [editedContractFile, setEditedContractFile] = useState(null);
+  // For controlling new guardian form
+  const [addingGuardian, setAddingGuardian] = useState(false);
+  const [newGuardian, setNewGuardian] = useState({
+    firstName: "",
+    lastName: "",
+    relationship: "",
+    custody: "",
+    phoneNumber: "",
+    email: "",
+    address: "",
+    city: "",
+    province: "",
+    postalCode: "",
+    clientId: clientId,
+  });
+  // For controlling new diagnosis
+  const [addingDiagnosis, setAddingDiagnosis] = useState(false);
+
+  const [newDiagnosis, setNewDiagnosis] = useState({
+    diagnosis: "",
+    aType: "typical",
+  });
   // Team tab states
   const [searchName, setSearchName] = useState("");
   const [searchRole, setSearchRole] = useState("");
@@ -257,7 +256,7 @@ function ViewPatientPersonalContent() {
       }));
 
       setDiagnosis(formattedDiagnoses);
-      setEditedDiagnosis(formattedDiagnoses);
+      setEditedDiagnosis([...formattedDiagnoses]);
     } catch (error) {
       console.error("Error fetching assigned diagnosis:", error);
     }
@@ -461,23 +460,23 @@ function ViewPatientPersonalContent() {
 
   // the function for future use end
 
-  // fetch client and guardian by this effect
+  // fetch clients by this effect
   useEffect(() => {
-    const fetchPatientAndGuardian = async () => {
+    const fetchPatientData = async () => {
       const token = Cookies.get("token");
       if (!token) {
         router.push("/");
-        console.log("need login");
+        console.log("Need login");
         return;
       }
-
+  
       try {
         setIsLoading(true);
         if (!clientId) {
           console.error("Patient ID is missing");
           return;
         }
-
+  
         // Fetch client data
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/clients/${clientId}`,
@@ -487,66 +486,77 @@ function ViewPatientPersonalContent() {
             },
           }
         );
-
+  
         if (!response.ok) {
           throw new Error("Failed to fetch patient data");
         }
-
+  
         const data = await response.json();
         setPatient(data);
         setEditedPatient(data);
-
-        // Fetch guardian by guardianId
-        try {
-          const guardianResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${clientId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (!guardianResponse.ok) {
-            // If guardian data is not found, set guardian to an empty array
-            setGuardian([]);
-            setEditedGuardian([]);
-          } else {
-            const guardianData = await guardianResponse.json();
-
-            const guardiansArray = Array.isArray(guardianData)
-              ? guardianData
-              : [guardianData];
-
-            setGuardian(guardiansArray);
-            setEditedGuardian(guardiansArray);
-          }
-        } catch (error) {
-          console.error("Error fetching guardian data:", error);
-          // Set guardian to an empty array
-          setGuardian([]);
-          setEditedGuardian([]);
-        }
-
-        // Fetch assigned team members
+  
+        // Fetch other related data
         await fetchConsent();
         await fetchDiagnosis();
         await fetchInsurance();
         await fetchContract();
         await fetchAssignedTeamMembers();
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching patient data:", error);
         setError(error.message);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     if (clientId) {
-      fetchPatientAndGuardian();
+      fetchPatientData();
+      fetchGuardian(); // Call fetchGuardian separately
     }
   }, [clientId, router]);
+  
+  // Define fetchGuardian function
+const fetchGuardian = async () => {
+  const token = Cookies.get("token");
+  if (!token) {
+    router.push("/");
+    console.log("Need login");
+    return;
+  }
 
+  try {
+    // Fetch guardian by clientId
+    const guardianResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/${clientId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!guardianResponse.ok) {
+      // If guardian data is not found, set guardian to an empty array
+      setGuardian([]);
+      setEditedGuardian([]);
+    } else {
+      const guardianData = await guardianResponse.json();
+
+      // Ensure guardianData is an array
+      const guardiansArray = Array.isArray(guardianData)
+        ? guardianData
+        : [guardianData];
+
+      setGuardian(guardiansArray);
+      setEditedGuardian([...guardiansArray]);
+    }
+  } catch (error) {
+    console.error("Error fetching guardian data:", error);
+    // Set guardian to an empty array
+    setGuardian([]);
+    setEditedGuardian([]);
+  }
+};
   // Fetch all users when the component mounts
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -862,6 +872,60 @@ function ViewPatientPersonalContent() {
     const token = Cookies.get("token");
     if (editedContract && editedContract.contractId) {
       try {
+        // Comment out fileId variable
+        // let fileId = editedContract.fileId || null;
+
+        // // If there is an edited contract file, upload it first
+        // if (editedContractFile) {
+        //   const formData = new FormData();
+        //   formData.append("file", editedContractFile);
+        //   formData.append("clientId", clientId); // Include if required by your backend
+        //   formData.append("fileCategory", 1); // Include if required by your backend
+
+        //   const fileUploadResponse = await fetch(
+        //     `${process.env.NEXT_PUBLIC_BACKEND_IP}/files/upload`,
+        //     {
+        //       method: "POST",
+        //       headers: {
+        //         Authorization: `Bearer ${token}`,
+        //       },
+        //       body: formData,
+        //     }
+        //   );
+
+        //   if (!fileUploadResponse.ok) {
+        //     const errorData = await fileUploadResponse.json();
+        //     console.error("Error uploading file:", errorData);
+        //     throw new Error(
+        //       `Failed to upload file: ${
+        //         errorData.message || errorData.error || "Unknown error"
+        //       }`
+        //     );
+        //   }
+
+        //   const fileData = await fileUploadResponse.json();
+        //   fileId = fileData.fileId; // Assuming the response contains fileId
+        // }
+
+        // Now update the contract without fileId
+        const formattedStartDate = formatDate(editedContract.startDate);
+        const formattedEndDate = formatDate(editedContract.endDate);
+        const contractData = {
+          clientId: clientId,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          COOhours: Number(editedContract.COOhours) || 0,
+          PBChours: Number(editedContract.PBChours) || 0,
+          SLPhours: Number(editedContract.SLPhours) || 0,
+          OThours: Number(editedContract.OThours) || 0,
+          PThours: Number(editedContract.PThours) || 0,
+          AIDEhours: Number(editedContract.AIDEhours) || 0,
+          COUShours: Number(editedContract.COUShours) || 0,
+          CARhours: Number(editedContract.CARhours) || 0,
+          // Comment out fileId
+          // fileId: fileId, // Include the fileId
+        };
+
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/client-contract/${editedContract.contractId}`,
           {
@@ -870,7 +934,7 @@ function ViewPatientPersonalContent() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(editedContract),
+            body: JSON.stringify(contractData),
           }
         );
 
@@ -884,11 +948,11 @@ function ViewPatientPersonalContent() {
           );
         }
 
-        // Update the state with the latest contract data
-        setContract(editedContract);
+        await fetchContract();
+        // alert("Contract information updated successfully!");
       } catch (error) {
         console.error("Error updating contract data:", error);
-        throw error;
+        alert(`Error updating contract data: ${error.message}`);
       }
     }
   };
@@ -930,6 +994,19 @@ function ViewPatientPersonalContent() {
     } catch (error) {
       console.error("Error updating team members:", error);
       throw error;
+    }
+  };
+  // get team member name
+  const getTeamMemberName = (member) => {
+    if (member.userFirstName && member.userLastName) {
+      return `${member.userFirstName} ${member.userLastName} (${member.role})`;
+    } else if (
+      member.outsideProviderFirstName &&
+      member.outsideProviderLastName
+    ) {
+      return `${member.outsideProviderFirstName} ${member.outsideProviderLastName} (Outside Provider)`;
+    } else {
+      return "Unknown Team Member";
     }
   };
 
@@ -1008,24 +1085,66 @@ function ViewPatientPersonalContent() {
   const createContractInfo = async () => {
     const token = Cookies.get("token");
     try {
-      const formData = new FormData();
-      // Append contract data
-      for (const key in newContract) {
-        formData.append(key, newContract[key]);
-      }
-      // Append the file
+      let fileId = null;
+
+      // If there is a new contract file, upload it first
       if (newContractFile) {
-        formData.append("contractFile", newContractFile);
+        const formData = new FormData();
+        formData.append("file", newContractFile);
+        formData.append("clientId", clientId); // Include if required by your backend
+        formData.append("fileCategory", 1); // Include if required by your backend
+
+        const fileUploadResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/files/upload`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        if (!fileUploadResponse.ok) {
+          const errorData = await fileUploadResponse.json();
+          console.error("Error uploading file:", errorData);
+          throw new Error(
+            `Failed to upload file: ${
+              errorData.message || errorData.error || "Unknown error"
+            }`
+          );
+        }
+
+        const fileData = await fileUploadResponse.json();
+        fileId = fileData.fileId; // Assuming the response contains fileId
       }
+      const formattedStartDate = formatDate(newContract.startDate);
+      const formattedEndDate = formatDate(newContract.endDate);
+      // Now create the contract
+      const contractData = {
+        clientId: clientId,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        COOhours: Number(newContract.COOhours) || 0,
+        PBChours: Number(newContract.PBChours) || 0,
+        SLPhours: Number(newContract.SLPhours) || 0,
+        OThours: Number(newContract.OThours) || 0,
+        PThours: Number(newContract.PThours) || 0,
+        AIDEhours: Number(newContract.AIDEhours) || 0,
+        COUShours: Number(newContract.COUShours) || 0,
+        CARhours: Number(newContract.CARhours) || 0,
+        fileId: fileId, // Include the fileId if available
+      };
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_IP}/client-contract`,
         {
           method: "POST",
           headers: {
+            "Content-Type": "application/json", // Set 'Content-Type' for JSON data
             Authorization: `Bearer ${token}`,
           },
-          body: formData,
+          body: JSON.stringify(contractData),
         }
       );
 
@@ -1048,6 +1167,125 @@ function ViewPatientPersonalContent() {
       alert(`Error creating contract data: ${error.message}`);
     }
   };
+
+  // Function to add a new guardian
+  const createGuardianInfo = async () => {
+    const token = Cookies.get("token");
+  
+    // Prepare data to send
+    const guardianDataToSend = {
+      ...newGuardian,
+      clientId: clientId,
+    };
+  
+    // Basic validation
+    if (
+      !guardianDataToSend.firstName ||
+      !guardianDataToSend.lastName ||
+      !guardianDataToSend.relationship ||
+      !guardianDataToSend.phoneNumber ||
+      !guardianDataToSend.email ||
+      !guardianDataToSend.address ||
+      !guardianDataToSend.city ||
+      !guardianDataToSend.province ||
+      !guardianDataToSend.postalCode
+    ) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+  
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/guardians/primary/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(guardianDataToSend),
+        }
+      );
+  
+      if (response.ok) {
+        // Instead of manually updating the guardian state, fetch the updated guardians
+        await fetchGuardian();
+  
+        // Reset the form
+        setNewGuardian({
+          firstName: "",
+          lastName: "",
+          relationship: "",
+          custody: "",
+          phoneNumber: "",
+          email: "",
+          address: "",
+          city: "",
+          province: "",
+          postalCode: "",
+          clientId: clientId,
+        });
+  
+        setAddingGuardian(false);
+        alert("Guardian added successfully!");
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to add guardian: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Error adding guardian:", error);
+      alert("An error occurred while adding the guardian.");
+    }
+  };
+  
+
+  // Function to create a new diagnosis
+  const createDiagnosisInfo = async () => {
+    const token = Cookies.get("token");
+    try {
+      if (!newDiagnosis.diagnosis) {
+        alert("Please enter a diagnosis.");
+        return;
+      }
+
+      const diagnosisData = {
+        clientId: clientId,
+        diagnosis: newDiagnosis.diagnosis,
+        aType: newDiagnosis.aType === "typical" ? 1 : 0,
+      };
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_IP}/diagnosis/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(diagnosisData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error creating diagnosis data:", errorData);
+        throw new Error(
+          `Failed to create diagnosis data: ${
+            errorData.message || errorData.error || "Unknown error"
+          }`
+        );
+      }
+
+      // Fetch the updated diagnoses list
+      await fetchDiagnosis();
+      setAddingDiagnosis(false);
+      alert("Diagnosis information added successfully!");
+    } catch (error) {
+      console.error("Error creating diagnosis data:", error);
+      alert(`Error creating diagnosis data: ${error.message}`);
+    }
+  };
+
   // Handle saving changes
   const handleSaveChanges = async () => {
     try {
@@ -1142,41 +1380,23 @@ function ViewPatientPersonalContent() {
             },
           }
         );
-        console.log("Response Status:", response.status);
-        console.log("Response Headers:", response.headers);
+
         if (!response.ok) {
           throw new Error("Failed to fetch contract file");
         }
 
-        const responseClone = response.clone();
-        const text = await responseClone.text();
-        console.log("Response Body:", text);
+        const fileData = await response.json();
 
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        // Option 1: Download the file
-        const link = document.createElement("a");
-        link.href = url;
-        // Extract the filename from the response headers if available
-        const contentDisposition = response.headers.get("Content-Disposition");
-        let fileName = "contract.pdf"; // Default filename
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
-          if (fileNameMatch.length > 1) {
-            fileName = fileNameMatch[1];
-          }
+        if (fileData.signedUrl) {
+          const link = document.createElement("a");
+          link.href = fileData.signedUrl;
+          link.download = fileData.fileName || "contract.pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          throw new Error("Signed URL not available");
         }
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        // Option 2: Open the file in a new window (uncomment if preferred)
-        // window.open(url, "_blank");
-
-        // Clean up the URL object
-        window.URL.revokeObjectURL(url);
       } catch (error) {
         console.error("Error downloading contract:", error);
         alert("Error downloading contract. Please try again.");
@@ -1208,9 +1428,23 @@ function ViewPatientPersonalContent() {
     const { name, value } = e.target;
     setNewContract({ ...newContract, [name]: value });
   };
-
+  // for add new contract file
   const handleNewContractFileChange = (e) => {
     setNewContractFile(e.target.files[0]);
+  };
+
+  const handleContractFileChange = (e) => {
+    setEditedContractFile(e.target.files[0]);
+  };
+  // for add new guardian
+  const handleNewGuardianInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewGuardian({ ...newGuardian, [name]: value });
+  };
+  // for add new diagnosis
+  const handleNewDiagnosisInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewDiagnosis({ ...newDiagnosis, [name]: value });
   };
 
   // for add new outside provider
@@ -1239,7 +1473,6 @@ function ViewPatientPersonalContent() {
       : null;
     return endDate && endDate < today;
   });
-  console.log(guardian);
 
   return (
     <div>
@@ -1464,205 +1697,348 @@ function ViewPatientPersonalContent() {
             {/* Guardian Info */}
             <div style={styles.card}>
               <h2 style={styles.sectionHeader}>Guardian Information</h2>
-              {guardian.length > 0 ? (
-                guardian.map((guardianItem, index) => (
-                  <div
-                    key={guardianItem.guardianId || index}
-                    style={styles.guardianBox}
-                  >
+
+              {/* Existing Guardians */}
+              {guardian.length > 0
+                ? guardian.map((guardianItem, index) => (
+                    <div
+                      key={guardianItem.guardianId || index}
+                      style={styles.guardianBox}
+                    >
+                      <h3 style={styles.subHeader}>
+                        {index === 0
+                          ? "Primary Guardian"
+                          : "Secondary Guardian"}
+                      </h3>
+                      <div style={styles.formContainer}>
+                        {/* First Name */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            First Name
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="firstName"
+                              value={editedGuardian[index]?.firstName || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.firstName}
+                            </p>
+                          )}
+                        </div>
+                        {/* Last Name */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Last Name
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="lastName"
+                              value={editedGuardian[index]?.lastName || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.lastName}
+                            </p>
+                          )}
+                        </div>
+                        {/* Relationship */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Relationship to Patient
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="relationship"
+                              value={editedGuardian[index]?.relationship || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.relationship}
+                            </p>
+                          )}
+                        </div>
+                        {/* Custody */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Custody
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="custody"
+                              value={editedGuardian[index]?.custody || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.custody}
+                            </p>
+                          )}
+                        </div>
+                        {/* Address */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Address
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="address"
+                              value={editedGuardian[index]?.address || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.address}
+                            </p>
+                          )}
+                        </div>
+                        {/* City */}
+                        <div>
+                          <Label className="text-muted-foreground">City</Label>
+                          {isEditing ? (
+                            <Input
+                              name="city"
+                              value={editedGuardian[index]?.city || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.city}
+                            </p>
+                          )}
+                        </div>
+                        {/* Province */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Province
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="province"
+                              value={editedGuardian[index]?.province || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.province}
+                            </p>
+                          )}
+                        </div>
+                        {/* Postal Code */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Postal Code
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="postalCode"
+                              value={editedGuardian[index]?.postalCode || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.postalCode}
+                            </p>
+                          )}
+                        </div>
+                        {/* Email */}
+                        <div>
+                          <Label className="text-muted-foreground">Email</Label>
+                          {isEditing ? (
+                            <Input
+                              name="email"
+                              value={editedGuardian[index]?.email || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.email}
+                            </p>
+                          )}
+                        </div>
+                        {/* Phone Number */}
+                        <div>
+                          <Label className="text-muted-foreground">
+                            Phone Number
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              name="phoneNumber"
+                              value={editedGuardian[index]?.phoneNumber || ""}
+                              onChange={(e) =>
+                                handleGuardianInputChange(e, index)
+                              }
+                            />
+                          ) : (
+                            <p className="text-lg font-semibold">
+                              {guardianItem.phoneNumber}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                : !addingGuardian &&
+                  !isEditing && <p>No guardian found for this patient.</p>}
+
+              {/* Add New Guardian */}
+              {isEditing &&
+                guardian.length < 2 &&
+                (addingGuardian ? (
+                  // Form to add new guardian
+                  <div style={styles.guardianBox}>
                     <h3 style={styles.subHeader}>
-                      {index === 0 ? "Primary Guardian" : "Secondary Guardian"}
+                      {guardian.length === 0
+                        ? "Primary Guardian"
+                        : "Secondary Guardian"}
                     </h3>
                     <div style={styles.formContainer}>
                       {/* First Name */}
                       <div>
                         <Label className="text-muted-foreground">
-                          First Name
+                          First Name*
                         </Label>
-                        {isEditing ? (
-                          <Input
-                            name="firstName"
-                            value={editedGuardian[index].firstName || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.firstName}
-                          </p>
-                        )}
+                        <Input
+                          name="firstName"
+                          value={newGuardian.firstName}
+                          onChange={handleNewGuardianInputChange}
+                        />
                       </div>
                       {/* Last Name */}
                       <div>
                         <Label className="text-muted-foreground">
-                          Last Name
+                          Last Name*
                         </Label>
-                        {isEditing ? (
-                          <Input
-                            name="lastName"
-                            value={editedGuardian[index].lastName || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.lastName}
-                          </p>
-                        )}
+                        <Input
+                          name="lastName"
+                          value={newGuardian.lastName}
+                          onChange={handleNewGuardianInputChange}
+                        />
                       </div>
-                      {/* Relation to Patient */}
+                      {/* Relationship */}
                       <div>
                         <Label className="text-muted-foreground">
-                          Relation to Patient
+                          Relationship*
                         </Label>
-                        {isEditing ? (
-                          <Input
-                            name="relationship"
-                            value={editedGuardian[index].relationship || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.relationship}
-                          </p>
-                        )}
+                        <Input
+                          name="relationship"
+                          value={newGuardian.relationship}
+                          onChange={handleNewGuardianInputChange}
+                        />
                       </div>
                       {/* Custody */}
                       <div>
-                        <Label className="text-muted-foreground">Custody</Label>
-                        {isEditing ? (
-                          <Input
-                            name="custody"
-                            value={editedGuardian[index].custody || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.custody}
-                          </p>
-                        )}
-                      </div>
-                      {/* Address */}
-                      <div>
-                        <Label className="text-muted-foreground">Address</Label>
-                        {isEditing ? (
-                          <Input
-                            name="address"
-                            value={editedGuardian[index].address || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.address}
-                          </p>
-                        )}
-                      </div>
-                      {/* City */}
-                      <div>
-                        <Label className="text-muted-foreground">City</Label>
-                        {isEditing ? (
-                          <Input
-                            name="city"
-                            value={editedGuardian[index].city || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.city}
-                          </p>
-                        )}
-                      </div>
-                      {/* Province */}
-                      <div>
                         <Label className="text-muted-foreground">
-                          Province
+                          Custody*
                         </Label>
-                        {isEditing ? (
-                          <Input
-                            name="province"
-                            value={editedGuardian[index].province || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.province}
-                          </p>
-                        )}
-                      </div>
-                      {/* Postal Code */}
-                      <div>
-                        <Label className="text-muted-foreground">
-                          Postal Code
-                        </Label>
-                        {isEditing ? (
-                          <Input
-                            name="postalCode"
-                            value={editedGuardian[index].postalCode || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.postalCode}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Email */}
-                      <div>
-                        <Label className="text-muted-foreground">Email</Label>
-                        {isEditing ? (
-                          <Input
-                            name="email"
-                            value={editedGuardian[index].email || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.email}
-                          </p>
-                        )}
+                        <Input
+                          name="custody"
+                          value={newGuardian.custody}
+                          onChange={handleNewGuardianInputChange}
+                        />
                       </div>
                       {/* Phone Number */}
                       <div>
                         <Label className="text-muted-foreground">
-                          Phone Number
+                          Phone Number*
                         </Label>
-                        {isEditing ? (
-                          <Input
-                            name="phoneNumber"
-                            value={editedGuardian[index].phoneNumber || ""}
-                            onChange={(e) =>
-                              handleGuardianInputChange(e, index)
-                            }
-                          />
-                        ) : (
-                          <p className="text-lg font-semibold">
-                            {guardianItem.phoneNumber}
-                          </p>
-                        )}
+                        <Input
+                          name="phoneNumber"
+                          value={newGuardian.phoneNumber}
+                          onChange={handleNewGuardianInputChange}
+                        />
+                      </div>
+                      {/* Email */}
+                      <div>
+                        <Label className="text-muted-foreground">Email*</Label>
+                        <Input
+                          name="email"
+                          value={newGuardian.email}
+                          onChange={handleNewGuardianInputChange}
+                        />
+                      </div>
+                      {/* Address */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Address*
+                        </Label>
+                        <Input
+                          name="address"
+                          value={newGuardian.address}
+                          onChange={handleNewGuardianInputChange}
+                        />
+                      </div>
+                      {/* City */}
+                      <div>
+                        <Label className="text-muted-foreground">City*</Label>
+                        <Input
+                          name="city"
+                          value={newGuardian.city}
+                          onChange={handleNewGuardianInputChange}
+                        />
+                      </div>
+                      {/* Province */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Province*
+                        </Label>
+                        <Input
+                          name="province"
+                          value={newGuardian.province}
+                          onChange={handleNewGuardianInputChange}
+                        />
+                      </div>
+                      {/* Postal Code */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Postal Code*
+                        </Label>
+                        <Input
+                          name="postalCode"
+                          value={newGuardian.postalCode}
+                          onChange={handleNewGuardianInputChange}
+                        />
+                      </div>
+
+                      {/* Save and Cancel Buttons */}
+                      <div style={styles.fullWidth}>
+                        <Button onClick={createGuardianInfo}>Save</Button>
+                        <Button
+                          onClick={() => setAddingGuardian(false)}
+                          className="ml-2"
+                        >
+                          Cancel
+                        </Button>
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p>No guardian found for this patient.</p>
-              )}
+                ) : (
+                  <Button onClick={() => setAddingGuardian(true)}>
+                    Add New Guardian
+                  </Button>
+                ))}
             </div>
           </TabsContent>
 
@@ -1727,6 +2103,54 @@ function ViewPatientPersonalContent() {
                 ) : (
                   <p>No diagnosis data available.</p>
                 )}
+
+                {/* Add New Diagnosis */}
+                {isEditing &&
+                  (addingDiagnosis ? (
+                    // Form to add new diagnosis
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Diagnosis */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Diagnosis*
+                        </Label>
+                        <Input
+                          name="diagnosis"
+                          value={newDiagnosis.diagnosis}
+                          onChange={handleNewDiagnosisInputChange}
+                        />
+                      </div>
+                      {/* Typicality */}
+                      <div>
+                        <Label className="text-muted-foreground">
+                          Typicality*
+                        </Label>
+                        <select
+                          name="aType"
+                          value={newDiagnosis.aType}
+                          onChange={handleNewDiagnosisInputChange}
+                          className="border rounded p-2 w-full"
+                        >
+                          <option value="typical">Typical</option>
+                          <option value="atypical">Atypical</option>
+                        </select>
+                      </div>
+                      {/* Save and Cancel Buttons */}
+                      <div style={styles.fullWidth}>
+                        <Button onClick={createDiagnosisInfo}>Save</Button>
+                        <Button
+                          onClick={() => setAddingDiagnosis(false)}
+                          className="ml-2"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button onClick={() => setAddingDiagnosis(true)}>
+                      Add New Diagnosis
+                    </Button>
+                  ))}
               </div>
 
               {/* Insurance Information */}
@@ -2092,9 +2516,7 @@ function ViewPatientPersonalContent() {
                           {pastTeamMembers.map((member) => (
                             <TableRow key={member.teamMemberId}>
                               {/* Display team member's name and role */}
-                              <TableCell>
-                                {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                              </TableCell>
+                              <TableCell>{getTeamMemberName(member)}</TableCell>
                               {isEditing ? (
                                 <>
                                   {/* Editable start service date */}
@@ -2551,7 +2973,7 @@ function ViewPatientPersonalContent() {
                       </Table>
                     </div>
                     {/* File Upload */}
-                    <div>
+                    {/* <div>
                       <Label className="text-muted-foreground">
                         Upload New Contract
                       </Label>
@@ -2560,7 +2982,7 @@ function ViewPatientPersonalContent() {
                         name="contractFile"
                         onChange={handleContractFileChange}
                       />
-                    </div>
+                    </div> */}
                   </div>
                 ) : (
                   // Display existing contract information
@@ -2705,8 +3127,92 @@ function ViewPatientPersonalContent() {
                               />
                             </TableCell>
                           </TableRow>
-                          {/* Additional services */}
-                          {/* ... */}
+                          {/* Psychologist/Behavioral Consultant */}
+                          <TableRow>
+                            <TableCell>
+                              Psychologist/Behavioral Consultant
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="PBChours"
+                                value={newContract.PBChours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* SLP */}
+                          <TableRow>
+                            <TableCell>SLP</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="SLPhours"
+                                value={newContract.SLPhours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* OT */}
+                          <TableRow>
+                            <TableCell>OT</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="OThours"
+                                value={newContract.OThours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* PT */}
+                          <TableRow>
+                            <TableCell>PT</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="PThours"
+                                value={newContract.PThours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Aide */}
+                          <TableRow>
+                            <TableCell>Aide</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="AIDEhours"
+                                value={newContract.AIDEhours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Counseling */}
+                          <TableRow>
+                            <TableCell>Counseling</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="COUShours"
+                                value={newContract.COUShours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          {/* Community Aide Respite */}
+                          <TableRow>
+                            <TableCell>Community Aide Respite</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                name="CARhours"
+                                value={newContract.CARhours}
+                                onChange={handleNewContractInputChange}
+                              />
+                            </TableCell>
+                          </TableRow>
                         </TableBody>
                       </Table>
                     </div>
@@ -2927,6 +3433,30 @@ function ViewPatientPersonalContent() {
       </div>
     </div>
   );
+}
+
+// Function to calculate age based on birthDate
+function calculateAge(birthDate) {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+// format date to store in the database
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  return dateStr.split("T")[0];
+}
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return "N/A";
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  return `${month}/${day}/${year}`;
 }
 
 function ArrowLeftIcon(props) {

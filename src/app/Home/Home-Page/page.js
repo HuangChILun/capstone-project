@@ -112,13 +112,13 @@ export default function Homepage() {
               },
             }
           );
-          if (assignedResponse.ok){
-            const assignedClients = await assignedResponse.json()
-            console.log(assignedClients);
-            setAssignedClients(assignedClients.length);
+          if (assignedResponse.ok) {
+
+            const responseData = await assignedResponse.json();
+            const assignedClients = responseData.data;
+            setAssignedClients(assignedClients);
           }
         }
-
         const invoiceResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_IP}/invoice/${user.userId}`,
           {
@@ -227,7 +227,7 @@ export default function Homepage() {
               {!isAdmin && (
                 <div style={homepageStyle.dashboardCard}>
                   <p style={homepageStyle.cardTitle}>Assigned Clients</p>
-                  <p style={homepageStyle.cardValue}>{assignedClients}</p>
+                  <p style={homepageStyle.cardValue}>{assignedClients.length}</p>
                 </div>
               )}
 

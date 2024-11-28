@@ -174,7 +174,7 @@ export default function StaffInvoicesPage() {
           <div style={styles.searchContainer}>
             <Input
               type="text"
-              placeholder="Search staff..."
+              placeholder="Search by staff name"
               value={searchTerm}
               onChange={handleSearch}
               style={styles.searchInput}
