@@ -2426,9 +2426,7 @@ const fetchGuardian = async () => {
                           {currentTeamMembers.map((member) => (
                             <TableRow key={member.teamMemberId}>
                               {/* Display team member's name and role */}
-                              <TableCell>
-                                {`${member.userFirstName} ${member.userLastName} (${member.role})`}
-                              </TableCell>
+                              <TableCell>{getTeamMemberName(member)}</TableCell>
                               {isEditing ? (
                                 <>
                                   {/* Editable start service date */}
